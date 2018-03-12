@@ -1,0 +1,112 @@
+/*choose font */
+  
+#documentView {
+    font-family: 'Helvetica Neue', Arial, Sans-serif
+}
+
+/*change background*/  
+
+.page {
+  background: #FFFFFF !important;
+  border: 0px solid #D6D6D6 !important;
+}
+
+  /* highlight */
+
+.highlighted, .highlight {
+  background: #FFFFFF !important;
+}
+
+.project.highlighted::before, .project.moving::before, .project.tapped::before, .draggableNameClone::before {
+  background: #FFFFFF !important;
+}
+  
+/* font size tweak */
+  
+.selected .project > .name > .content, .nameEditor > textarea {
+  font-size: m !important;
+  color: #191919 !important;
+}
+  
+/* head line colour tweak */
+  
+#documentView {
+  color: #191919 !important;
+}
+  
+.parent > .name > .content {
+  color: #191919 !important;
+}
+
+/*link colour*/
+  
+.content .contentLink {
+  color: #FF5E00  
+}
+
+/* tag options */
+  
+.contentTag {
+  color: #0C9C16 !important;
+  background: #FFFFFF !important;
+}
+
+/* notes */
+
+.notes .content {
+  color: #12C8FF !important;
+}
+  
+/*full notes*/
+
+  
+
+/* bullet color */
+
+.bullet {
+  background-color: #D4D4D4;
+}
+
+/* minimal page background */
+
+#pageContainer > div.page div.corner, #pageContainer > div.page div.edge {
+  background-image: none;
+  background-color: #fff;
+  display: none;
+}
+  
+#pageContainer > div.page {
+  border: solid 1px #ddd;
+}
+
+.page {
+  margin:0 !important;
+  padding:30px 150px 20px;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box
+}
+  
+.corner, .edge {
+  display:none
+}
+  
+#pageContainer {
+  margin-top:0
+}
+
+/* headine tweak */
+
+.selected > .name > .content {
+  font-size: 23px;
+  line-height: 17px;
+  min-height: 23px;
+}
+  
+/* hide share buttons */
+
+#bottomLinks {
+  display:none;
+}
+  
+/* simple tag view */  

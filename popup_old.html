@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Porter for WorkFlowy</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="panel panel-info" style="width: 500px; margin-bottom:0; padding-bottom:0">
+      <div class="panel-heading">
+        <h3 class="panel-title" id="popupTitle">Porter for WorkFlowy</h3>
+      </div>
+
+      <div class="panel-body">
+        <form>
+          <div class="form-group">
+            <textarea class="form-control" id="textArea" rows="10">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="markDown" class="locale Format">Format</label>
+            <label class="radio-inline">
+              <input checked type="radio" name="formatOptions" id="markDown" value="markdown" checked> Markdown
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="formatOptions" id="html" value="html"> HTML
+            </label>
+			<label class="radio-inline">
+              <input type="radio" name="formatOptions" id="text" value="text"> Text
+            </label>
+			<label class="radio-inline">
+              <input type="radio" name="formatOptions" id="latex" value="latex"> Latex
+            </label>
+          </div>
+
+          <label class="checkbox-inline">
+            <input type="checkbox" id="outputNotes"> <span class="locale Outputnotes" style="font-weight: normal;">Output notes</span>
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="outputToc"> <span class="locale Outputtoc" style="font-weight: normal;">Output Table of contents</span>
+          </label>
+
+          <button id="close" type="button" class="btn btn-default pull-right"><span class="locale Close">Close</span></button>
+        </form>
+      </div>
+    </div>
+    <script type="text/javascript" src="js/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="js/marked.min.js"></script>
+    <script type="text/javascript" src="js/export_lib.js"></script>
+    <script type="text/javascript" src="js/popup.js"></script>
+    <script type="text/javascript" src="js/locale.js"></script>
+  </body>
+</html>

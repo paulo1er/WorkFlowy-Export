@@ -1,0 +1,59 @@
+  /* searchbox */
+  #searchBox {
+    color: #fff;
+    background-color: #000;
+  }
+  
+  /* main */
+  #documentView {
+    background: #000;
+    color: #fff;
+  }
+  
+  .page {
+    background: #222;
+    border-radius: 10px;
+    border: 1px solid #000;
+  }
+  
+  /* border */
+  .edge, .corner {
+    display: none;
+  }
+  
+  /* highlight */
+  .highlighted, .highlight {
+    background: #333 !important;
+  }
+
+  .project.highlighted::before, .project.moving::before, .project.tapped::before, .draggableNameClone::before {
+    background: #333 !important;
+  }
+  
+  /* link */
+  .name > .content > .contentLink {
+    color: #66D9EF !important;
+  }
+  
+  /* note */
+  .notes > .content {
+    color: #A6E22E !important;
+  }
+
+  .notes > .content > .contentLink {
+    color: #F92672 !important;
+  }
+  
+  /* done */
+  .project.done > .name {
+    color: #ffe792 !important;
+  }
+  
+  /* menu */
+  #controlsLeft, #itemSelectionControls {
+    background: #333 !important;
+  }
+  
+  #controlsLeft a, #itemSelectionControls a {
+    color: #fff !important;
+  }

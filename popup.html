@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>WorkFlowy Export</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<style>.panel-resizable {resize: vertical; overflow: auto;}</style>
+	</head>
+	<body>
+		<div class="panel panel-info panel-resizable" style="width: 500px; margin-bottom:0; padding-bottom:0">
+			<div class="panel-heading">
+				<h3 class="panel-title" id="popupTitle">WorkFlowy Export</h3>
+			</div>
+			<div class="panel-body">
+				<form>
+					<div class="form-group"><!-- text area for output -->
+						<textarea class="form-control" id="textArea" rows="10">
+						</textarea>
+					</div>
+					<!-- markup export -->
+					<!--<label class="radio-inline">
+						<input checked type="radio" name="export" id="markupExport" value="markupExport">Markup Export
+					</label>-->
+					<div class="form-group"><!-- WorkFlowy source -->
+						Output Type<br>
+						<label class="radio-inline">
+							<input type="radio" name="sourceOptions" id="hierdoc" value="hierdoc">Document
+						</label>
+						<br>
+						<label class="radio-inline">
+							<input type="radio" name="sourceOptions" id="present" value="hierdoc">Presentation
+						</label>			
+						<br>
+						<label class="radio-inline">
+							<input checked type="radio" name="sourceOptions" id="list" value="list">Outline
+						</label>
+						<br>
+						&nbsp;&nbsp;
+						<label class="radio-inline">
+							<input  type="radio" name="indentOptions" id="hyphen" value="hyphen"> Hyphen (-)
+						</label>
+						<label class="radio-inline">
+							<input  type="radio" name="indentOptions" id="asterisk" value="asterisk"> Asterisk (*)
+						</label>
+						<label class="radio-inline">
+							<input  type="radio" name="indentOptions" id="headings" value="empty"> Use Headings
+						</label>						
+						<br>
+Output Format<br>
+						<label class="radio-inline">
+							<input type="radio" name="formatOptions" id="markDown" value="markdown"> Markdown
+						</label>
+						<br>
+						<label class="radio-inline">
+							<input type="radio" name="formatOptions" id="html" value="html"> HTML
+						</label>
+						<br>
+						<label class="radio-inline">
+							<input type="radio" name="formatOptions" id="latex" value="latex"> LaTeX
+						</label>
+						
+						<br>&nbsp;&nbsp;
+						<label class="radio-inline">
+							<input type="radio" name="latexOptions" id="beamer" value="beamer"> Beamer
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="latexOptions" id="article" value="article"> Article
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="latexOptions" id="report" value="report"> Report
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="latexOptions" id="book" value="book"> Book
+						</label>
+						<!--</div>-->
+						<br>
+						<label class="radio-inline">
+							<input type="radio" name="formatOptions" id="opml" value="opml"> OPML
+						</label>
+						<br>
+						<label class="radio-inline">
+							<input type="radio" name="formatOptions" id="wfe" value="wfe"> WFE-Tagged Text
+						</label>
+						<br>
+						<label class="radio-inline">
+							<input type="radio" name="formatOptions" id="rtf" value="rtf"> Rich Text (RTF)
+						</label>
+						<br>
+						<label class="radio-inline">
+							<input checked type="radio" name="formatOptions" id="text" value="text">Text
+						</label>
+						<br>
+						
+					</div>
+					<!-- text export -->
+					Options<br>
+					<div class="form-group"><!-- options -->
+						
+						<label class="checkbox-inline">
+							<input checked type="checkbox" id="wfeRules"> <span class="" style="font-weight: normal;">Apply WFE Rules</span>
+						</label>
+						<br>
+						<label class="checkbox-inline">
+							<input checked type="checkbox" id="stripTags"> <span class="" style="font-weight: normal;">Strip Tags</span>
+						</label>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="outputNotes"> <span class="locale Outputnotes" style="font-weight: normal;">Include Notes</span>
+						</label>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="outputToc"> <span class="locale Outputtoc" style="font-weight: normal;">Include TOC</span>
+						</label>
+						<br>
+						<!--<div class="form-group">-->
+							<label class="checkbox-inline">
+								<input checked type="checkbox" id="indentCheck" value="indent"> <span class="" style="font-weight: normal;">Use Indentation</span>
+							</label>
+							<label class="radio-inline">
+								<input checked type="radio" name="indentOptions" id="tab" value="tab"> Tab
+							</label>
+							<label class="radio-inline">
+								<input  type="radio" name="indentOptions" id="space" value="space"> Space
+							</label>
+						<!--</div>-->
+						<br>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="insertLine"> <span class="" style="font-weight: normal;">Add line break</span>
+						</label>
+						
+						
+					</div>
+					<button id="close" type="button" class="btn btn-default pull-right"><span class="locale Close">Close</span></button>
+				</form>
+			</div>
+		</div>
+		<script type="text/javascript" src="js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="js/marked.min.js"></script>
+		<script type="text/javascript" src="js/export_lib.js"></script>
+		<script type="text/javascript" src="js/popup.js"></script>
+		<script type="text/javascript" src="js/locale.js"></script>
+	</body>
+</html>

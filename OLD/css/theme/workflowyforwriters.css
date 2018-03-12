@@ -1,0 +1,145 @@
+/*choose font */
+  
+#documentView {
+    font-family: Sana, Calibri, Trebuchet, Verdana, sans-serif;
+}
+
+/*change background*/  
+
+.page {
+background: #FFFFFF !important;
+}
+
+/* font size tweak */
+  
+.selected .project > .name > .content, .nameEditor > textarea {
+  font-size: 15px !important;
+  color: #333333 !important;
+  font-weight: normal !important;
+}
+
+/*link colour*/
+  
+.content .contentLink {
+color: #888888;
+}
+
+/* tag options */
+.contentTag {
+  color: #999999 !important;
+}
+
+
+/* notes */
+
+.notes .content {
+  color: #666666 !important;
+  font-family: Sana, Calibri, Trebuchet, Verdana, sans-serif;
+  font-size: 15px !important;
+}
+  
+/*full notes*/
+
+DIV.notes DIV.content {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* completed items */
+.project.done > .name > .content, .project.doneAppearance > .name > .content {
+  text-decoration:line-through;
+  color: #999999 !important;
+}
+  
+/* guiding line color */
+.children{
+  border-left:1px solid #EEEEEE;
+}
+
+
+/* bullets reinvented */
+
+
+/* hide bullet */
+
+.bullet, #bulletBucket .bulletBucketBullet {
+  background-image: none;
+}
+
+/* smaller */
+
+.bullet {
+  height: 14px;
+  width: 14px;
+  text-indent: 3px;
+  line-height: 15px;
+}
+
+/* color: shared bullets */
+
+.project.shared > .name > .bullet {
+  background-color: rgba(255, 185, 95, 1);
+}
+.project.shared.open > .name > a.bullet {
+  background: rgba(255, 185, 95, .5);
+}
+.project.shared > .name > .bullet:hover, .project.shared > .name > .bullet.dragging {
+  background-color: rgba(245, 145, 17, 1);
+}
+.project.shared.open > .name > .bullet:hover, .project.shared.open > .name > .bullet.dragging {
+  background-color: rgba(245, 145, 17, 1);
+}
+
+.project.addedShared > .name > .bullet {
+  background-color: #ececec;
+  -webkit-box-shadow: 0px 0px 1px 1px rgba(178, 255, 95, 1);
+  -moz-box-shadow: 0px 0px 1px 1px rgba(178, 255, 95, 1);
+  box-shadow: 0px 0px 3px 2px rgba(255, 185, 95, 1);
+}
+.project.addedShared.open > .name > .bullet {
+  background-color: #fff;
+  -webkit-box-shadow: 0px 0px 1px 1px rgba(178, 255, 95, .5);
+  -moz-box-shadow: 0px 0px 1px 1px rgba(178, 255, 95, .5);
+  box-shadow: 0px 0px 3px 2px rgba(255, 185, 95, .5);
+}
+
+/* minimal page background */
+
+#pageContainer > div.page div.corner, #pageContainer > div.page div.edge {
+  background-image: none;
+  background-color: #fff;
+  display: none;
+}
+#pageContainer > div.page {
+  border: solid 1px #ddd;
+}
+
+
+.page {
+  margin:0 !important;
+  padding:30px 150px 20px;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box
+}
+  
+.corner, .edge {
+  display:none
+}
+#pageContainer {
+  margin-top:0
+}
+
+/* headine tweak */
+
+.selected > .name > .content {
+  font-size: 23px;
+  line-height: 17px;
+  min-height: 23px;
+}
+  
+/* hide share buttons */
+
+#bottomLinks {
+  display:none;
+}

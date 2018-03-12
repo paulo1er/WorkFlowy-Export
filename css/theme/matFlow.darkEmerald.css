@@ -1,0 +1,664 @@
+/*=============================================
+=      [WorkFlowy Theme] - matFlow.dark       =
+=============================================*/
+/*
+
+		WHAT DIS?
+			It be a WorkFlowy theme yo.
+
+		WHY DIS?
+			I've been tweaking my WorkFlowy
+			backend for some time now but
+			never really had a full blown
+			theme. So, I sat down last night
+			and whipped this baby up.
+
+		WHERE DIS?
+			Works on WorkFlowy web app.
+
+		DIS-CLAIMER?
+            WorkFlowy offers a paid upgrade.
+            I think you should support them
+            as Pro gives you much more than
+            just themes. This style does NOT
+            give you access to any of the Pro
+            features. It is just CSS.
+
+*/
+
+
+body,
+page-container {
+    font-weight: normal !important;
+    overflow-y: scroll;
+    overflow-x: hidden !important;
+}
+#header {
+    border-bottom: none !important;
+    background: #383D40 !important;
+    padding: 5px 0 !important;
+}
+#logo {
+    background-position: center center !important;
+    background-size: auto 22px !important;
+    background-color: #6C7780 !important;
+    margin: -5px 0 0 0 !important;
+    height: 35px !important;
+}
+#searchForm {
+    top: 0px !important;
+}
+#searchBox {
+    color: #A5B6C3 !important;
+    background-color: #4F595F !important;
+    border: none !important;
+    width: 200px !important;
+    height: 19px !important;
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+    opacity: .75 !important;
+    margin: -5px 0 0 0 !important;
+    -moz-border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+    border-radius: 0px !important;
+}
+#searchBox::-webkit-input-placeholder {
+    color: #A5B6C3;
+}
+#searchBox:-moz-placeholder {
+    color: #A5B6C3;
+}
+#searchBox::-moz-placeholder {
+    color: #A5B6C3;
+}
+#searchBox:-ms-input-placeholder {
+    color: #A5B6C3;
+}
+#searchCancel {
+    top: 10px !important;
+    right: 10px !important;
+    width: 10px !important;
+    height: 10px !important;
+}
+#searchCancel>svg>line {
+    stroke: #A5B6C3;
+    stroke-width: 2;
+}
+#searchCancel:hover>svg>line {
+    stroke: #738088 !important;
+}
+.menu-options {
+    top: 50px !important;
+    background: #383D40 !important;
+    border: none !important;
+    -moz-border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+    border-radius: 0px !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.20);
+}
+#savedViewHUDButton {
+    width: 39px !important;
+    height: 39px !important;
+    margin: -5px 0 0 0 !important;
+    background: url('https://workflowy.com/media/i/star-icon-empty.svg') !important;
+    background-size: 23px !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-color: rgba(197, 80, 68, 0.5) !important;
+    -moz-border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+    border-radius: 0px !important;
+}
+#savedViewHUDButton:hover,
+#savedViewHUDButton:active {
+    background-color: #C55044 !important;
+}
+#buttonBar.open {
+    background: none !important;
+}
+.saveButton,
+.showCompletedButton,
+#buttonBar,
+#helpButton {
+    font-weight: 500;
+}
+.showCompletedButton:hover,
+#buttonBar:hover,
+#helpButton:hover {
+    background-color: transparent !important;
+    color: #27AE60 !important;
+}
+.menu-options>div:hover,
+.menu-options>div>a:hover {
+    background: none !important;
+    color: #27AE60 !important;
+}
+.saveButton .topBarButtonTextContainer {
+    color: inherit !important;
+}
+.undo-button.enabled:hover,
+.redo-button.enabled:hover {
+    opacity: 1 !important;
+    background: none !important;
+}
+#backgroundImage {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 1;
+    background-image: none !important;
+    background-color: #2B2E2F;
+}
+@media screen and (min-device-width: 1501px) {
+    #backgroundImage {
+        background-image: none !important;
+        background-color: #2B2E2F;
+    }
+}
+BODY {
+    color: #EEE !important;
+    background: #2B2E2F !important;
+}
+#documentView {
+    color: #EEE !important;
+}
+#pageContainer {
+    margin-top: 24px;
+}
+.highlight {
+    height: 100%;
+    left: -5px;
+    padding: 2px 5px 1px;
+    position: absolute;
+    top: 2px;
+    width: 100%;
+}
+.moving>.highlight,
+.highlighted>.highlight {
+    background: #1e1e1e !important;
+}
+.moving>.highlight,
+.highlighted.moveHovered>.highlight {
+    background: #1e1e1e !important;
+}
+.notes > .content {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-style: italic;
+}
+a:link,
+a:active,
+.parent > .name > .content,
+.saveButton,
+.showCompletedButton,
+#buttonBar,
+#helpButton,
+.undo-button,
+.redo-button,
+.menu-options>.button,
+#savedViewHUDButton,
+#controlsLeft,
+#itemSelectionControls,
+#controlsLeft a,
+#itemSelectionControls a,
+.content .contentTag,
+.nameAnimated .contentTag {
+    -moz-transition: all 250ms ease;
+    -o-transition: all 250ms ease;
+    -webkit-transition: all 250ms ease;
+    transition: all 250ms ease;
+}
+.page {
+    background: #2B2E2F !important;
+    max-width: 100% !important;
+    -webkit-border-radius: 0px !important;
+    border: none !important;
+    margin-bottom: 0px !important;
+    padding: 0 60px !important;
+}
+.pageStar {
+    position: absolute;
+    top: 25px;
+    right: 45px;
+    height: 20px;
+    width: 20px;
+    background: url('https://workflowy.com/media/i/star-icon-empty.svg');
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 5px 5px;
+    opacity: 1.0 !important;
+    background-color: #383D40;
+    padding: 5px;
+    border-radius: 100%;
+    z-index: 999;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    -moz-transition: all 250ms ease;
+    -o-transition: all 250ms ease;
+    -webkit-transition: all 250ms ease;
+    transition: all 250ms ease;
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -o-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+}
+.pageStar:hover {
+    -webkit-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    -ms-transform: scale(1.5);
+    transform: scale(1.5);
+}
+.pageStar.starred {
+    position: absolute;
+    top: 25px;
+    right: 45px;
+    height: 20px;
+    width: 20px;
+    background: url('https://workflowy.com/media/i/star-icon-empty.svg');
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 5px 5px;
+    opacity: 1.0 !important;
+    background-color: #C55044;
+    padding: 5px;
+    border-radius: 100%;
+    z-index: 999;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+.parent>.name {
+    line-height: .8em !important;
+    margin: 0;
+}
+.parent > .name > .content {
+    color: #667079 !important;
+    font-size: 14px !important;
+    line-height: 16px !important;
+}
+.parent > .name > .content:hover {
+    color: #A7B4BF !important;
+    text-decoration: none !important;
+}
+.parent > .name > .parentArrow {
+    color: #495157 !important;
+    line-height: 16px !important;
+    font-size: 16px !important;
+}
+.parent > .name > .parentArrow:before {
+    content: "»" !important;
+}
+.mainTreeRoot.selected {
+    border-top: none !important;
+}
+.mainTreeRoot > .children > .project {
+    font-size: 18px !important;
+}
+.parent.project>.children {
+    padding: 0;
+}
+.selected {
+    border-top: none !important;
+}
+.selected .project>.name {
+    margin-bottom: 7px;
+}
+.selected.project>.children {
+    padding: 15px 0 0 0;
+}
+.selected .project.noted>.name,
+.selected .project.open>.name {
+    margin-bottom: 0;
+}
+.selected.project > .name {
+    color: #FFFFFF !important;
+    padding: 12px 60px !important;
+    background-color: #27AE60 !important;
+    margin: 10px 0 0 0 !important;
+    margin-left: -60px !important;
+    margin-right: -60px !important;
+}
+.selected.project > .name span {
+    margin-right: 20px !important;
+}
+.selected.project > .name a.contentLink {
+    color: #FFFFFF !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 8px 10px !important;
+    border: 2px solid #93D299;
+    line-height: 1em !important;
+    margin: 0 !important;
+    vertical-align: middle !important;
+}
+.selected.project > .name a.contentLink:hover {
+    color: #D5FF91 !important;
+    background-color: #2D8853 !important;
+    border-color: #2D8853 !important;
+}
+.selected.project>.notes {
+    background-color: #2D8853 !important;
+    padding: 12px 60px !important;
+    margin: 0 !important;
+    margin-left: -60px !important;
+    margin-right: -60px !important;
+}
+.selected > .notes > .content {
+    color: #ADF7B4 !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+.selected.project>.notes a.contentLink {
+    color: #C8EF81 !important;
+    font-weight: 600 !important;
+}
+.selected.project>.notes a.contentLink:hover {
+    color: #D1F777 !important;
+}
+.children {
+    border-left: 1px dashed #383D40;
+    padding: 10px 0 0 15px;
+    margin-bottom: 15px;
+}
+.selected .children .project.open,
+.selected .children .project.noted.open {
+    border-bottom: 1px dashed #667079 !important;
+    margin-bottom: 15px !important;
+}
+.parent .project.selected .project {
+}
+.selected>.children>.project>.children>.project {
+    padding: 0;
+    border-bottom: none !important;
+    margin-bottom: 0px !important;
+}
+.selected>.children>.project>.children>.project>.children {
+    padding-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+.selected>.children>.project>.children>.project>.children>.project.open {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+.selected>.children>.project>.children>.project>.children>.project>.children {
+    margin-bottom: 0;
+}
+.selected>.children>.project>.children>.project>.children>.project>.children>.project {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+.selected>.children>.project>.children>.project>.children>.project>.children>.project>.children {
+    margin-bottom: 0 !important;
+}
+.selected>.children>.project .project {
+    padding: 0 !important;
+}
+.selected>.children>.project>.children .project>.name {
+    margin-bottom: 0;
+}
+.selected>.children>.project>.children .project>.name>.content {
+    padding: 5px 0;
+    line-height: 1em;
+	min-height: inherit !important;
+}
+.project.noted .notes > .content {
+    margin-bottom: 5px;
+}
+.project.noted.open .notes > .content {
+    margin-bottom: 0px;
+}
+a.bullet {
+    margin-top: 8px !important;
+    margin-left: 5px !important;
+    padding: 0 !important;
+    width: 10px !important;
+    height: 10px !important;
+    -webkit-border-radius: 100% !important;
+    -moz-border-radius: 100% !important;
+    border-radius: 100% !important;
+    background-color: #383D40 !important;
+    background-image: none !important;
+    border: none !important;
+}
+a.bullet:hover {
+    border-color: #27AE60 !important;
+    background-color: #27AE60 !important;
+}
+.project.done > .name > a.bullet {
+    margin-top: 5px !important;
+    margin-left: 2px !important;
+    padding: 4px !important;
+    width: 4px !important;
+    height: 4px !important;
+    -webkit-border-radius: 100% !important;
+    -moz-border-radius: 100% !important;
+    border-radius: 100% !important;
+    background-color: #2D8853 !important;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyNpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjlGODMzRDZGQUI0QzExRTRCNEU2RTQ1QUQ3RDg2RUZFIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjlGODMzRDcwQUI0QzExRTRCNEU2RTQ1QUQ3RDg2RUZFIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OUY4MzNENkRBQjRDMTFFNEI0RTZFNDVBRDdEODZFRkUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6OUY4MzNENkVBQjRDMTFFNEI0RTZFNDVBRDdEODZFRkUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4BVcrXAAAAgklEQVR42mL8//8/AyWAiYFCwCIlJUWqHgUgXgDECUD8gIkMzQeA2B5KKzCRoVkeWxjAJBWI1PwQiB1gXsBwFrGascWCPJoheDXDDHgAFXyIZogDIc0gwCgpKYk3kPBpRvcCuksIasYWBuiG4NWMKynDDDlISDM4DAY8M1FsAECAAQBnNiy0Pn00hwAAAABJRU5ErkJggg==) !important;
+    background-position: center 1px !important;
+    background-size: cover;
+    border: 2px solid #2D8853 !important;
+}
+.project.done > .name,
+.project.doneAppearance > .name {
+    color: #667079 !important;
+}
+.project.done > .notes > .content {
+    color: #667079 !important;
+}
+.content .contentLink,
+.nameAnimated .contentLink {
+    text-decoration: none;
+    color: #27AE60 !important;
+}
+.content .contentLink:hover,
+.nameAnimated .contentLink:hover {
+    color: #ADF7B4 !important;
+}
+.name > .content {
+    min-height: 24px !important;
+}
+.noted > .notes > .content {
+    height: auto !important;
+    min-height: 20px !important;
+    overflow: visible !important;
+    line-height: 20px !important;
+    display: block !important;
+    -webkit-box-orient: inherit !important;
+    -webkit-line-clamp: inherit !important;
+    white-space: inherit !important;
+}
+.content .contentTag,
+.nameAnimated .contentTag {
+    text-decoration: none !important;
+    color: #FFF !important;
+    background: #2A7794 !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    padding: 2px 4px !important;
+    margin: 0 !important;
+    -moz-border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    border-radius: 0 !important;
+}
+.content .contentTagText,
+.nameAnimated .contentTagText {
+    text-decoration: none !important;
+}
+.content .contentTag:hover {
+    background: #2D8853 !important;
+}
+.content .contentMatch {
+    background-color: transparent !important;
+    color: yellow !important;
+}
+.project.addedToSelection {
+    background: #262829 !important;
+}
+body.windowBlurred .project.addedToSelection {
+    background: #262829 !important;
+}
+.project.highlighted::before,
+.project.moving::before,
+.project.tapped::before,
+.draggableNameClone::before {
+    background: #262829 !important;
+    -webkit-border-radius: 0px !important;
+    -moz-border-radius: 0px !important;
+    border-radius: 0px !important;
+}
+#message {
+    background-color: #5D8A25;
+    border: none !important;
+    color: #FFF !important;
+    top: 0 !important;
+}
+#message > .messageContent a {
+    color: #DDFF96 !important;
+}
+#message > .close {
+    color: #FFF !important;
+}
+.saveButton,
+.showCompletedButton,
+#buttonBar,
+#helpButton {
+    border: none !important;
+    background: none;
+}
+#getMoreSpaceButtonTopLeft,
+#upgradeToProButtonTopLeft {
+    display: none !important;
+}
+#bottomLinks {
+    display: none !important;
+}
+.footer {
+    display: none !important;
+}
+.proPitch {
+    display: none !important;
+}
+span.plus {
+    color: #cfcfcf !important;
+}
+span.text {
+    color: #cfcfcf !important;
+}
+div.top.edge {
+    display: none;
+}
+div.bottom.edge {
+    display: none;
+}
+div.left.edge {
+    display: none;
+}
+div.right.edge {
+    display: none;
+}
+DIV.top.right.corner {
+    display: none;
+}
+DIV.top.left.corner {
+    display: none;
+}
+DIV.bottom.right.corner {
+    display: none;
+}
+DIV.bottom.left.corner {
+    display: none;
+}
+#savedViewHUD {
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(56, 61, 64, 0.9) !important;
+    z-index: 1000 !important;
+    text-align: center !important;
+}
+#savedViewHUDPageContainer {
+    padding: 30px 60px !important;
+    white-space: normal !important;
+    vertical-align: middle !important;
+    position: relative !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+.savedViewPage {
+    margin: 12px;
+    width: auto !important;
+    height: auto !important;
+    max-width: 300px !important;
+    text-align: left;
+    background: #495157 !important;
+    border: none !important;
+    color: #fff !important;
+    -moz-border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+    border-radius: 0px !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.20);
+    -moz-transition: all 250ms ease;
+    -o-transition: all 250ms ease;
+    -webkit-transition: all 250ms ease;
+    transition: all 250ms ease;
+    opacity: 0.75;
+}
+.savedViewPageFader {
+    display: none !important;
+}
+.savedViewPage.selectedSavedViewPage {
+    top: 0 !important;
+    background-color: #27AE60 !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.20);
+}
+.savedViewPage:hover, .savedViewPage.selectedSavedViewPage:hover {
+    box-shadow: 0 19px 38px rgba(0,0,0,0.15), 0 15px 12px rgba(0,0,0,0.20) !important;
+    opacity: 1;
+}
+#controlsLeft,
+#itemSelectionControls {
+    padding: 10px 0 !important;
+    width: auto !important;
+    background: #495157 !important;
+    border: none !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
+    -moz-border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+    border-radius: 0px !important;
+}
+.selected .project #controlsLeft>.mouse-helper:before {
+    border-bottom: 15px solid #495157 !important;
+}
+#controlsLeft a,
+#itemSelectionControls a {
+    color: #FFFFFF !important;
+    font-size: 13px !important;
+    margin-right: 0px !important;
+    padding: 7px 17px !important;
+    margin-bottom: 0px !important;
+    font-weight: 500 !important;
+}
+#controlsLeft a:hover,
+#itemSelectionControls a:hover {
+    color: #27AE60 !important;
+    text-decoration: none !important;
+    background-color: #383D40 !important;
+}
+#controlsLeft hr,
+#itemSelectionControls hr {
+    border-top: 1px solid transparent !important;
+    margin: 0 !important;
+}
+#controls #move {
+    background: url(https://workflowy.com/media/i/move_icon_white.png) no-repeat !important;
+}
+.project.highlighted::before,
+.project.moving::before,
+.project.tapped::before,
+.draggableNameClone::before {
+    left: -4px;
+    padding: 2px 2px 0px;
+    background: rgba(250, 250, 250, 0.05);
+}

@@ -1,0 +1,128 @@
+#jqContextMenu {
+  font-size: 90%;
+}
+
+#navigationBar {
+  position: fixed;
+  left: auto;
+  right: 10px;
+  width: 250px;
+  padding: 1em;
+  padding-right: 0px;
+  overflow-y: scroll;
+  bottom: -2px;
+  height: 70%;
+  max-width: 100%;
+  color: #333;
+  opacity:0;
+  background: aliceblue;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  font-family: 'Helvetica Neue',Arial,sans-serif;
+  font-weight: normal;
+  font-size: 15px;
+  overflow: visible;
+  transition:opacity 0.5s linear;
+  z-index: 12;
+}
+#navigationBar.closed {
+  height: auto;
+  overflow-y: auto;
+}
+#navigationBar:hover {
+  opacity:1;
+  transition-delay:0s;
+}
+
+#navigationBar .menuHeader {
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: 1px solid #ccc;
+  font-size: 1.2em;
+  font-weight: bold;
+  background-color: aliceblue;
+  height: 5%;
+}
+#navigationBar #topicNavi, #bookmark {
+  padding: 0.7em 0.5em 0.7em 0.7em;
+  background-color: white;
+  overflow-y: scroll;
+  line-height: 1.1;
+  font-size: 90%;
+}
+#navigationBar #bookmark {
+  padding-left: 0;
+  height: 40%;
+}
+
+#navigationBar #topicNavi {
+  height: 40%;
+  margin-bottom: 0.8em;
+}
+#navigationBar #topicNavi ol,ul li {
+  margin: 0 0 0 1em;
+  padding: 0;
+}
+#navigationBar #topicNavi ol {
+  counter-reset: section;
+}
+#navigationBar #topicNavi ol>li:before {
+  content : counters(section, '-') '. ';
+  counter-increment : section;
+}
+#navigationBar #topicNavi ul li {
+  list-style-type: disc;
+}
+
+#navigationBar #bookmarkMenu {
+  background: aliceblue;
+  margin-top: 0.8em;
+  padding-left: 0;
+}
+#navigationBar .naviMenuItem {
+  margin-left:0.5em;
+  color:black;
+}
+#navigationBar .naviMenuItem:hover {
+  color:red;
+}
+
+#navigationBar #addBookmark {
+/*  background-color: aliceblue;*/
+  margin-left: 1.5em;
+}
+#navigationBar #addBookmark:after {
+  background-color: aliceblue;
+  content: "\f02e";
+  font-family: FontAwesome;
+}
+#navigationBar #addFolderLink:after  {
+  content: "\f07b";
+  font-family: FontAwesome;
+}
+#navigationBar #editLink:after  {
+  content: "\f044";
+  font-family: FontAwesome;
+}
+#navigationBar #deleteLink:after {
+  content: "\f1f8";
+  font-family: FontAwesome;
+}
+
+a#naviSwitch {
+  text-decoration:none;
+}
+a#naviSwitch:hober {
+  text-decoration:none;
+}
+a.naviSwitchOn:after {
+  content: "\f02e";
+  font-family: FontAwesome;
+  color: green;
+}
+a.naviSwitchOff:after {
+  content: "\f097";
+  font-family: FontAwesome;
+  color: green;
+}

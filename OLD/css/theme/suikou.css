@@ -1,0 +1,67 @@
+.children {
+  padding-left: 0;
+  margin-left: 0;
+  border-left: none;
+}
+.selected .project>.name,
+.selected .project>.notes,
+.selected>.children>.project .project {
+  padding-left: 0;
+  margin-left: 0;
+}
+#controlsLeft {
+  left: -4em;
+}
+#controls #expandButton {
+  left: -3em;
+}
+.bullet {
+  left: -1.6em !important;
+  background: none;
+}
+/*title*/
+
+.selected>.name>.content {
+  font-weight: bold;
+  font-size: 100%;
+}
+/*h2*/
+
+.selected>.children>.project>.name>.content {
+  font-size: 26px;
+  font-weight: bold;
+  line-height: 1.6em;
+  margin-bottom: 0.2em;
+  padding: 0;
+  border-bottom: 1px solid silver;
+  border-radius: 0;
+}
+/*h3*/
+
+.selected>.children>.project>.children .project>.name>.content {
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1.6em;
+  margin-bottom: 0.2em;
+  padding: 0;
+}
+/*h4~*/
+
+.selected>.children>.project>.children .project>.children .project>.name>.content {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1.6em;
+  margin-bottom: 0.2em;
+  padding: 0;
+}
+/*paragraph*/
+
+.selected>.children>.project.task>.name>.content,
+.selected>.children>.project>.children .project.task>.name>.content,
+.selected>.children>.project>.children .project>.children .project.task>.name>.content {
+  font-size: 16px;
+  font-weight: normal;
+  margin-bottom: 1.6em;
+  padding: 0;
+  border-bottom: none;
+}
