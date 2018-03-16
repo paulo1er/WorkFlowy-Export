@@ -325,11 +325,11 @@ var exportLib = (function() {
 				note = nodes[index].note;
 				console.log('Process item:', text, options.rules.ignore_item);
 
-				/*if (options.rules.ignore_tags) {
+				if (options.rules.ignore_tags) {
 					// Strip off tags
 					text = text.replace(WF_TAG_REGEXP, "");
 					//console.log('regexp' + myArray, 'replced:', text);
-				}*/
+				}
 				textTag = text.match(WF_TAG_REGEXP);
 				if(textTag!=null)
 				textTag.forEach(function(e) {
