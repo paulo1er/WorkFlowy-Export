@@ -1,13 +1,29 @@
 var exportLib = (function() {
 	// private method
 	var hasChild, getElement, toc2, exportNodesTree, exportNodesTreeBody;
+	var wfe_count = {};
 
 	var TABLE_REGEXP = /^\s*\|/;
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 
-	var RTF_STYLE_HEADING = ["\\s0", "\\s1\\fs32\\b", "\\s2\\fs28\\b", "\\s3\\fs22\\b", "\\s4\\fs22\\b", "\\s5\\fs22\\b", "\\s6\\fs22\\b"];
+	var RTF_STYLE_HEADING = ["\\s0\\fs22\\cf1",
+				 "\\s1\\fs32\\b\\cf1",
+				 "\\s2\\fs28\\b\\cf1",
+				 "\\s3\\fs22\\b\\cf1",
+				 "\\s4\\fs22\\b\\cf1",
+				 "\\s5\\fs22\\b\\cf1",
+				 "\\s6\\fs22\\b\\cf1"];
+	var ESCAPE_CARATER = {
+			text: [["",""]],
+			md: [["",""]],
+			HTML: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
+			LaTeX: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
+			beamer: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
+			opml: [["",""]],
+			RTF: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
+			};
 
 	hasChild = function(nodes, pos) {
 		if (nodes[pos].type != "node") return false;
@@ -37,18 +53,21 @@ var exportLib = (function() {
 		var HEADER = {
 			text: "",
 			md: "",
-			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n  </head>\n  <body>\n",
+			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n img {max-height: 1280px;max-width: 720px;} h4,h5,h6 {font-size: 1em;}\n    </style>\n  </head>\n  <body>\n",
 			LaTeX: "",
-			Beamer: "",
+			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
-			RTF: "{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}}{\\stylesheet {\\s0 Normal;}{" + RTF_STYLE_HEADING[1] + " Heading 1;}{\\s2\\fs28 Heading 2;}{\\s3\\fs26 Heading 3;}{\\s4\\fs24 Heading 4;}{\\s5\\fs22 Heading 5;}{\\s6\\fs22 Heading 6;}}\\fs22\n"
+			RTF: "{\\rtf1\\ansi\\deff0\n"+
+			     "{\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}}\n"+
+			     "{\\colortbl;\\red0\\green0\\blue0;\\red0\\green0\\blue93;\\red57\\green51\\blue24;\\red239\\green240\\blue241;}\n"+
+			     "{\\stylesheet {"+RTF_STYLE_HEADING[0]+" Normal;}{"+RTF_STYLE_HEADING[1]+" Heading 1;}{"+RTF_STYLE_HEADING[2]+" Heading 2;}{"+RTF_STYLE_HEADING[3]+" Heading 3;}{"+RTF_STYLE_HEADING[4]+" Heading 4;}{"+RTF_STYLE_HEADING[5]+" Heading 5;}{"+RTF_STYLE_HEADING[6]+" Heading 6;}}\n"
 			};
 		var FRAGMENT_HEADER = {
 			text: "",
 			md: "",
 			HTML: "",
 			LaTeX: "",
-			Beamer: "",
+			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
 			RTF: "{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}}\\fs24\n"
 			};
@@ -57,7 +76,7 @@ var exportLib = (function() {
 			md: "",
 			HTML: "  </body>\n<\html>",
 			LaTeX: "",
-			Beamer: "",
+			beamer: "",
 			opml: "  </body>\n</opml>",
 			RTF: "}"
 			};
@@ -66,7 +85,7 @@ var exportLib = (function() {
 			md: "",
 			HTML: "",
 			LaTeX: "",
-			Beamer: "",
+			beamer: "",
 			opml: "  </body>\n</opml>",
 			RTF: "}"
 			};
@@ -140,6 +159,7 @@ var exportLib = (function() {
 				break;
 			}
 		}
+		wfe_count = {};
 
 		return header + body + footer;
 	}
@@ -152,6 +172,7 @@ var exportLib = (function() {
 		var new_level = level;
 		var text = "";
 		var note = "";
+		var textTag=[""];
 		var ignore_item = false;
 		var ignore_outline = false;
 		var output_children;
@@ -306,32 +327,54 @@ var exportLib = (function() {
 
 				if (options.rules.ignore_tags) {
 					// Strip off tags
-					text = text.replace(WF_TAG_REGEXP, "");
+					textTag = text.match(WF_TAG_REGEXP);
+					if(textTag!=null)
+					textTag.forEach(function(e) {
+						if(e.indexOf(" #wfe-count")!=-1){
+							text = text.replace(/#([^|\s|,|:|;|.]*)(:[^|\s|,|:|;|.]*)?/g,function(){
+								var e1;
+								if(RegExp.$2)
+									e1=RegExp.$2
+								else
+									e1=''
+								if(!wfe_count[e1])
+									wfe_count[e1]=0;
+								wfe_count[e1]++;
+								return wfe_count[e1];
+							});
+						}
+						else
+							text = text.replace(WF_TAG_REGEXP, "");
+					});
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
+
+				ESCAPE_CARATER[options.format].forEach(function(e) {
+  					text = text.split(e[0]).join(e[1]);
+				});
 
 				// Update output
 				if (options.format == 'HTML') {
 					//output = output + indent + text + nodes[index].myType;
 
-					//Insert HTML text
-					text = text.split("<").join("&lt;")
-					text = text.split(">").join("&gt;")
 
 					//Interpretation of `code`
-					text = text.replace(/`([^\]]*)`/g, "<pre><code> $1 </code></pre>");
-
-					// Create hyperlinks
-					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g, "<img src=\"$2\"  alt=\"$1\">");
+					text = text.replace(/`([^`]*)`/g, "<code style=\"background-color: #d3d3d3;\"> &nbsp;$1 </code>");
 
 					//Insert Image
+					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g, "<img src=\"$2\"  title=\"$1\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">$1</span>");
+
+					//Create hyperlinks
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
-					var temp_level = level + 1; // TODO  + 1;
+					var temp_level = level + 1;
 					if ((options.output_type=='list') || (nodes[index].myType == "HEADING"))
-						output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
+						if(temp_level==1)
+							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
+						else
+							output = output + indent + "<h" + temp_level.toString() + " style=\"margin-left: "+(30*(temp_level-1))+"px;\">" + text + "</h" + temp_level.toString() + ">";
 					else // #todo implement ITEM
-						output = output + indent + "<p>" + text + "</p>";
+						output = output + indent + "<p style=\"margin-left: "+(30*(temp_level-1))+"px;\">" + text + "</p>";
 
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
 
@@ -419,17 +462,23 @@ var exportLib = (function() {
 					//output = output + indent + text + nodes[index].myType;
  					var temp_level = level;
 
+					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf3\\highlight4 $1}");
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2}{\\fldrslt $1}}");
+					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2}{\\fldrslt \\cf2\\ul $1}}");
 
 					/*
 					if ((options.output_type=='list') || (nodes[index].myType == "HEADING"))
 						output = output + indent + text + " #h" + temp_level.toString();
 					else // #todo implement ITEM
 						output = output + indent + text;
-
- */
-
+					*/
+					if(temp_level==0)
+						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
+					else if ((nodes[index].myType == "HEADING" || options.output_type=='list') && temp_level < 8)
+						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
+					else // #todo implement ITEM
+						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
+					/*
 					output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[heading] + " " + text + "\\par}";
 					if (page_break > -1)
 					{
@@ -438,7 +487,11 @@ var exportLib = (function() {
 					output = output + "\n";
 					if ((note !== "") && options.outputNotes)
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + note + "\\par}";
-
+					*/
+					if (page_break > -1)
+					{
+						output = output + "\\page";
+					}
 					output = output + "\n";
 				}
 				else {
