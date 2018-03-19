@@ -1,0 +1,95 @@
+{
+  "Addtobookmark": {
+    "message": "Markdown ajouté"
+  },
+  "Apply": {
+    "message": "Appliquer"
+  },
+  "ApplyMessage": {
+    "message": "Appliqué! ***S'il vous plait rechargé*** l'onglet de WorkFlowy."
+  },
+  "Basetheme": {
+    "message": "Theme de Base"
+  },
+  "Bookmark": {
+    "message": "Markdown"
+  },
+  "Bookmarkwidth": {
+    "message": "Taille de Markdown"
+  },
+  "Clicktocount": {
+    "message": "Cliquer pour compter"
+  },
+  "Close": {
+    "message": "Fermer"
+  },
+  "ConfirmDelete": {
+    "message": "Etês vous sûr de vouloir le supprimer ?"
+  },
+  "Customcss": {
+    "message": "CSS suplémentaire"
+  },
+  "Delete": {
+    "message": "Suprimer Markdown"
+  },
+  "Edit": {
+    "message": "Modifier le titre"
+  },
+  "Editor": {
+    "message": "(Afficher l'éditeur)"
+  },
+  "Edittitle": {
+    "message": "Modifier le titre"
+  },
+  "Enablebookmark": {
+    "message": "Activer Markdown (Remplace l'aide de WorkFlowy par Markdown)"
+  },
+  "Enabletheme": {
+    "message": "Applique le Theme"
+  },
+  "Folder": {
+    "message": "Ajouter un Dossier"
+  },
+  "Format": {
+    "message": "Format"
+  },
+  "General": {
+    "message": "Géneral"
+  },
+  "Inputfoldername": {
+    "message": "Entrer le nom du Dossier"
+  },
+  "Manifestdesc": {
+    "message": "Extantion de WorkFlowy. Exporter vers Markdown et HTML, Theme, Count letters, et d'autres options utiles."
+  },
+  "Middle": {
+    "message": "Milieux"
+  },
+  "Narrow": {
+    "message": "Réduire"
+  },
+  "Opennewwindow": {
+    "message": "Ouvrir l'onglet dans une nouvelle fenêtre"
+  },
+  "Option": {
+    "message": "Options"
+  },
+  "Outputnotes": {
+    "message": "Notes"
+  },
+  "Outputtoc": {
+    "message": "TOC"
+  },
+  "Preview": {
+    "message": "Pré-visualisation"
+  },
+  "Theme": {
+    "message": "Thème"
+  },
+  "Topicnavigation": {
+    "message": "Navigation par sujet"
+  },
+  "Wide": {
+    "message": "Largeur"
+  }
+}
