@@ -369,13 +369,12 @@ var exportLib = (function() {
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
 					var temp_level = level + 1;
-					if ((options.output_type=='list') || (nodes[index].myType == "HEADING"))
-						if(temp_level==1)
+					if(options.output_type=='list')
+						output = output + indent + "<h" + temp_level.toString() + " style=\"margin-left: "+(30*(temp_level-1))+"px;\"> &#149; " + text + "</h" + temp_level.toString() + ">";
+					else if (nodes[index].myType == "HEADING")
 							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
-						else
-							output = output + indent + "<h" + temp_level.toString() + " style=\"margin-left: "+(30*(temp_level-1))+"px;\">" + text + "</h" + temp_level.toString() + ">";
 					else // #todo implement ITEM
-						output = output + indent + "<p style=\"margin-left: "+(30*(temp_level-1))+"px;\">" + text + "</p>";
+						output = output + indent + "<p>" + text + "</p>";
 
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
 
@@ -467,28 +466,13 @@ var exportLib = (function() {
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2}{\\fldrslt \\cf2\\ul $1}}");
 
-					/*
-					if ((options.output_type=='list') || (nodes[index].myType == "HEADING"))
-						output = output + indent + text + " #h" + temp_level.toString();
-					else // #todo implement ITEM
-						output = output + indent + text;
-					*/
-					if(temp_level==0)
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
-					else if ((nodes[index].myType == "HEADING" || options.output_type=='list') && temp_level < 8)
+					if(options.output_type=='list')
+						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (360 * temp_level) + " \\bullet   " + text + "\\par}";
+					else if (nodes[index].myType == "HEADING" && temp_level < 8)
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
 					else // #todo implement ITEM
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
-					/*
-					output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[heading] + " " + text + "\\par}";
-					if (page_break > -1)
-					{
-						output = output + "\\page";
-					}
-					output = output + "\n";
-					if ((note !== "") && options.outputNotes)
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + note + "\\par}";
-					*/
+
 					if (page_break > -1)
 					{
 						output = output + "\\page";
