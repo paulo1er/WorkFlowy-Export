@@ -1,9 +1,8 @@
 var exportLib = (function() {
 	// private method
 	var hasChild, getElement, toc2, exportNodesTree, exportNodesTreeBody;
-	var wfe_count = {};
-	var wfe_count_ID = {};
-
+	var wfe_count={};
+	var wfe_count_ID={};
 	var TABLE_REGEXP = /^\s*\|/;
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
@@ -160,9 +159,8 @@ var exportLib = (function() {
 				break;
 			}
 		}
-		wfe_count = {};
-		wfe_count_ID = {};
-
+		wfe_count={};
+		wfe_count_ID={};
 		return header + body + footer;
 	}
 
@@ -303,20 +301,6 @@ var exportLib = (function() {
 			}
 		} else indent = "";
 
-		output_children = '';
-		if (!ignore_outline) {
-			// Recursion on children
-			if ((!ignore_item) && (nodes[index].title !== null)) new_level = level + 1;
-			console.log("Apply recursion to: ", nodes[index].children);
-
-			for (var i = 0; i < nodes[index].children.length; i++)
-			{
-				//options1 = options;
-				output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], new_level, options, indent_chars, prefix_indent_chars);
-			}
-
-		}
-
 		if (nodes[index].title !== null) {
 			// Not a dummy node
 
@@ -327,7 +311,7 @@ var exportLib = (function() {
 				note = nodes[index].note;
 				console.log('Process item:', text, options.rules.ignore_item);
 
-				
+
 				textTag = text.match(WF_TAG_REGEXP);
 				if(textTag!=null)
 				textTag.forEach(function(e) {
@@ -341,9 +325,9 @@ var exportLib = (function() {
 							if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[e1]=parseInt(RegExp.$3)-1;
 							if(!wfe_count[e1])
 								wfe_count[e1]=0;
-							wfe_count[e1]++;
+							  wfe_count[e1]++;
 							if(RegExp.$2)
-								wfe_count_ID[e1+":"+RegExp.$2]=wfe_count[e1];
+						 		wfe_count_ID[e1+":"+RegExp.$2]=wfe_count[e1];
 							return wfe_count[e1];
 						});
 					}
@@ -513,6 +497,20 @@ var exportLib = (function() {
 
 			// Reset item-local rules
 			options.rules.ignore_item = false;
+
+			output_children = '';
+			if (!ignore_outline) {
+				// Recursion on children
+				if ((!ignore_item) && (nodes[index].title !== null)) new_level = level + 1;
+				console.log("Apply recursion to: ", nodes[index].children);
+
+				for (var i = 0; i < nodes[index].children.length; i++)
+				{
+					//options1 = options;
+					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], new_level, options, indent_chars, prefix_indent_chars);
+				}
+
+			}
 
 			output = output + output_children;
 
