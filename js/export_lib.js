@@ -317,29 +317,26 @@ var exportLib = (function() {
 				textTag.forEach(function(e) {
 					if(e.indexOf(" #wfe-count")!=-1){
 						text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
-							var e1;
-							if(RegExp.$1)
-								e1=RegExp.$1;
-							else
-								e1='';
 							if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[e1]=parseInt(RegExp.$3)-1;
-							if(!wfe_count[e1])
-								wfe_count[e1]=0;
-							  wfe_count[e1]++;
+							if(!wfe_count[RegExp.$1])
+								wfe_count[RegExp.$1]=0;
+							  wfe_count[RegExp.$1]++;
 							if(RegExp.$2)
-						 		wfe_count_ID[e1+":"+RegExp.$2]=wfe_count[e1];
-							return wfe_count[e1];
+						 		wfe_count_ID[RegExp.$1+":"+RegExp.$2]=wfe_count[RegExp.$1];
+							return wfe_count[RegExp.$1];
+						});
+					}
+					else if(e.indexOf(" #wfe-refLast:")!=-1){
+						text = text.replace(/#wfe-refLast:([^|\s|,|:|;|.]*)/g,function(){
+							if(wfe_count[RegExp.$1])
+								return wfe_count[RegExp.$1];
+							return "NaN";
 						});
 					}
 					else if(e.indexOf(" #wfe-ref:")!=-1){
 						text = text.replace(/#wfe-ref:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
-							var e1;
-							if(RegExp.$1)
-								e1=RegExp.$1;
-							else
-								e1='';
-							if(wfe_count_ID[e1+":"+RegExp.$2])
-								return wfe_count_ID[e1+":"+RegExp.$2];
+							if(wfe_count_ID[RegExp.$1+":"+RegExp.$2])
+								return wfe_count_ID[RegExp.$1+":"+RegExp.$2];
 							return "NaN";
 						});
 					}
