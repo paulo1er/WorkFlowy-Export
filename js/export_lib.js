@@ -2,6 +2,7 @@ var exportLib = (function() {
 	// private method
 	var hasChild, getElement, toc2, exportNodesTree, exportNodesTreeBody;
 	var wfe_count = {};
+	var wfe_count_ID = {};
 
 	var TABLE_REGEXP = /^\s*\|/;
 	var BQ_REGEXP = /^\>/;
@@ -160,6 +161,7 @@ var exportLib = (function() {
 			}
 		}
 		wfe_count = {};
+		wfe_count_ID = {};
 
 		return header + body + footer;
 	}
@@ -325,30 +327,45 @@ var exportLib = (function() {
 				note = nodes[index].note;
 				console.log('Process item:', text, options.rules.ignore_item);
 
+				
+				textTag = text.match(WF_TAG_REGEXP);
+				if(textTag!=null)
+				textTag.forEach(function(e) {
+					if(e.indexOf(" #wfe-count")!=-1){
+						text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
+							var e1;
+							if(RegExp.$1)
+								e1=RegExp.$1;
+							else
+								e1='';
+							if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[e1]=parseInt(RegExp.$3)-1;
+							if(!wfe_count[e1])
+								wfe_count[e1]=0;
+							wfe_count[e1]++;
+							if(RegExp.$2)
+								wfe_count_ID[e1+":"+RegExp.$2]=wfe_count[e1];
+							return wfe_count[e1];
+						});
+					}
+					else if(e.indexOf(" #wfe-ref:")!=-1){
+						text = text.replace(/#wfe-ref:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
+							var e1;
+							if(RegExp.$1)
+								e1=RegExp.$1;
+							else
+								e1='';
+							if(wfe_count_ID[e1+":"+RegExp.$2])
+								return wfe_count_ID[e1+":"+RegExp.$2];
+							return "NaN";
+						});
+					}
+				});
+
 				if (options.rules.ignore_tags) {
 					// Strip off tags
 					text = text.replace(WF_TAG_REGEXP, "");
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
-				textTag = text.match(WF_TAG_REGEXP);
-				if(textTag!=null)
-				textTag.forEach(function(e) {
-					if(e.indexOf(" #wfe-count")!=-1){
-						text = text.replace(/#wfe-count:?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
-							var e1;
-							if(RegExp.$1)
-								e1=RegExp.$1
-							else
-								e1=''
-							if(RegExp.$2 && !isNaN(RegExp.$2)) wfe_count[e1]=parseInt(RegExp.$2);
-							if(!wfe_count[e1])
-								wfe_count[e1]=0;
-							wfe_count[e1]++;
-
-							return wfe_count[e1];
-						});
-					}
-				});
 
 				ESCAPE_CARATER[options.format].forEach(function(e) {
   					text = text.split(e[0]).join(e[1]);
