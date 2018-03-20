@@ -7,6 +7,7 @@ var exportLib = (function() {
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
+	var firstItem=true;
 
 	var RTF_STYLE_HEADING = ["\\s0\\fs22\\cf1",
 				 "\\s1\\fs32\\b\\cf1",
@@ -169,6 +170,7 @@ var exportLib = (function() {
 
 		var indent = "";
 		var output = "";
+		var output_after_children = "";
 		var new_level = level;
 		var text = "";
 		var note = "";
@@ -177,6 +179,7 @@ var exportLib = (function() {
 		var ignore_outline = false;
 		var output_children;
 		var options1;
+		var isItem=false;
 
 		// Create section heading LaTeX
 /* 					var title_level = 0;
@@ -285,6 +288,11 @@ var exportLib = (function() {
 				console.log('page break found');
 				page_break = 0;
 			}
+			if (nodes[index].title.search(/#item($|\s)/ig) != -1)
+			{
+				console.log('item found');
+				isItem=true;
+			}
 			//
 			// marks
 			console.log('matching marks');
@@ -368,7 +376,17 @@ var exportLib = (function() {
 
 					var temp_level = level + 1;
 					if(options.output_type=='list')
-						output = output + indent + "<h" + temp_level.toString() + " style=\"margin-left: "+(30*(temp_level-1))+"px;\"> &#149; " + text + "</h" + temp_level.toString() + ">";
+						if(temp_level==1){
+							output = output + indent + "<h1>" + text + "</h1>\n"+ indent +"<ul>";
+							output_after_children= indent +"</ul>\n";
+						}
+						else if (nodes[index].myType == "HEADING") {
+							output = output + indent + "<li>" + text + "</li>\n"+ indent +"<ul>";
+							output_after_children= indent +"</ul>\n";
+						}
+						else {
+							output = output + indent + "<li>" + text + "</li>";
+						}
 					else if (nodes[index].myType == "HEADING")
 							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
 					else // #todo implement ITEM
@@ -465,11 +483,25 @@ var exportLib = (function() {
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2}{\\fldrslt \\cf2\\ul $1}}");
 
 					if(options.output_type=='list')
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (360 * temp_level) + " \\bullet   " + text + "\\par}";
-					else if (nodes[index].myType == "HEADING" && temp_level < 8)
+						if(temp_level==0)
+							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + text + "\\par}";
+						else
+							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (400 * temp_level-1) + "\\tab \\bullet \\tab " + text + "\\par}";
+					else if (nodes[index].myType == "HEADING" && temp_level < 8){
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
+						firstItem=true;
+					}
 					else // #todo implement ITEM
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
+						if(isItem){
+							if(firstItem){
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb\\'95}}\\fi-360\\li720\\sa180" + RTF_STYLE_HEADING[0] + "{\\pntext\\f0\\'95\\tab}" + text + "\\par";
+									firstItem=false;
+							}
+							else
+									output = output + "{\\pntext\\f0\\'95\\tab}" + RTF_STYLE_HEADING[0] + " " + text + "\\par";
+						}
+						else
+							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
 
 					if (page_break > -1)
 					{
@@ -509,7 +541,7 @@ var exportLib = (function() {
 
 			}
 
-			output = output + output_children;
+			output = output + output_children + output_after_children;
 
 			if (!ignore_item && !ignore_outline) {
 				// Only finish item if no rule specifies ignoring it
