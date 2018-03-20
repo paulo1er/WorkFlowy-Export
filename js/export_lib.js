@@ -1,8 +1,8 @@
 var exportLib = (function() {
 	// private method
 	var hasChild, getElement, toc2, exportNodesTree, exportNodesTreeBody;
-	var wfe_count = {};
-
+	var wfe_count={};
+	var wfe_count_ID={};
 	var TABLE_REGEXP = /^\s*\|/;
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
@@ -159,8 +159,8 @@ var exportLib = (function() {
 				break;
 			}
 		}
-		wfe_count = {};
-
+		wfe_count={};
+		wfe_count_ID={};
 		return header + body + footer;
 	}
 
@@ -301,20 +301,6 @@ var exportLib = (function() {
 			}
 		} else indent = "";
 
-		output_children = '';
-		if (!ignore_outline) {
-			// Recursion on children
-			if ((!ignore_item) && (nodes[index].title !== null)) new_level = level + 1;
-			console.log("Apply recursion to: ", nodes[index].children);
-
-			for (var i = 0; i < nodes[index].children.length; i++)
-			{
-				//options1 = options;
-				output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], new_level, options, indent_chars, prefix_indent_chars);
-			}
-
-		}
-
 		if (nodes[index].title !== null) {
 			// Not a dummy node
 
@@ -325,30 +311,42 @@ var exportLib = (function() {
 				note = nodes[index].note;
 				console.log('Process item:', text, options.rules.ignore_item);
 
+
+				textTag = text.match(WF_TAG_REGEXP);
+				if(textTag!=null)
+				textTag.forEach(function(e) {
+					if(e.indexOf(" #wfe-count")!=-1){
+						text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
+							if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[e1]=parseInt(RegExp.$3)-1;
+							if(!wfe_count[RegExp.$1])
+								wfe_count[RegExp.$1]=0;
+							  wfe_count[RegExp.$1]++;
+							if(RegExp.$2)
+						 		wfe_count_ID[RegExp.$1+":"+RegExp.$2]=wfe_count[RegExp.$1];
+							return wfe_count[RegExp.$1];
+						});
+					}
+					else if(e.indexOf(" #wfe-refLast:")!=-1){
+						text = text.replace(/#wfe-refLast:([^|\s|,|:|;|.]*)/g,function(){
+							if(wfe_count[RegExp.$1])
+								return wfe_count[RegExp.$1];
+							return "NaN";
+						});
+					}
+					else if(e.indexOf(" #wfe-ref:")!=-1){
+						text = text.replace(/#wfe-ref:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
+							if(wfe_count_ID[RegExp.$1+":"+RegExp.$2])
+								return wfe_count_ID[RegExp.$1+":"+RegExp.$2];
+							return "NaN";
+						});
+					}
+				});
+
 				if (options.rules.ignore_tags) {
 					// Strip off tags
 					text = text.replace(WF_TAG_REGEXP, "");
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
-				textTag = text.match(WF_TAG_REGEXP);
-				if(textTag!=null)
-				textTag.forEach(function(e) {
-					if(e.indexOf(" #wfe-count")!=-1){
-						text = text.replace(/#wfe-count:?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
-							var e1;
-							if(RegExp.$1)
-								e1=RegExp.$1
-							else
-								e1=''
-							if(RegExp.$2 && !isNaN(RegExp.$2)) wfe_count[e1]=parseInt(RegExp.$2);
-							if(!wfe_count[e1])
-								wfe_count[e1]=0;
-							wfe_count[e1]++;
-
-							return wfe_count[e1];
-						});
-					}
-				});
 
 				ESCAPE_CARATER[options.format].forEach(function(e) {
   					text = text.split(e[0]).join(e[1]);
@@ -369,13 +367,12 @@ var exportLib = (function() {
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
 					var temp_level = level + 1;
-					if ((options.output_type=='list') || (nodes[index].myType == "HEADING"))
-						if(temp_level==1)
+					if(options.output_type=='list')
+						output = output + indent + "<h" + temp_level.toString() + " style=\"margin-left: "+(30*(temp_level-1))+"px;\"> &#149; " + text + "</h" + temp_level.toString() + ">";
+					else if (nodes[index].myType == "HEADING")
 							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
-						else
-							output = output + indent + "<h" + temp_level.toString() + " style=\"margin-left: "+(30*(temp_level-1))+"px;\">" + text + "</h" + temp_level.toString() + ">";
 					else // #todo implement ITEM
-						output = output + indent + "<p style=\"margin-left: "+(30*(temp_level-1))+"px;\">" + text + "</p>";
+						output = output + indent + "<p>" + text + "</p>";
 
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
 
@@ -467,28 +464,13 @@ var exportLib = (function() {
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2}{\\fldrslt \\cf2\\ul $1}}");
 
-					/*
-					if ((options.output_type=='list') || (nodes[index].myType == "HEADING"))
-						output = output + indent + text + " #h" + temp_level.toString();
-					else // #todo implement ITEM
-						output = output + indent + text;
-					*/
-					if(temp_level==0)
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
-					else if ((nodes[index].myType == "HEADING" || options.output_type=='list') && temp_level < 8)
+					if(options.output_type=='list')
+						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (360 * temp_level) + " \\bullet   " + text + "\\par}";
+					else if (nodes[index].myType == "HEADING" && temp_level < 8)
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
 					else // #todo implement ITEM
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
-					/*
-					output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[heading] + " " + text + "\\par}";
-					if (page_break > -1)
-					{
-						output = output + "\\page";
-					}
-					output = output + "\n";
-					if ((note !== "") && options.outputNotes)
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + note + "\\par}";
-					*/
+
 					if (page_break > -1)
 					{
 						output = output + "\\page";
@@ -512,6 +494,20 @@ var exportLib = (function() {
 
 			// Reset item-local rules
 			options.rules.ignore_item = false;
+
+			output_children = '';
+			if (!ignore_outline) {
+				// Recursion on children
+				if ((!ignore_item) && (nodes[index].title !== null)) new_level = level + 1;
+				console.log("Apply recursion to: ", nodes[index].children);
+
+				for (var i = 0; i < nodes[index].children.length; i++)
+				{
+					//options1 = options;
+					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], new_level, options, indent_chars, prefix_indent_chars);
+				}
+
+			}
 
 			output = output + output_children;
 
