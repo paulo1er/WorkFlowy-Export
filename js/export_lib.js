@@ -63,28 +63,10 @@ var exportLib = (function() {
 			     "{\\colortbl;\\red0\\green0\\blue0;\\red0\\green0\\blue93;\\red57\\green51\\blue24;\\red239\\green240\\blue241;}\n"+
 			     "{\\stylesheet {"+RTF_STYLE_HEADING[0]+" Normal;}{"+RTF_STYLE_HEADING[1]+" Heading 1;}{"+RTF_STYLE_HEADING[2]+" Heading 2;}{"+RTF_STYLE_HEADING[3]+" Heading 3;}{"+RTF_STYLE_HEADING[4]+" Heading 4;}{"+RTF_STYLE_HEADING[5]+" Heading 5;}{"+RTF_STYLE_HEADING[6]+" Heading 6;}}\n"
 			};
-		var FRAGMENT_HEADER = {
-			text: "",
-			md: "",
-			HTML: "",
-			LaTeX: "",
-			beamer: "",
-			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
-			RTF: "{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}}\\fs24\n"
-			};
 		var FOOTER = {
 			text: "",
 			md: "",
 			HTML: "  </body>\n</html>",
-			LaTeX: "",
-			beamer: "",
-			opml: "  </body>\n</opml>",
-			RTF: "}"
-			};
-		var FRAGMENT_FOOTER = {
-			text: "",
-			md: "",
-			HTML: "",
 			LaTeX: "",
 			beamer: "",
 			opml: "  </body>\n</opml>",
@@ -95,70 +77,34 @@ var exportLib = (function() {
 		options.rules.ignore_outline = false;
 
 		// Create header text
-		if (is_document)
-		{
-			switch (options.format) {
-				case 'HTML':
-					header = HEADER[options.format];
-				break;
-				case 'opml':
-					header = HEADER[options.format];
-					new_level = level + 1;
-				break;
-				case 'RTF':
-					header = HEADER[options.format];
-					new_level = level;
-				break;
-			}
-		}
-		else
-		{
-			switch (options.format) {
-				case 'HTML':
-					header = FRAGMENT_HEADER[options.format];
-				break;
-				case 'opml':
-					header = FRAGMENT_HEADER[options.format];
-					new_level = level + 1;
-				break;
-				case 'RTF':
-					header = FRAGMENT_HEADER[options.format];
-					new_level = level;
-				break;
-			}
+		switch (options.format) {
+			case 'HTML':
+				header = HEADER[options.format];
+			break;
+			case 'opml':
+				header = HEADER[options.format];
+				new_level = level + 1;
+			break;
+			case 'RTF':
+				header = HEADER[options.format];
+				new_level = level;
+			break;
 		}
 		console.log("header", header, nodes[index].type);
 		// Create body text
 		body = exportNodesTreeBody(nodes, index, new_level, options, indent_chars, prefix_indent_chars);
 
 		// Create footer text
-		if (is_document)
-		{
-			switch (options.format) {
-				case 'HTML':
-					footer = FOOTER[options.format];
-				break;
-				case 'opml':
-					footer = FOOTER[options.format];
-				break;
-				case 'RTF':
-					footer = FOOTER[options.format];
-				break;
-			}
-		}
-		else
-		{
-			switch (options.format) {
-				case 'HTML':
-					footer = FRAGMENT_FOOTER[options.format];
-				break;
-				case 'opml':
-					footer = FRAGMENT_FOOTER[options.format];
-				break;
-				case 'RTF':
-					footer = FRAGMENT_FOOTER[options.format];
-				break;
-			}
+		switch (options.format) {
+			case 'HTML':
+				footer = FOOTER[options.format];
+			break;
+			case 'opml':
+				footer = FOOTER[options.format];
+			break;
+			case 'RTF':
+				footer = FOOTER[options.format];
+			break;
 		}
 		wfe_count={};
 		wfe_count_ID={};
@@ -251,36 +197,10 @@ var exportLib = (function() {
 				if (options.format == 'beamer') level = subsection_level; else level = 0; // ppt
 			}
 			new_level = level;
-
-			if (nodes[index].title.search(/#h1($|\s)/ig) != -1)
+			if (nodes[index].title.match(/#h([0-9]+)(?:\s|$)/ig)!=null)
 			{
-				console.log('#h1 found');
-				heading = 1;
-			}
-			else if (nodes[index].title.search(/#h2($|\s)/ig) != -1)
-			{
-				console.log('#h2 found');
-				heading = 2;
-			}
-			else if (nodes[index].title.search(/#h3($|\s)/ig) != -1)
-			{
-				console.log('#h3 found');
-				heading = 3;
-			}
-			else if (nodes[index].title.search(/#h4($|\s)/ig) != -1)
-			{
-				console.log('#h4 found');
-				heading = 4;
-			}
-			else if (nodes[index].title.search(/#h5($|\s)/ig) != -1)
-			{
-				console.log('#h5 found');
-				heading = 5;
-			}
-			else if (nodes[index].title.search(/#h6($|\s)/ig) != -1)
-			{
-				console.log('#h6 found');
-				heading = 6;
+				console.log('#h'+RegExp.$1+' found');
+				heading = parseInt(RegExp.$1);
 			}
 
 			if (nodes[index].title.search(/#wfe-page-break($|\s)/ig) != -1)
@@ -450,7 +370,7 @@ var exportLib = (function() {
 					}
 					output = output + options.item_sep;
 
-					if ((nodes[index].myType == "HEADING") && (level >= frame_level) && (output_children.length > 0))
+					if ((nodes[index].myType == "HEADING") && (level >= frame_level))
 					{
 						output = output + indent + "\\begin{itemize}" + options.item_sep;
 					}
