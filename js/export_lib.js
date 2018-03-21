@@ -276,6 +276,7 @@ var exportLib = (function() {
 				if (options.rules.ignore_tags) {
 					// Strip off tags
 					text = text.replace(WF_TAG_REGEXP, "");
+					note = note.replace(WF_TAG_REGEXP, "");
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
 
@@ -403,11 +404,11 @@ var exportLib = (function() {
 
 					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf3\\highlight4 $1}");
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2}{\\fldrslt \\cf2\\ul $1}}");
+					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt \\cf2\\ul $1}}");
 
 					if(options.output_type=='list')
 						if(temp_level==0)
-							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + text + "\\par}";
+							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
 						else
 							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (400 * temp_level-1) + "\\tab \\bullet \\tab " + text + "\\par}";
 					else if (isTitle){
@@ -417,7 +418,7 @@ var exportLib = (function() {
 					else // #todo implement ITEM
 						if(isItem){
 							if(firstItem){
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb\\'95}}\\fi-360\\li720\\sa180" + RTF_STYLE_HEADING[0] + "{\\pntext\\f0\\'95\\tab}" + text + "\\par";
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb\\'95}}\\fi-360\\li720\\sa180" + RTF_STYLE_HEADING[0] + "{\\pntext\\f0\\'95\\tab} " + text + "\\par";
 									firstItem=false;
 							}
 							else
