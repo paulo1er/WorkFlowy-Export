@@ -126,7 +126,7 @@ var exportLib = (function() {
 		var output_children;
 		var options1;
 		var isItem=false;
-		var isTitle=(nodes[index].myType == "HEADING" && options.headerOptions == "headerParents") || options.headerOptions == "alwaysHeader";
+		var isTitle=(nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle";
 
 		// Create section heading LaTeX
 /* 					var title_level = 0;

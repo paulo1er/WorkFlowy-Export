@@ -9,7 +9,7 @@
 
 	g_options.indent_chars = "\t";
 	g_options.prefix_indent_chars = "\t";
-	g_options.headerOptions = "headerParents";
+	g_options.titleOptions = "titleParents";
 	// change option
 	function changeOption(type) {
 		g_output_notes = document.getElementById("outputNotes").checked;
@@ -78,14 +78,14 @@
 				document.getElementById("indentCheck").checked = true;
 				break;
 
-			case "headerParents":
-				g_options.headerOptions = 'headerParents';
+			case "titleParents":
+				g_options.titleOptions = 'titleParents';
 				break;
-			case "neverHeader":
-				g_options.headerOptions = 'neverHeader';
+			case "neverTitle":
+				g_options.titleOptions = 'neverTitle';
 				break;
-			case "alwaysHeader":
-				g_options.headerOptions = 'alwaysHeader';
+			case "alwaysTitle":
+				g_options.titleOptions = 'alwaysTitle';
 				break;
 
 		};
@@ -224,14 +224,14 @@
 		document.getElementById("hierdoc").addEventListener("click", function() {
 			changeFormat('hierdoc');
 		}, false);
-		document.getElementById("headerParents").addEventListener("click", function() {
-			changeFormat("headerParents");
+		document.getElementById("titleParents").addEventListener("click", function() {
+			changeFormat("titleParents");
 		}, false);
-		document.getElementById("neverHeader").addEventListener("click", function() {
-			changeFormat("neverHeader");
+		document.getElementById("neverTitle").addEventListener("click", function() {
+			changeFormat("neverTitle");
 		}, false);
-		document.getElementById("alwaysHeader").addEventListener("click", function() {
-			changeFormat("alwaysHeader");
+		document.getElementById("alwaysTitle").addEventListener("click", function() {
+			changeFormat("alwaysTitle");
 		}, false);
 		document.getElementById("close").addEventListener("click", function() {
 			window.close();
