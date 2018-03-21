@@ -7,6 +7,7 @@ var exportLib = (function() {
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
+	var firstItem=true;
 
 	var RTF_STYLE_HEADING = ["\\s0\\fs22\\cf1",
 				 "\\s1\\fs32\\b\\cf1",
@@ -62,28 +63,10 @@ var exportLib = (function() {
 			     "{\\colortbl;\\red0\\green0\\blue0;\\red0\\green0\\blue93;\\red57\\green51\\blue24;\\red239\\green240\\blue241;}\n"+
 			     "{\\stylesheet {"+RTF_STYLE_HEADING[0]+" Normal;}{"+RTF_STYLE_HEADING[1]+" Heading 1;}{"+RTF_STYLE_HEADING[2]+" Heading 2;}{"+RTF_STYLE_HEADING[3]+" Heading 3;}{"+RTF_STYLE_HEADING[4]+" Heading 4;}{"+RTF_STYLE_HEADING[5]+" Heading 5;}{"+RTF_STYLE_HEADING[6]+" Heading 6;}}\n"
 			};
-		var FRAGMENT_HEADER = {
-			text: "",
-			md: "",
-			HTML: "",
-			LaTeX: "",
-			beamer: "",
-			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
-			RTF: "{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}}\\fs24\n"
-			};
 		var FOOTER = {
 			text: "",
 			md: "",
 			HTML: "  </body>\n</html>",
-			LaTeX: "",
-			beamer: "",
-			opml: "  </body>\n</opml>",
-			RTF: "}"
-			};
-		var FRAGMENT_FOOTER = {
-			text: "",
-			md: "",
-			HTML: "",
 			LaTeX: "",
 			beamer: "",
 			opml: "  </body>\n</opml>",
@@ -94,70 +77,34 @@ var exportLib = (function() {
 		options.rules.ignore_outline = false;
 
 		// Create header text
-		if (is_document)
-		{
-			switch (options.format) {
-				case 'HTML':
-					header = HEADER[options.format];
-				break;
-				case 'opml':
-					header = HEADER[options.format];
-					new_level = level + 1;
-				break;
-				case 'RTF':
-					header = HEADER[options.format];
-					new_level = level;
-				break;
-			}
-		}
-		else
-		{
-			switch (options.format) {
-				case 'HTML':
-					header = FRAGMENT_HEADER[options.format];
-				break;
-				case 'opml':
-					header = FRAGMENT_HEADER[options.format];
-					new_level = level + 1;
-				break;
-				case 'RTF':
-					header = FRAGMENT_HEADER[options.format];
-					new_level = level;
-				break;
-			}
+		switch (options.format) {
+			case 'HTML':
+				header = HEADER[options.format];
+			break;
+			case 'opml':
+				header = HEADER[options.format];
+				new_level = level + 1;
+			break;
+			case 'RTF':
+				header = HEADER[options.format];
+				new_level = level;
+			break;
 		}
 		console.log("header", header, nodes[index].type);
 		// Create body text
 		body = exportNodesTreeBody(nodes, index, new_level, options, indent_chars, prefix_indent_chars);
 
 		// Create footer text
-		if (is_document)
-		{
-			switch (options.format) {
-				case 'HTML':
-					footer = FOOTER[options.format];
-				break;
-				case 'opml':
-					footer = FOOTER[options.format];
-				break;
-				case 'RTF':
-					footer = FOOTER[options.format];
-				break;
-			}
-		}
-		else
-		{
-			switch (options.format) {
-				case 'HTML':
-					footer = FRAGMENT_FOOTER[options.format];
-				break;
-				case 'opml':
-					footer = FRAGMENT_FOOTER[options.format];
-				break;
-				case 'RTF':
-					footer = FRAGMENT_FOOTER[options.format];
-				break;
-			}
+		switch (options.format) {
+			case 'HTML':
+				footer = FOOTER[options.format];
+			break;
+			case 'opml':
+				footer = FOOTER[options.format];
+			break;
+			case 'RTF':
+				footer = FOOTER[options.format];
+			break;
 		}
 		wfe_count={};
 		wfe_count_ID={};
@@ -169,6 +116,7 @@ var exportLib = (function() {
 
 		var indent = "";
 		var output = "";
+		var output_after_children = "";
 		var new_level = level;
 		var text = "";
 		var note = "";
@@ -177,6 +125,7 @@ var exportLib = (function() {
 		var ignore_outline = false;
 		var output_children;
 		var options1;
+		var isItem=false;
 
 		// Create section heading LaTeX
 /* 					var title_level = 0;
@@ -248,42 +197,21 @@ var exportLib = (function() {
 				if (options.format == 'beamer') level = subsection_level; else level = 0; // ppt
 			}
 			new_level = level;
-
-			if (nodes[index].title.search(/#h1($|\s)/ig) != -1)
+			if (nodes[index].title.match(/#h([0-9]+)(?:\s|$)/ig)!=null)
 			{
-				console.log('#h1 found');
-				heading = 1;
-			}
-			else if (nodes[index].title.search(/#h2($|\s)/ig) != -1)
-			{
-				console.log('#h2 found');
-				heading = 2;
-			}
-			else if (nodes[index].title.search(/#h3($|\s)/ig) != -1)
-			{
-				console.log('#h3 found');
-				heading = 3;
-			}
-			else if (nodes[index].title.search(/#h4($|\s)/ig) != -1)
-			{
-				console.log('#h4 found');
-				heading = 4;
-			}
-			else if (nodes[index].title.search(/#h5($|\s)/ig) != -1)
-			{
-				console.log('#h5 found');
-				heading = 5;
-			}
-			else if (nodes[index].title.search(/#h6($|\s)/ig) != -1)
-			{
-				console.log('#h6 found');
-				heading = 6;
+				console.log('#h'+RegExp.$1+' found');
+				heading = parseInt(RegExp.$1);
 			}
 
 			if (nodes[index].title.search(/#wfe-page-break($|\s)/ig) != -1)
 			{
 				console.log('page break found');
 				page_break = 0;
+			}
+			if (nodes[index].title.search(/#item($|\s)/ig) != -1)
+			{
+				console.log('item found');
+				isItem=true;
 			}
 			//
 			// marks
@@ -368,7 +296,17 @@ var exportLib = (function() {
 
 					var temp_level = level + 1;
 					if(options.output_type=='list')
-						output = output + indent + "<h" + temp_level.toString() + " style=\"margin-left: "+(30*(temp_level-1))+"px;\"> &#149; " + text + "</h" + temp_level.toString() + ">";
+						if(temp_level==1){
+							output = output + indent + "<h1>" + text + "</h1>\n"+ indent +"<ul>";
+							output_after_children= indent +"</ul>\n";
+						}
+						else if (nodes[index].myType == "HEADING") {
+							output = output + indent + "<li>" + text + "</li>\n"+ indent +"<ul>";
+							output_after_children= indent +"</ul>\n";
+						}
+						else {
+							output = output + indent + "<li>" + text + "</li>";
+						}
 					else if (nodes[index].myType == "HEADING")
 							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
 					else // #todo implement ITEM
@@ -432,7 +370,7 @@ var exportLib = (function() {
 					}
 					output = output + options.item_sep;
 
-					if ((nodes[index].myType == "HEADING") && (level >= frame_level) && (output_children.length > 0))
+					if ((nodes[index].myType == "HEADING") && (level >= frame_level))
 					{
 						output = output + indent + "\\begin{itemize}" + options.item_sep;
 					}
@@ -465,11 +403,25 @@ var exportLib = (function() {
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2}{\\fldrslt \\cf2\\ul $1}}");
 
 					if(options.output_type=='list')
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (360 * temp_level) + " \\bullet   " + text + "\\par}";
-					else if (nodes[index].myType == "HEADING" && temp_level < 8)
+						if(temp_level==0)
+							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + text + "\\par}";
+						else
+							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (400 * temp_level-1) + "\\tab \\bullet \\tab " + text + "\\par}";
+					else if (nodes[index].myType == "HEADING" && temp_level < 8){
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
+						firstItem=true;
+					}
 					else // #todo implement ITEM
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
+						if(isItem){
+							if(firstItem){
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb\\'95}}\\fi-360\\li720\\sa180" + RTF_STYLE_HEADING[0] + "{\\pntext\\f0\\'95\\tab}" + text + "\\par";
+									firstItem=false;
+							}
+							else
+									output = output + "{\\pntext\\f0\\'95\\tab}" + RTF_STYLE_HEADING[0] + " " + text + "\\par";
+						}
+						else
+							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
 
 					if (page_break > -1)
 					{
@@ -509,7 +461,7 @@ var exportLib = (function() {
 
 			}
 
-			output = output + output_children;
+			output = output + output_children + output_after_children;
 
 			if (!ignore_item && !ignore_outline) {
 				// Only finish item if no rule specifies ignoring it
