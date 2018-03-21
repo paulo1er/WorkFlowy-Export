@@ -9,13 +9,13 @@ var exportLib = (function() {
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var firstItem=true;
 
-	var RTF_STYLE_HEADING = ["\\s0\\fs22\\cf1",
-				 "\\s1\\fs32\\b\\cf1",
-				 "\\s2\\fs28\\b\\cf1",
-				 "\\s3\\fs22\\b\\cf1",
-				 "\\s4\\fs22\\b\\cf1",
-				 "\\s5\\fs22\\b\\cf1",
-				 "\\s6\\fs22\\b\\cf1"];
+	var RTF_STYLE_HEADING = ["\\s0\\fs22",
+				 "\\s1\\fs32\\b",
+				 "\\s2\\fs28\\b",
+				 "\\s3\\fs22\\b",
+				 "\\s4\\fs22\\b",
+				 "\\s5\\fs22\\b",
+				 "\\s6\\fs22\\b"];
 	var ESCAPE_CARATER = {
 			text: [["",""]],
 			md: [["",""]],
@@ -60,7 +60,7 @@ var exportLib = (function() {
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
 			RTF: "{\\rtf1\\ansi\\deff0\n"+
 			     "{\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}}\n"+
-			     "{\\colortbl;\\red0\\green0\\blue0;\\red0\\green0\\blue93;\\red57\\green51\\blue24;\\red239\\green240\\blue241;}\n"+
+			     //"{\\colortbl;\\red0\\green0\\blue0;\\red0\\green0\\blue93;\\red57\\green51\\blue24;\\red239\\green240\\blue241;}\n"+
 			     "{\\stylesheet {"+RTF_STYLE_HEADING[0]+" Normal;}{"+RTF_STYLE_HEADING[1]+" Heading 1;}{"+RTF_STYLE_HEADING[2]+" Heading 2;}{"+RTF_STYLE_HEADING[3]+" Heading 3;}{"+RTF_STYLE_HEADING[4]+" Heading 4;}{"+RTF_STYLE_HEADING[5]+" Heading 5;}{"+RTF_STYLE_HEADING[6]+" Heading 6;}}\n"
 			};
 		var FOOTER = {
