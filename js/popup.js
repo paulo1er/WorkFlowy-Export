@@ -9,7 +9,7 @@
 
 	g_options.indent_chars = "\t";
 	g_options.prefix_indent_chars = "\t";
-
+	g_options.headerOptions = "headerParents";
 	// change option
 	function changeOption(type) {
 		g_output_notes = document.getElementById("outputNotes").checked;
@@ -77,6 +77,17 @@
 			case "asterisk":
 				document.getElementById("indentCheck").checked = true;
 				break;
+
+			case "headerParents":
+				g_options.headerOptions = 'headerParents';
+				break;
+			case "neverHeader":
+				g_options.headerOptions = 'neverHeader';
+				break;
+			case "alwaysHeader":
+				g_options.headerOptions = 'alwaysHeader';
+				break;
+
 		};
 
 		if (!document.getElementById("latex").checked) {
@@ -208,12 +219,19 @@
 			changeFormat(g_current_format);
 		}, false);
 		document.getElementById("list").addEventListener("click", function() {
-			document.getElementById("list").checked = true;
 			changeFormat('list');
 		}, false);
 		document.getElementById("hierdoc").addEventListener("click", function() {
-			document.getElementById("hierdoc").checked = true;
 			changeFormat('hierdoc');
+		}, false);
+		document.getElementById("headerParents").addEventListener("click", function() {
+			changeFormat("headerParents");
+		}, false);
+		document.getElementById("neverHeader").addEventListener("click", function() {
+			changeFormat("neverHeader");
+		}, false);
+		document.getElementById("alwaysHeader").addEventListener("click", function() {
+			changeFormat("alwaysHeader");
 		}, false);
 		document.getElementById("close").addEventListener("click", function() {
 			window.close();

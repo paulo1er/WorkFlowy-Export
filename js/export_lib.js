@@ -126,6 +126,7 @@ var exportLib = (function() {
 		var output_children;
 		var options1;
 		var isItem=false;
+		var isTitle=(nodes[index].myType == "HEADING" && options.headerOptions == "headerParents") || options.headerOptions == "alwaysHeader";
 
 		// Create section heading LaTeX
 /* 					var title_level = 0;
@@ -197,13 +198,14 @@ var exportLib = (function() {
 				if (options.format == 'beamer') level = subsection_level; else level = 0; // ppt
 			}
 
-			new_level = level;
 			if (nodes[index].title.match(/#h([0-9]+)(?:\s|$)/ig)!=null)
 			{
 				console.log('#h'+RegExp.$1+' found');
-				heading = parseInt(RegExp.$1);
+				level = parseInt(RegExp.$1)-1;
+				isTitle=true;
 			}
 
+			new_level = level;
 			if (nodes[index].title.search(/#wfe-page-break($|\s)/ig) != -1)
 			{
 				console.log('page break found');
@@ -308,7 +310,7 @@ var exportLib = (function() {
 						else {
 							output = output + indent + "<li>" + text + "</li>";
 						}
-					else if (nodes[index].myType == "HEADING")
+					else if (isTitle)
 							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
 					else // #todo implement ITEM
 						output = output + indent + "<p>" + text + "</p>";
@@ -408,7 +410,7 @@ var exportLib = (function() {
 							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + text + "\\par}";
 						else
 							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (400 * temp_level-1) + "\\tab \\bullet \\tab " + text + "\\par}";
-					else if (nodes[index].myType == "HEADING" && temp_level < 8){
+					else if (isTitle){
 						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
 						firstItem=true;
 					}
