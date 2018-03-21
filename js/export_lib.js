@@ -280,7 +280,7 @@ var exportLib = (function() {
 				}
 
 				ESCAPE_CARATER[options.format].forEach(function(e) {
-  					text = text.split(e[0]).join(e[1]);
+  					//text = text.split(e[0]).join(e[1]);
 				});
 
 				// Update output
