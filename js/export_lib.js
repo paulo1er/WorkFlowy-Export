@@ -430,6 +430,7 @@ var exportLib = (function() {
 					{
 						output = output + "\\page";
 					}
+					if ((note !== "") && options.outputNotes) output = output + "\n" + indent  + note ;
 					output = output + "\n";
 				}
 				else {
