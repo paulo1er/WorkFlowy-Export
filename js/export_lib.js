@@ -202,7 +202,7 @@ var exportLib = (function() {
 			{
 				console.log('#h'+RegExp.$1+' found');
 				level = parseInt(RegExp.$1)-1;
-				//isTitle=true;
+				isTitle=true;
 			}
 
 			new_level = level;
