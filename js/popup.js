@@ -64,17 +64,18 @@
 			case "hierdoc":
 				g_options.output_type = 'hierdoc';
 			break;
-			case "hyphen":
-				break;
-			case "asterisk":
-				break;
+
 			case "tab":
 				document.getElementById("indentCheck").checked = true;
 				break;
 			case "space":
 				document.getElementById("indentCheck").checked = true;
 				break;
-			case "indent":
+			case "hyphen":
+				document.getElementById("indentCheck").checked = true;
+				break;
+			case "asterisk":
+				document.getElementById("indentCheck").checked = true;
 				break;
 		};
 
@@ -88,6 +89,8 @@
 		if (!document.getElementById("indentCheck").checked) {
 			document.getElementById("tab").checked = false;
 			document.getElementById("space").checked = false;
+			document.getElementById("hyphen").checked = false;
+			document.getElementById("asterisk").checked = false;
 			g_options.indent_chars = "";
 			g_options.prefix_indent_chars = "";
 		} else if (document.getElementById("tab").checked) {

@@ -196,6 +196,7 @@ var exportLib = (function() {
 				console.log('#section found');
 				if (options.format == 'beamer') level = subsection_level; else level = 0; // ppt
 			}
+
 			new_level = level;
 			if (nodes[index].title.match(/#h([0-9]+)(?:\s|$)/ig)!=null)
 			{
@@ -245,7 +246,7 @@ var exportLib = (function() {
 				textTag.forEach(function(e) {
 					if(e.indexOf(" #wfe-count")!=-1){
 						text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
-							if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[e1]=parseInt(RegExp.$3)-1;
+							if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[RegExp.$1]=parseInt(RegExp.$3)-1;
 							if(!wfe_count[RegExp.$1])
 								wfe_count[RegExp.$1]=0;
 							  wfe_count[RegExp.$1]++;
