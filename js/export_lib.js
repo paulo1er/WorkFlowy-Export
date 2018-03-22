@@ -9,13 +9,20 @@ var exportLib = (function() {
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var firstItem=true;
 
-	var RTF_STYLE_HEADING = ["\\s0\\fs22",
-				 "\\s1\\fs32\\b",
-				 "\\s2\\fs28\\b",
-				 "\\s3\\fs22\\b",
-				 "\\s4\\fs22\\b",
-				 "\\s5\\fs22\\b",
-				 "\\s6\\fs22\\b"];
+	var RTF_STYLE = {
+			Normal: "\\s0\\f0\\sa180\\fs22\\cf2",
+			Heading1: "\\s1\\f0\\sa180\\fs32\\cf2\\b",
+			Heading2: "\\s2\\f0\\sa180\\fs28\\cf2\\b",
+			Heading3: "\\s3\\f0\\sa180\\fs22\\cf2\\b",
+			Heading4: "\\s4\\f0\\sa180\\fs22\\cf2\\b",
+			Heading5: "\\s5\\f0\\sa180\\fs22\\cf2\\b",
+			Heading6: "\\s6\\f0\\sa180\\fs22\\cf2\\b",
+			Note: "\\s7\\f0\\sa180\\cf4\\fs22",
+			link: "\\cf3\\ul",
+			code: "\\f2\\cf4\\highlight5",
+			bullet: "\\f3\\'95"
+		};
+
 	var ESCAPE_CHARACTER = {
 			text: [["",""]],
 			md: [["",""]],
@@ -24,7 +31,7 @@ var exportLib = (function() {
 			beamer: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			opml: [["",""]],
 			RTF: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
-			};
+		};
 
 	hasChild = function(nodes, pos) {
 		if (nodes[pos].type != "node") return false;
@@ -59,9 +66,9 @@ var exportLib = (function() {
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
 			RTF: "{\\rtf1\\ansi\\deff0\n"+
-			     "{\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}{\\f3 symbol;}}\n"+
-			     //"{\\colortbl;\\red0\\green0\\blue0;\\red0\\green0\\blue93;\\red57\\green51\\blue24;\\red239\\green240\\blue241;}\n"+
-			     "{\\stylesheet {"+RTF_STYLE_HEADING[0]+" Normal;}{"+RTF_STYLE_HEADING[1]+" Heading 1;}{"+RTF_STYLE_HEADING[2]+" Heading 2;}{"+RTF_STYLE_HEADING[3]+" Heading 3;}{"+RTF_STYLE_HEADING[4]+" Heading 4;}{"+RTF_STYLE_HEADING[5]+" Heading 5;}{"+RTF_STYLE_HEADING[6]+" Heading 6;}}\n"
+			     "{\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}{\\f3 Symbol;}}\n"+
+			     "{\\colortbl;\\red255\\green255\\blue255;\\red0\\green0\\blue0;\\red0\\green0\\blue130;\\red25\\green25\\blue25;\\red180\\green180\\blue180;}\n"+
+			     "{\\stylesheet {"+RTF_STYLE["Normal"]+" Normal;}{"+RTF_STYLE["Heading1"]+" Heading 1;}{"+RTF_STYLE["Heading2"]+" Heading 2;}{"+RTF_STYLE["Heading3"]+" Heading 3;}{"+RTF_STYLE["Heading4"]+" Heading 4;}{"+RTF_STYLE["Heading5"]+" Heading 5;}{"+RTF_STYLE["Heading6"]+" Heading 6;}{"+RTF_STYLE["Note"]+" Note;}}\n"
 			};
 		var FOOTER = {
 			text: "",
@@ -404,37 +411,37 @@ var exportLib = (function() {
  					var temp_level = level;
 
 					text = text.replace(/--/g, "\\endash ");
-					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf3\\highlight4 $1}");
+					text = text.replace(/`([^`]*)`/g, "{" + RTF_STYLE["code"] + " $1}");
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt \\cf2\\ul $1}}");
-					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt \\cf2\\ul $1}}");//URL in note
+					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt" + RTF_STYLE["link"] + " $1}}");
+					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt" + RTF_STYLE["link"] + " $1}}");//URL in note
 
 					if(options.output_type=='list')
 						if(temp_level==0)
-							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
+							output = output + "{\\pard" + RTF_STYLE["Heading1"] + " " + text + "\\par}";
 						else
-							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "\\li" + (400 * temp_level-1) + "\\tab \\bullet \\tab " + text + "\\par}";
+							output = output + "{\\pard" + RTF_STYLE["Normal"] + "\\fi-200\\li" + ((400 * (temp_level-1))+200) + "{" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par}";
 					else if (isTitle){
-						output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[(temp_level+1)] + " " + text + "\\par}";
+						output = output + "{\\pard" + RTF_STYLE["Heading"+(temp_level+1)] + " " + text + "\\par}";
 						firstItem=true;
 					}
 					else // #todo implement ITEM
 						if(isItem){
 							if(firstItem){
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb\\f3\\'B7}}\\fi-360\\li720\\sa180" + RTF_STYLE_HEADING[0] + "{\\pntext\\f3\\'B7\\tab} " + text + "\\par";
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
 									firstItem=false;
 							}
 							else
-									output = output + "{\\pntext\\f3\\'B7\\tab}" + RTF_STYLE_HEADING[0] + " " + text + "\\par";
+									output = output + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + RTF_STYLE["Normal"] + " " + text + "\\par";
 						}
 						else
-							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
+							output = output + "{\\pard" + RTF_STYLE["Normal"] + " " + text + "\\par}";
 
 					if (page_break > -1)
 					{
 						output = output + "\\page";
 					}
-					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "" + note + "\\par}";
+					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard" + RTF_STYLE["Note"] + "" + note + "\\par}";
 					output = output + "\n";
 				}
 				else {
