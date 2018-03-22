@@ -128,6 +128,7 @@
 		g_options.outputToc = document.getElementById("outputToc").checked;
 		g_options.outputNotes = document.getElementById("outputNotes").checked;
 		g_options.rules.ignore_tags = document.getElementById("stripTags").checked;
+		g_options.rules.escapeCharacter = document.getElementById("escapeCharacter").checked;
 
 		console.log("##################### changeFormat", type, "options", g_options, g_options.rules.ignore_tags );
 		text = exportLib.toMyText(g_my_nodes, g_options);
@@ -232,6 +233,9 @@
 		}, false);
 		document.getElementById("alwaysTitle").addEventListener("click", function() {
 			changeFormat("alwaysTitle");
+		}, false);
+		document.getElementById("escapeCharacter").addEventListener("click", function() {
+			changeFormat("escapeCharacter");
 		}, false);
 		document.getElementById("close").addEventListener("click", function() {
 			window.close();

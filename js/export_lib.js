@@ -16,7 +16,7 @@ var exportLib = (function() {
 				 "\\s4\\fs22\\b",
 				 "\\s5\\fs22\\b",
 				 "\\s6\\fs22\\b"];
-	var ESCAPE_CARATER = {
+	var ESCAPE_CHARACTER = {
 			text: [["",""]],
 			md: [["",""]],
 			HTML: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
@@ -279,10 +279,11 @@ var exportLib = (function() {
 					note = note.replace(WF_TAG_REGEXP, "");
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
-
-				ESCAPE_CARATER[options.format].forEach(function(e) {
-  					//text = text.split(e[0]).join(e[1]);
-				});
+				if(options.rules.escapeCharacter)
+					ESCAPE_CHARACTER[options.format].forEach(function(e) {
+	  					text = text.split(e[0]).join(e[1]);
+			  			note = note.split(e[0]).join(e[1]);
+					});
 
 				// Update output
 				if (options.format == 'HTML') {
