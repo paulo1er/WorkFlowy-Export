@@ -402,6 +402,7 @@ var exportLib = (function() {
 					//output = output + indent + text + nodes[index].myType;
  					var temp_level = level;
 
+					text = text.replace(/--/g, "\\endash ");
 					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf3\\highlight4 $1}");
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt \\cf2\\ul $1}}");
