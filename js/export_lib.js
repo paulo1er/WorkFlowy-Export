@@ -59,7 +59,7 @@ var exportLib = (function() {
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
 			RTF: "{\\rtf1\\ansi\\deff0\n"+
-			     "{\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}}\n"+
+			     "{\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}{\\f3 symbol;}}\n"+
 			     //"{\\colortbl;\\red0\\green0\\blue0;\\red0\\green0\\blue93;\\red57\\green51\\blue24;\\red239\\green240\\blue241;}\n"+
 			     "{\\stylesheet {"+RTF_STYLE_HEADING[0]+" Normal;}{"+RTF_STYLE_HEADING[1]+" Heading 1;}{"+RTF_STYLE_HEADING[2]+" Heading 2;}{"+RTF_STYLE_HEADING[3]+" Heading 3;}{"+RTF_STYLE_HEADING[4]+" Heading 4;}{"+RTF_STYLE_HEADING[5]+" Heading 5;}{"+RTF_STYLE_HEADING[6]+" Heading 6;}}\n"
 			};
@@ -419,11 +419,11 @@ var exportLib = (function() {
 					else // #todo implement ITEM
 						if(isItem){
 							if(firstItem){
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb\\'95}}\\fi-360\\li720\\sa180" + RTF_STYLE_HEADING[0] + "{\\pntext\\f0\\'95\\tab} " + text + "\\par";
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb\\f3\\'B7}}\\fi-360\\li720\\sa180" + RTF_STYLE_HEADING[0] + "{\\pntext\\f3\\'B7\\tab} " + text + "\\par";
 									firstItem=false;
 							}
 							else
-									output = output + "{\\pntext\\f0\\'95\\tab}" + RTF_STYLE_HEADING[0] + " " + text + "\\par";
+									output = output + "{\\pntext\\f3\\'B7\\tab}" + RTF_STYLE_HEADING[0] + " " + text + "\\par";
 						}
 						else
 							output = output + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + " " + text + "\\par}";
