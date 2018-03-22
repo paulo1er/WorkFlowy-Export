@@ -406,6 +406,7 @@ var exportLib = (function() {
 					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf3\\highlight4 $1}");
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt \\cf2\\ul $1}}");
+					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt \\cf2\\ul $1}}");//URL in note
 
 					if(options.output_type=='list')
 						if(temp_level==0)
@@ -432,7 +433,7 @@ var exportLib = (function() {
 					{
 						output = output + "\\page";
 					}
-					if ((note !== "") && options.outputNotes) output = output + "\n" + indent  + "{" + note + "}";
+					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard\\sa180 " + RTF_STYLE_HEADING[0] + "" + note + "\\par}";
 					output = output + "\n";
 				}
 				else {
