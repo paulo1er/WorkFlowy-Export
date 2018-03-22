@@ -377,7 +377,7 @@ var exportLib = (function() {
 						note = note.replace(/\[(.*)\]\((.*)\)/g, "\\href{$2}{$1}");
 						console.log('item now', note);
 
-						output = output + options.item_sep + indent + "" + note;
+						output = output + options.item_sep + indent + " " + note;
 						// .replace(/\!\[(.*)\]\((.*)\)\{:(.*)\}/g, "\\begin{figure}[t]\\includegraphics[$3]{$2}\\centering \\end{figure}")
 					}
 					output = output + options.item_sep;
