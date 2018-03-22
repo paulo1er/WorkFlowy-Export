@@ -455,6 +455,7 @@ var exportLib = (function() {
 				}
 
 			}
+		}
 
 			//console.log(nodes[index].note);
 			console.log("Output: ", output);
@@ -493,18 +494,6 @@ var exportLib = (function() {
 			}
 			// Reset outline-local rules
 			ignore_outline = false;
-		}
-		else
-			output = output + output_children;
-
-
-
-		//if (nodes[index].title !== null) {
-			// Not a dummy node
-
-
-
-		//}
 		return output;
 	};
 
