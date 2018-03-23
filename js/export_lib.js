@@ -236,6 +236,8 @@ var exportLib = (function() {
 		if(level>0) indent = Array(level+1).join(prefix_indent_chars);
 		if(options.format == 'text') indent = indent + indent_chars
 		indent = indent.replace(/(enum)/g,indentEnum++);
+		indent = indent.replace(/(bull)/g,'•');
+		indent = indent.replace(/(\\t)/g,"\t");
 
 
 		if (nodes[index].title !== null) {
