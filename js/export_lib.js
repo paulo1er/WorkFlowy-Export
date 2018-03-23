@@ -233,11 +233,11 @@ var exportLib = (function() {
 		console.log('Finished processing rules:', text, options.rules.ignore_item);
 
 		// Compute indent - #todo improve
-		indent = indent_chars;
-		if (level > 1) {
-			indent = Array(level).join(prefix_indent_chars) + indent_chars;
-		}
+		if(level>0) indent = Array(level+1).join(prefix_indent_chars);
+		if(options.format == 'text') indent = indent + indent_chars
 		indent = indent.replace(/(enum)/g,indentEnum++);
+
+
 		if (nodes[index].title !== null) {
 			// Not a dummy node
 
