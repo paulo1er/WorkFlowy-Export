@@ -77,12 +77,12 @@
 
 			case "tab":
 				document.getElementById("indentOther").value ="";
-				g_options.indent_chars = "\t";
+				g_options.indent_chars = "";
 				g_options.prefix_indent_chars = "\t";
 				break;
 			case "space":
 				document.getElementById("indentOther").value ="";
-				g_options.indent_chars = "    ";
+				g_options.indent_chars = "";
 				g_options.prefix_indent_chars = "    ";
 				break;
 			case "withoutIndent":
@@ -90,12 +90,18 @@
 				g_options.indent_chars = "";
 				g_options.prefix_indent_chars = "";
 				break;
+			case "enum":
+				document.getElementById("indentOther").value ="";
+				g_options.indent_chars = "enum- ";
+				g_options.prefix_indent_chars = "";
+				break;
 			case "indentOther":
 				document.getElementById("tab").checked = false;
 				document.getElementById("space").checked = false;
 				document.getElementById("withoutIndent").checked = false;
+				document.getElementById("enum").checked = false;
 				g_options.indent_chars = document.getElementById("indentOther").value;
-				g_options.prefix_indent_chars = document.getElementById("indentOther").value;
+				g_options.prefix_indent_chars = "";
 				break
 		};
 
@@ -173,6 +179,9 @@
 		}, false);
 		document.getElementById("withoutIndent").addEventListener("click", function() {
 			changeFormat('withoutIndent');
+		}, false);
+		document.getElementById("enum").addEventListener("click", function() {
+			changeFormat('enum');
 		}, false);
 		document.getElementById("outputNotes").addEventListener("click", function() {
 			changeFormat(g_current_format);

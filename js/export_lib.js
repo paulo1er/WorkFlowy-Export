@@ -8,6 +8,7 @@ var exportLib = (function() {
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var firstItem=true;
+	var indentEnum=1;
 
 	var RTF_STYLE = {
 			Normal: "\\s0\\f0\\sa180\\fs22\\cf2",
@@ -115,6 +116,7 @@ var exportLib = (function() {
 		}
 		wfe_count={};
 		wfe_count_ID={};
+		indentEnum=1;
 		return header + body + footer;
 	}
 
@@ -231,13 +233,11 @@ var exportLib = (function() {
 		console.log('Finished processing rules:', text, options.rules.ignore_item);
 
 		// Compute indent - #todo improve
-		if (level > 0) {
-			indent = indent_chars;
-			if (level > 1) {
-				indent = Array(level).join(prefix_indent_chars) + indent_chars;
-			}
-		} else indent = "";
-
+		indent = indent_chars;
+		if (level > 1) {
+			indent = Array(level).join(prefix_indent_chars) + indent_chars;
+		}
+		indent = indent.replace(/(enum)/g,indentEnum++);
 		if (nodes[index].title !== null) {
 			// Not a dummy node
 
@@ -308,11 +308,11 @@ var exportLib = (function() {
 					var temp_level = level + 1;
 					if(options.output_type=='list')
 						if(temp_level==1){
-							output = output + indent + "<h1>" + text + "</h1>\n"+ indent +"<ul>";
+							output = output + indent + "<h1>" + text + "</h1>\n"+"<ul>";
 							output_after_children= indent +"</ul>\n";
 						}
 						else if (nodes[index].myType == "HEADING") {
-							output = output + indent + "<li>" + text + "</li>\n"+ indent +"<ul>";
+							output = output + indent + "<li>" + text + "</li>\n"+"<ul>";
 							output_after_children= indent +"</ul>\n";
 						}
 						else {
