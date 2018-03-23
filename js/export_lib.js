@@ -234,7 +234,7 @@ var exportLib = (function() {
 
 		// Compute indent - #todo improve
 		if(level>0) indent = Array(level+1).join(prefix_indent_chars);
-		if(options.format == 'text') indent = indent + indent_chars
+		if(options.format == 'text') indent = indent + indent_chars;
 		indent = indent.replace(/(enum)/g,indentEnum++);
 		indent = indent.replace(/(bull)/g,'•');
 		indent = indent.replace(/(\\t)/g,"\t");
@@ -297,6 +297,7 @@ var exportLib = (function() {
 				if (options.format == 'HTML') {
 					//output = output + indent + text + nodes[index].myType;
 
+					text = text.replace(/--/g, "&ndash;");
 
 					//Interpretation of `code`
 					text = text.replace(/`([^`]*)`/g, "<code style=\"background-color: #d3d3d3;\"> &nbsp;$1 </code>");
@@ -320,6 +321,9 @@ var exportLib = (function() {
 						else {
 							output = output + indent + "<li>" + text + "</li>";
 						}
+					else if(isItem){
+							output = output + indent + "<li>" + text + "</li>"; //need to know lastItem for do <ul>
+					}
 					else if (isTitle)
 							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
 					else // #todo implement ITEM
@@ -424,7 +428,6 @@ var exportLib = (function() {
 							output = output + "{\\pard" + RTF_STYLE["Normal"] + "\\fi-200\\li" + ((400 * (temp_level-1))+200) + "{" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par}";
 					else if (isTitle){
 						output = output + "{\\pard" + RTF_STYLE["Heading"+(temp_level+1)] + " " + text + "\\par}";
-						firstItem=true;
 					}
 					else // #todo implement ITEM
 						if(isItem){
@@ -458,9 +461,9 @@ var exportLib = (function() {
 			}
 		}
 
+			if(!isItem) firstItem=true;
 			//console.log(nodes[index].note);
 			console.log("Output: ", output);
-
 			// Reset item-local rules
 			options.rules.ignore_item = false;
 
