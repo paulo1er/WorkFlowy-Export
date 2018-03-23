@@ -131,7 +131,6 @@ var exportLib = (function() {
 		var ignore_item = false;
 		var ignore_outline = false;
 		var output_children;
-		var options1;
 		var isItem=false;
 		var isTitle=(nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle";
 
@@ -324,7 +323,7 @@ var exportLib = (function() {
 					else // #todo implement ITEM
 						output = output + indent + "<p>" + text + "</p>";
 
-					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
+					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p>" + note + "</p>";
 
 
 					output = output + options.item_sep;
@@ -471,7 +470,6 @@ var exportLib = (function() {
 
 				for (var i = 0; i < nodes[index].children.length; i++)
 				{
-					//options1 = options;
 					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], new_level, options, indent_chars, prefix_indent_chars);
 				}
 

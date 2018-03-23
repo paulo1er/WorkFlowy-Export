@@ -65,19 +65,6 @@
 				g_options.output_type = 'hierdoc';
 			break;
 
-			case "tab":
-				document.getElementById("indentCheck").checked = true;
-				break;
-			case "space":
-				document.getElementById("indentCheck").checked = true;
-				break;
-			case "hyphen":
-				document.getElementById("indentCheck").checked = true;
-				break;
-			case "asterisk":
-				document.getElementById("indentCheck").checked = true;
-				break;
-
 			case "titleParents":
 				g_options.titleOptions = 'titleParents';
 				break;
@@ -88,6 +75,28 @@
 				g_options.titleOptions = 'alwaysTitle';
 				break;
 
+			case "tab":
+				document.getElementById("indentOther").value ="";
+				g_options.indent_chars = "\t";
+				g_options.prefix_indent_chars = "\t";
+				break;
+			case "space":
+				document.getElementById("indentOther").value ="";
+				g_options.indent_chars = "    ";
+				g_options.prefix_indent_chars = "    ";
+				break;
+			case "withoutIndent":
+				document.getElementById("indentOther").value ="";
+				g_options.indent_chars = "";
+				g_options.prefix_indent_chars = "";
+				break;
+			case "indentOther":
+				document.getElementById("tab").checked = false;
+				document.getElementById("space").checked = false;
+				document.getElementById("withoutIndent").checked = false;
+				g_options.indent_chars = document.getElementById("indentOther").value;
+				g_options.prefix_indent_chars = document.getElementById("indentOther").value;
+				break
 		};
 
 		if (!document.getElementById("latex").checked) {
@@ -95,27 +104,6 @@
 			document.getElementById("book").checked = false;
 			document.getElementById("article").checked = false;
 			document.getElementById("report").checked = false;
-		}
-
-		if (!document.getElementById("indentCheck").checked) {
-			document.getElementById("tab").checked = false;
-			document.getElementById("space").checked = false;
-			document.getElementById("hyphen").checked = false;
-			document.getElementById("asterisk").checked = false;
-			g_options.indent_chars = "";
-			g_options.prefix_indent_chars = "";
-		} else if (document.getElementById("tab").checked) {
-			g_options.indent_chars = "\t";
-			g_options.prefix_indent_chars = "\t";
-		} else if (document.getElementById("space").checked) {
-			g_options.indent_chars = "    ";
-			g_options.prefix_indent_chars = "    ";
-		} else if (document.getElementById("asterisk").checked) {
-			g_options.indent_chars = "  * ";
-			g_options.prefix_indent_chars = "    ";
-		} else if (document.getElementById("hyphen").checked) {
-			g_options.indent_chars = "  - ";
-			g_options.prefix_indent_chars = "    ";
 		}
 
 		if (document.getElementById("insertLine").checked)
@@ -146,36 +134,12 @@
 		}, 200);
 	};
 
-	function toggle(bool) {
-/* 		document.getElementById("Outline").disabled = !bool;
-		document.getElementById("hierdoc").disabled = !bool;
-		document.getElementById("flatdoc").disabled = !bool;
-		document.getElementById("markDown").disabled = !bool;
-		document.getElementById("html").disabled = !bool;
-		document.getElementById("latex").disabled = !bool;
-		document.getElementById("beamer").disabled = !bool;
-		document.getElementById("tab").disabled = bool;
-		document.getElementById("space").disabled = bool;
-		document.getElementById("hyphen").disabled = bool;
-		document.getElementById("asterisk").disabled = bool;
-		document.getElementById("empty").disabled = bool; */
-
-		document.getElementById("indentCheck").checked = bool;
-	};
-
-
 	function setEventListers() {
 		document.getElementById("markDown").addEventListener("click", function() {
 			changeFormat('markdown');
 		}, false);
 		document.getElementById("html").addEventListener("click", function() {
 			changeFormat('HTML');
-		}, false);
-		document.getElementById("asterisk").addEventListener("click", function() {
-			changeFormat('asterisk');
-		}, false);
-		document.getElementById("hyphen").addEventListener("click", function() {
-			changeFormat('hyphen');
 		}, false);
 		document.getElementById("latex").addEventListener("click", function() {
 			changeFormat('latex');
@@ -195,14 +159,20 @@
 		document.getElementById("text").addEventListener("click", function() {
 			changeFormat('text');
 		}, false);
-		document.getElementById("indentCheck").addEventListener("click", function() {
-			changeFormat('indent');
+		document.getElementById("indentOther").addEventListener("keypress", function(e) {
+			if(13 == e.keyCode){
+      	event.preventDefault();
+				changeFormat('indentOther');
+			}
 		}, false);
 		document.getElementById("space").addEventListener("click", function() {
 			changeFormat('space');
 		}, false);
 		document.getElementById("tab").addEventListener("click", function() {
 			changeFormat('tab');
+		}, false);
+		document.getElementById("withoutIndent").addEventListener("click", function() {
+			changeFormat('withoutIndent');
 		}, false);
 		document.getElementById("outputNotes").addEventListener("click", function() {
 			changeFormat(g_current_format);
