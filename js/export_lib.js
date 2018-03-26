@@ -82,7 +82,7 @@ var exportLib = (function() {
 			Note: "\\s7\\f0\\sb"+lineSpacing_RTF["Note"][0]+"\\sa"+lineSpacing_RTF["Note"][1]+"\\cf4\\fs22",
 			link: "\\cf3\\ul",
 			code: "\\f2\\cf4\\highlight5",
-			bullet: "\\f3\\'95"
+			bullet: "\\f3\\'B7"
 		};
 
 	var ESCAPE_CHARACTER = {
@@ -493,7 +493,7 @@ var exportLib = (function() {
 					else
 						if(isItem){
 							if(firstItem){
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
 									firstItem=false;
 							}
 							else
