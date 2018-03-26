@@ -493,7 +493,7 @@ var exportLib = (function() {
 					else
 						if(isItem){
 							if(firstItem){
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
 									firstItem=false;
 							}
 							else
