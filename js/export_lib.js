@@ -19,6 +19,57 @@ var exportLib = (function() {
 		Heading6: [0,180],
 		Note: [0,180]
 	}
+	/*var RTF_STYLESHEET={Normal:0, Heading1:1, Heading2:2, Heading3:3, Heading4:4, Heading5:5, Heading6:6, code:7};
+	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
+	var RTF_STYLEFONT={Arial:0, TimesNewRoman:1, Courier:2, Symbol:3};
+	var RTF_COLOR={
+		function RTF_COLOR(Id, Red, Green, Blue) {
+  		this.Id = Id;
+  		this.Red = Red;
+  		this.Green = Green;
+  		this.Blue = Blue;
+		}
+		code:function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue}
+	}
+	var RTF_COLORSHEET={
+
+	}
+	var RTF_STYLE_NORMAL = {
+		stylesheet : "Normal",
+		aligement : "left",
+		indentation_first_line : 0,
+		indentation_left : 0,
+		indentation_right : 0,
+		spacing_before:0,
+		spacing_after:180,
+		spacing_between_line:0,
+		font:"Arial",
+		font_seize:22,
+		bold:false,
+		italic:false,
+		underline:false,
+		color:"black",
+		background_color:"white",
+		toStr:function(){
+			var str = "\\s"+RTF_STYLESHEET[this.stylesheet]+
+							RTF_aligement[this.aligement]+
+							"\\fi"+this.indentation_first_line+
+							"\\li"+this.indentation_left+
+							"\\ri"+this.indentation_right+
+							"\\sb"+this.spacing_before+
+							"\\sa"+this.spacing_after+
+							"\\sl"+this.spacing_between_line+
+							"\\f"+RTF_STYLEFONT[this.font]+
+							"\\fs"+this.font_seize;
+			if(this.bold) str = str + "\\b";
+			if(this.italic) str = str + "\\i";
+			if(this.underline) str = str + "\\ul";
+			return str;
+		}
+	};
+	console.log("RTF_STYLE_NORMAL : ", RTF_STYLE_NORMAL.toStr());
+
+	*/
 
 	var RTF_STYLE = {
 			Normal: "\\s0\\f0\\sb"+lineSpacing_RTF["Normal"][0]+"\\sa"+lineSpacing_RTF["Normal"][1]+"\\fs22\\cf2",
@@ -262,7 +313,7 @@ var exportLib = (function() {
 
 
 				textTag = text.match(WF_TAG_REGEXP);
-				if(textTag!=null)
+				if(textTag!=null && options.applyWFERules)
 				textTag.forEach(function(e) {
 					if(e.indexOf(" #wfe-count")!=-1){
 						text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
