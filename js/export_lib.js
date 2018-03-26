@@ -9,16 +9,26 @@ var exportLib = (function() {
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var firstItem=true;
 	var indentEnum=1;
+	var lineSpacing_RTF={
+		Normal:[0,180],
+		Heading1: [0,180],
+		Heading2: [0,180],
+		Heading3: [0,180],
+		Heading4: [0,180],
+		Heading5: [0,180],
+		Heading6: [0,180],
+		Note: [0,180]
+	}
 
 	var RTF_STYLE = {
-			Normal: "\\s0\\f0\\sa180\\fs22\\cf2",
-			Heading1: "\\s1\\f0\\sa180\\fs32\\cf2\\b",
-			Heading2: "\\s2\\f0\\sa180\\fs28\\cf2\\b",
-			Heading3: "\\s3\\f0\\sa180\\fs22\\cf2\\b",
-			Heading4: "\\s4\\f0\\sa180\\fs22\\cf2\\b",
-			Heading5: "\\s5\\f0\\sa180\\fs22\\cf2\\b",
-			Heading6: "\\s6\\f0\\sa180\\fs22\\cf2\\b",
-			Note: "\\s7\\f0\\sa180\\cf4\\fs22",
+			Normal: "\\s0\\f0\\sb"+lineSpacing_RTF["Normal"][0]+"\\sa"+lineSpacing_RTF["Normal"][1]+"\\fs22\\cf2",
+			Heading1: "\\s1\\f0\\sb"+lineSpacing_RTF["Heading1"][0]+"\\sa"+lineSpacing_RTF["Heading1"][1]+"\\fs32\\cf2\\b",
+			Heading2: "\\s2\\f0\\sb"+lineSpacing_RTF["Heading2"][0]+"\\sa"+lineSpacing_RTF["Heading2"][1]+"\\fs28\\cf2\\b",
+			Heading3: "\\s3\\f0\\sb"+lineSpacing_RTF["Heading3"][0]+"\\sa"+lineSpacing_RTF["Heading3"][1]+"\\fs22\\cf2\\b",
+			Heading4: "\\s4\\f0\\sb"+lineSpacing_RTF["Heading4"][0]+"\\sa"+lineSpacing_RTF["Heading4"][1]+"\\fs22\\cf2\\b",
+			Heading5: "\\s5\\f0\\sb"+lineSpacing_RTF["Heading5"][0]+"\\sa"+lineSpacing_RTF["Heading5"][1]+"\\fs22\\cf2\\b",
+			Heading6: "\\s6\\f0\\sb"+lineSpacing_RTF["Heading6"][0]+"\\sa"+lineSpacing_RTF["Heading6"][1]+"\\fs22\\cf2\\b",
+			Note: "\\s7\\f0\\sb"+lineSpacing_RTF["Note"][0]+"\\sa"+lineSpacing_RTF["Note"][1]+"\\cf4\\fs22",
 			link: "\\cf3\\ul",
 			code: "\\f2\\cf4\\highlight5",
 			bullet: "\\f3\\'95"
@@ -429,7 +439,7 @@ var exportLib = (function() {
 					else if (isTitle){
 						output = output + "{\\pard" + RTF_STYLE["Heading"+(temp_level+1)] + " " + text + "\\par}";
 					}
-					else // #todo implement ITEM
+					else
 						if(isItem){
 							if(firstItem){
 									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
