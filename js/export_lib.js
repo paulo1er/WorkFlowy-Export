@@ -27,6 +27,7 @@ var exportLib = (function() {
 			return str;
 		}
 	};
+
 	function Color(Id, Red, Green, Blue) {
   		this.Id = Id;
   		this.Red = Red;
@@ -51,7 +52,7 @@ var exportLib = (function() {
 			return str;
 		}
 	};
-	function Style(Id, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, spacing_between_line, font, font_seize, bold, italic, underline, color, background_color) {
+	function Style(Id, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, spacing_between_line, font, font_seize, bold, italic, underline, color, background_color, before="", after="") {
 		this.Id = Id;
 		this.aligement = aligement;
 		this.indentation_first_line = indentation_first_line;
@@ -67,8 +68,11 @@ var exportLib = (function() {
 		this.underline = underline;
 		this.color = color;
 		this.background_color = background_color;
+		this.before=before;
+		this.after=after;
 		this.toRTFstr = function(){
-			var str =	"\\s"+this.Id+
+			var str = this.before+
+							"\\s"+this.Id+
 							RTF_aligement[this.aligement]+
 							"\\fi"+this.indentation_first_line+
 							"\\li"+this.indentation_left+
@@ -82,7 +86,8 @@ var exportLib = (function() {
 			if(this.italic) str +="\\i";
 			if(this.underline) str += "\\ul";
 			str += "\\cf"+COLORSHEET[this.color].Id +
-			  		 "\\cb"+COLORSHEET[this.background_color].Id;
+			  		 "\\cb"+COLORSHEET[this.background_color].Id+
+						 this.after;
 			return str;
 		};
 	};
@@ -136,6 +141,17 @@ var exportLib = (function() {
 		return e;
 	};
 
+	function copy(mainObj) {
+  	let objCopy = {}; // objCopy will store a copy of the mainObj
+  	let key;
+  	for (key in mainObj) {
+    	objCopy[key] = mainObj[key]; // copies each property to the objCopy object
+  	}
+  	return objCopy;
+	}
+
+
+
 	exportNodesTree = function(nodes, index, level, options, indent_chars, prefix_indent_chars) {
 		var header = "";
 		var body = "";
@@ -183,6 +199,7 @@ var exportLib = (function() {
 			break;
 		}
 		console.log("header", header, nodes[index].type);
+		console.log("STYLESHEET",STYLESHEET.Normal);
 		// Create body text
 		body = exportNodesTreeBody(nodes, index, new_level, options, indent_chars, prefix_indent_chars);
 
@@ -206,7 +223,7 @@ var exportLib = (function() {
 
 	exportNodesTreeBody = function(nodes, index, level, options, indent_chars, prefix_indent_chars) {
 		var start = 0; //nodes[0].node_forest[0]; // EP
-
+		var nodesStyle;
 		var indent = "";
 		var output = "";
 		var output_after_children = "";
@@ -314,9 +331,14 @@ var exportLib = (function() {
 			nodes[index].title = nodes[index].title.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
 		}
 
+		if(isTitle && level<7)
+			nodesStyle = copy(STYLESHEET["Heading"+(level+1)]);
+		else
+			nodesStyle = copy(STYLESHEET["Normal"]);
+
 		console.log('Finished processing rules:', text, options.rules.ignore_item);
 
-		// Compute indent - #todo improve
+
 		if(level>0) indent = Array(level+1).join(prefix_indent_chars);
 		if(options.format == 'text') indent = indent + indent_chars;
 		indent = indent.replace(/(enum)/g,indentEnum++);
@@ -336,34 +358,35 @@ var exportLib = (function() {
 
 
 				textTag = text.match(WF_TAG_REGEXP);
-				if(textTag!=null && options.applyWFERules)
-				textTag.forEach(function(e) {
-					if(e.indexOf(" #wfe-count")!=-1){
-						text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
-							if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[RegExp.$1]=parseInt(RegExp.$3)-1;
-							if(!wfe_count[RegExp.$1])
-								wfe_count[RegExp.$1]=0;
-							  wfe_count[RegExp.$1]++;
-							if(RegExp.$2)
-						 		wfe_count_ID[RegExp.$1+":"+RegExp.$2]=wfe_count[RegExp.$1];
-							return wfe_count[RegExp.$1];
-						});
-					}
-					else if(e.indexOf(" #wfe-refLast:")!=-1){
-						text = text.replace(/#wfe-refLast:([^|\s|,|:|;|.]*)/g,function(){
-							if(wfe_count[RegExp.$1])
+				if(textTag!=null && options.applyWFERules){
+					textTag.forEach(function(e) {
+						if(e.indexOf(" #wfe-count")!=-1){
+							text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
+								if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[RegExp.$1]=parseInt(RegExp.$3)-1;
+								if(!wfe_count[RegExp.$1])
+									wfe_count[RegExp.$1]=0;
+								  wfe_count[RegExp.$1]++;
+								if(RegExp.$2)
+							 		wfe_count_ID[RegExp.$1+":"+RegExp.$2]=wfe_count[RegExp.$1];
 								return wfe_count[RegExp.$1];
-							return "NaN";
-						});
-					}
-					else if(e.indexOf(" #wfe-ref:")!=-1){
-						text = text.replace(/#wfe-ref:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
-							if(wfe_count_ID[RegExp.$1+":"+RegExp.$2])
-								return wfe_count_ID[RegExp.$1+":"+RegExp.$2];
-							return "NaN";
-						});
-					}
-				});
+							});
+						}
+						else if(e.indexOf(" #wfe-refLast:")!=-1){
+							text = text.replace(/#wfe-refLast:([^|\s|,|:|;|.]*)/g,function(){
+								if(wfe_count[RegExp.$1])
+									return wfe_count[RegExp.$1];
+								return "NaN";
+							});
+						}
+						else if(e.indexOf(" #wfe-ref:")!=-1){
+							text = text.replace(/#wfe-ref:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
+								if(wfe_count_ID[RegExp.$1+":"+RegExp.$2])
+									return wfe_count_ID[RegExp.$1+":"+RegExp.$2];
+								return "NaN";
+							});
+						}
+					});
+				}
 
 				if (options.rules.ignore_tags) {
 					// Strip off tags
@@ -371,6 +394,7 @@ var exportLib = (function() {
 					note = note.replace(WF_TAG_REGEXP, "");
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
+
 				if(options.rules.escapeCharacter)
 					ESCAPE_CHARACTER[options.format].forEach(function(e) {
 	  					text = text.split(e[0]).join(e[1]);
@@ -499,31 +523,29 @@ var exportLib = (function() {
 					//output = output + indent + text + nodes[index].myType;
  					var temp_level = level;
 
+					if(options.output_type=='list' && temp_level>0){
+							nodesStyle.indentation_first_line = -200;
+							nodesStyle.indentation_left = (400 * level) + 200;
+							nodesStyle.after="{\\f3\\'B7\\tab}";
+					}
+					else if(isItem){
+							nodesStyle.indentation_first_line = -360;
+							nodesStyle.indentation_left = 720;
+							nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
+							if(firstItem){
+								nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
+							}
+					}
+
+
 					text = text.replace(/--/g, "\\endash ");
 					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf4\\highlight5 $1}");
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt\\cf3\\ul $1}}");
 					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt\\cf3\\ul $1}}");//URL in note
 
-					if(options.output_type=='list')
-						if(temp_level==0)
-							output = output + "{\\pard" + STYLESHEET["Heading1"].toRTFstr() + " " + text + "\\par}";
-						else
-							output = output + "{\\pard" + STYLESHEET["Normal"].toRTFstr() + "\\fi-200\\li" + ((400 * (temp_level-1))+200) + "{\\f3\\'B7\\tab}" + text + "\\par}";
-					else if (isTitle){
-						output = output + "{\\pard" + STYLESHEET["Heading"+(temp_level+1)].toRTFstr() + " " + text + "\\par}";
-					}
-					else
-						if(isItem){
-							if(firstItem){
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}" + STYLESHEET["Normal"].toRTFstr() + "\\fi-360\\li720{\\pntext\\f3\\'B7\\tab}" + text + "\\par";
-									firstItem=false;
-							}
-							else
-									output = output + "{\\pntext\\f3\\'B7\\tab}" + STYLESHEET["Normal"].toRTFstr() + "\\fi-360\\li720" + text + "\\par";
-						}
-						else
-							output = output + "{\\pard" + STYLESHEET["Normal"].toRTFstr() + " " + text + "\\par}";
+					console.log("AZERTY: ", nodesStyle);
+					output = output + "{\\pard" + nodesStyle.toRTFstr() + "{" + text + "}\\par}";
 
 					if (page_break > -1)
 					{
