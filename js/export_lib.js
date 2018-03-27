@@ -106,27 +106,7 @@ var exportLib = (function() {
 			return str;
 		}
 	};
-<<<<<<< HEAD
 
-=======
-	console.log("RTF_STYLE_NORMAL : ", RTF_STYLE_NORMAL.toStr());
-
-	*/
-
-	var RTF_STYLE = {
-			Normal: "\\s0\\f0\\sb"+lineSpacing_RTF["Normal"][0]+"\\sa"+lineSpacing_RTF["Normal"][1]+"\\fs22\\cf2",
-			Heading1: "\\s1\\f0\\sb"+lineSpacing_RTF["Heading1"][0]+"\\sa"+lineSpacing_RTF["Heading1"][1]+"\\fs32\\cf2\\b",
-			Heading2: "\\s2\\f0\\sb"+lineSpacing_RTF["Heading2"][0]+"\\sa"+lineSpacing_RTF["Heading2"][1]+"\\fs28\\cf2\\b",
-			Heading3: "\\s3\\f0\\sb"+lineSpacing_RTF["Heading3"][0]+"\\sa"+lineSpacing_RTF["Heading3"][1]+"\\fs22\\cf2\\b",
-			Heading4: "\\s4\\f0\\sb"+lineSpacing_RTF["Heading4"][0]+"\\sa"+lineSpacing_RTF["Heading4"][1]+"\\fs22\\cf2\\b",
-			Heading5: "\\s5\\f0\\sb"+lineSpacing_RTF["Heading5"][0]+"\\sa"+lineSpacing_RTF["Heading5"][1]+"\\fs22\\cf2\\b",
-			Heading6: "\\s6\\f0\\sb"+lineSpacing_RTF["Heading6"][0]+"\\sa"+lineSpacing_RTF["Heading6"][1]+"\\fs22\\cf2\\b",
-			Note: "\\s7\\f0\\sb"+lineSpacing_RTF["Note"][0]+"\\sa"+lineSpacing_RTF["Note"][1]+"\\cf4\\fs22",
-			link: "\\cf3\\ul",
-			code: "\\f2\\cf4\\highlight5",
-			bullet: "\\f3\\'B7"
-		};
->>>>>>> 7e9d06e13d96379378ab0a136b39378e2782c371
 
 	var ESCAPE_CHARACTER = {
 			text: [["",""]],
@@ -536,11 +516,7 @@ var exportLib = (function() {
 					else
 						if(isItem){
 							if(firstItem){
-<<<<<<< HEAD
 									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}" + STYLESHEET["Normal"].toRTFstr() + "\\fi-360\\li720{\\pntext\\f3\\'B7\\tab}" + text + "\\par";
-=======
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
->>>>>>> 7e9d06e13d96379378ab0a136b39378e2782c371
 									firstItem=false;
 							}
 							else
