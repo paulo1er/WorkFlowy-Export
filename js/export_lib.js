@@ -231,6 +231,7 @@ var exportLib = (function() {
 		var text = "";
 		var note = "";
 		var textTag=[""];
+		var configTag=[""];
 		var ignore_item = false;
 		var ignore_outline = false;
 		var output_children;
@@ -335,7 +336,6 @@ var exportLib = (function() {
 			nodesStyle = copy(STYLESHEET["Heading"+(level+1)]);
 		else
 			nodesStyle = copy(STYLESHEET["Normal"]);
-
 		console.log('Finished processing rules:', text, options.rules.ignore_item);
 
 
@@ -355,7 +355,6 @@ var exportLib = (function() {
 				text = nodes[index].title;
 				note = nodes[index].note;
 				console.log('Process item:', text, options.rules.ignore_item);
-
 
 				textTag = text.match(WF_TAG_REGEXP);
 				if(textTag!=null && options.applyWFERules){
@@ -383,6 +382,18 @@ var exportLib = (function() {
 								if(wfe_count_ID[RegExp.$1+":"+RegExp.$2])
 									return wfe_count_ID[RegExp.$1+":"+RegExp.$2];
 								return "NaN";
+							});
+						}
+						else if(e.indexOf(" #wfe-config:"!=-1)){
+							text = text.replace(/#wfe-config:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
+								console.log("Try to change",RegExp.$1," by the value ", RegExp.$2);
+								if(nodesStyle.hasOwnProperty(RegExp.$1)){
+									nodesStyle[RegExp.$1]=RegExp.$2;
+									console.log("The property ",RegExp.$1," has now the value ", RegExp.$2);
+								}
+								else
+									console.log(RegExp.$1," isn't a good property of a paragraph");
+								return "";
 							});
 						}
 					});
