@@ -9,49 +9,66 @@ var exportLib = (function() {
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var firstItem=true;
 	var indentEnum=1;
-	var lineSpacing_RTF={
-		Normal:[0,180],
-		Heading1: [0,180],
-		Heading2: [0,180],
-		Heading3: [0,180],
-		Heading4: [0,180],
-		Heading5: [0,180],
-		Heading6: [0,180],
-		Note: [0,180]
-	}
-	/*var RTF_STYLESHEET={Normal:0, Heading1:1, Heading2:2, Heading3:3, Heading4:4, Heading5:5, Heading6:6, code:7};
+
 	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
-	var RTF_STYLEFONT={Arial:0, TimesNewRoman:1, Courier:2, Symbol:3};
-	var RTF_COLOR={
-		function RTF_COLOR(Id, Red, Green, Blue) {
+	var FONTSHEET={
+		"Arial":0,
+		"Times New Roman":1,
+		"Courier":2,
+		"Symbol":3,
+		toRTFstr : function(){
+			var str = "{\\fonttbl";
+			for(var key in this){
+				if (this.hasOwnProperty(key) && typeof(this[key])!="function") {
+					str += "{\\f" + this[key] + " " + key + ";}";
+				}
+			}
+			str += "}";
+			return str;
+		}
+	};
+	function Color(Id, Red, Green, Blue) {
   		this.Id = Id;
   		this.Red = Red;
   		this.Green = Green;
   		this.Blue = Blue;
+			this.toRTFstr = function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue};
+	};
+	var COLORSHEET={
+		White : new Color(1,255,255,255),
+		Black : new Color(2,0,0,0),
+		Blue : new Color(3,0,0,130),
+		DarkGrey : new Color(4,25,25,25),
+		LightGrey : new Color(5,180,180,180),
+		toRTFstr : function(){
+			var str = "{\\colortbl;";
+			for(var key in this){
+				if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
+					str += this[key].toRTFstr() + ";";
+				}
+			}
+			str += "}";
+			return str;
 		}
-		code:function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue}
-	}
-	var RTF_COLORSHEET={
-
-	}
-	var RTF_STYLE_NORMAL = {
-		stylesheet : "Normal",
-		aligement : "left",
-		indentation_first_line : 0,
-		indentation_left : 0,
-		indentation_right : 0,
-		spacing_before:0,
-		spacing_after:180,
-		spacing_between_line:0,
-		font:"Arial",
-		font_seize:22,
-		bold:false,
-		italic:false,
-		underline:false,
-		color:"black",
-		background_color:"white",
-		toStr:function(){
-			var str = "\\s"+RTF_STYLESHEET[this.stylesheet]+
+	};
+	function Style(Id, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, spacing_between_line, font, font_seize, bold, italic, underline, color, background_color) {
+		this.Id = Id;
+		this.aligement = aligement;
+		this.indentation_first_line = indentation_first_line;
+		this.indentation_left = indentation_left;
+		this.indentation_right = indentation_right;
+		this.spacing_before = spacing_before;
+		this.spacing_after = spacing_after;
+		this.spacing_between_line = spacing_between_line;
+		this.font = font;
+		this.font_seize = font_seize;
+		this.bold = bold;
+		this.italic = italic;
+		this.underline = underline;
+		this.color = color;
+		this.background_color = background_color;
+		this.toRTFstr = function(){
+			var str =	"\\s"+this.Id+
 							RTF_aligement[this.aligement]+
 							"\\fi"+this.indentation_first_line+
 							"\\li"+this.indentation_left+
@@ -59,31 +76,37 @@ var exportLib = (function() {
 							"\\sb"+this.spacing_before+
 							"\\sa"+this.spacing_after+
 							"\\sl"+this.spacing_between_line+
-							"\\f"+RTF_STYLEFONT[this.font]+
+							"\\f"+FONTSHEET[this.font]+
 							"\\fs"+this.font_seize;
-			if(this.bold) str = str + "\\b";
-			if(this.italic) str = str + "\\i";
-			if(this.underline) str = str + "\\ul";
+			if(this.bold) str += "\\b";
+			if(this.italic) str +="\\i";
+			if(this.underline) str += "\\ul";
+			str += "\\cf"+COLORSHEET[this.color].Id +
+			  		 "\\cb"+COLORSHEET[this.background_color].Id;
+			return str;
+		};
+	};
+	var STYLESHEET={
+		Normal : new Style(0,"left",0,0,0,0,180,0,"Arial",22,false,false,false,"Black","White"),
+		Heading1 : new Style(1,"left",0,0,0,0,180,0,"Arial",32,true,false,false,"Black","White"),
+		Heading2 : new Style(2,"left",0,0,0,0,180,0,"Arial",28,true,false,false,"Black","White"),
+		Heading3 : new Style(3,"left",0,0,0,0,180,0,"Arial",24,true,false,false,"Black","White"),
+		Heading4 : new Style(4,"left",0,0,0,0,180,0,"Arial",22,true,false,false,"Black","White"),
+		Heading5 : new Style(5,"left",0,0,0,0,180,0,"Arial",22,true,false,false,"Black","White"),
+		Heading6 : new Style(6,"left",0,0,0,0,180,0,"Arial",22,true,false,false,"Black","White"),
+		Note : new Style(7,"left",0,0,0,0,180,0,"Arial",22,false,false,false,"Black","White"),
+		toRTFstr : function(){
+			var str = "{\\stylesheet";
+			for(var key in this){
+				if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
+					str += "{" + this[key].toRTFstr() + " " + key + "}";
+				}
+			}
+			str += "}";
 			return str;
 		}
 	};
-	console.log("RTF_STYLE_NORMAL : ", RTF_STYLE_NORMAL.toStr());
 
-	*/
-
-	var RTF_STYLE = {
-			Normal: "\\s0\\f0\\sb"+lineSpacing_RTF["Normal"][0]+"\\sa"+lineSpacing_RTF["Normal"][1]+"\\fs22\\cf2",
-			Heading1: "\\s1\\f0\\sb"+lineSpacing_RTF["Heading1"][0]+"\\sa"+lineSpacing_RTF["Heading1"][1]+"\\fs32\\cf2\\b",
-			Heading2: "\\s2\\f0\\sb"+lineSpacing_RTF["Heading2"][0]+"\\sa"+lineSpacing_RTF["Heading2"][1]+"\\fs28\\cf2\\b",
-			Heading3: "\\s3\\f0\\sb"+lineSpacing_RTF["Heading3"][0]+"\\sa"+lineSpacing_RTF["Heading3"][1]+"\\fs22\\cf2\\b",
-			Heading4: "\\s4\\f0\\sb"+lineSpacing_RTF["Heading4"][0]+"\\sa"+lineSpacing_RTF["Heading4"][1]+"\\fs22\\cf2\\b",
-			Heading5: "\\s5\\f0\\sb"+lineSpacing_RTF["Heading5"][0]+"\\sa"+lineSpacing_RTF["Heading5"][1]+"\\fs22\\cf2\\b",
-			Heading6: "\\s6\\f0\\sb"+lineSpacing_RTF["Heading6"][0]+"\\sa"+lineSpacing_RTF["Heading6"][1]+"\\fs22\\cf2\\b",
-			Note: "\\s7\\f0\\sb"+lineSpacing_RTF["Note"][0]+"\\sa"+lineSpacing_RTF["Note"][1]+"\\cf4\\fs22",
-			link: "\\cf3\\ul",
-			code: "\\f2\\cf4\\highlight5",
-			bullet: "\\f3\\'95"
-		};
 
 	var ESCAPE_CHARACTER = {
 			text: [["",""]],
@@ -128,9 +151,9 @@ var exportLib = (function() {
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
 			RTF: "{\\rtf1\\ansi\\deff0\n"+
-			     "{\\fonttbl {\\f0 Arial;}{\\f1 Times New Roman;}{\\f2 Courier;}{\\f3 Symbol;}}\n"+
-			     "{\\colortbl;\\red255\\green255\\blue255;\\red0\\green0\\blue0;\\red0\\green0\\blue130;\\red25\\green25\\blue25;\\red180\\green180\\blue180;}\n"+
-			     "{\\stylesheet {"+RTF_STYLE["Normal"]+" Normal;}{"+RTF_STYLE["Heading1"]+" Heading 1;}{"+RTF_STYLE["Heading2"]+" Heading 2;}{"+RTF_STYLE["Heading3"]+" Heading 3;}{"+RTF_STYLE["Heading4"]+" Heading 4;}{"+RTF_STYLE["Heading5"]+" Heading 5;}{"+RTF_STYLE["Heading6"]+" Heading 6;}{"+RTF_STYLE["Note"]+" Note;}}\n"
+			     FONTSHEET.toRTFstr()+"\n"+
+			     COLORSHEET.toRTFstr()+"\n"+
+			     STYLESHEET.toRTFstr()+"\n"
 			};
 		var FOOTER = {
 			text: "",
@@ -477,36 +500,36 @@ var exportLib = (function() {
  					var temp_level = level;
 
 					text = text.replace(/--/g, "\\endash ");
-					text = text.replace(/`([^`]*)`/g, "{" + RTF_STYLE["code"] + " $1}");
+					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf4\\highlight5 $1}");
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt" + RTF_STYLE["link"] + " $1}}");
-					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt" + RTF_STYLE["link"] + " $1}}");//URL in note
+					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt\\cf3\\ul $1}}");
+					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt\\cf3\\ul $1}}");//URL in note
 
 					if(options.output_type=='list')
 						if(temp_level==0)
-							output = output + "{\\pard" + RTF_STYLE["Heading1"] + " " + text + "\\par}";
+							output = output + "{\\pard" + STYLESHEET["Heading1"].toRTFstr() + " " + text + "\\par}";
 						else
-							output = output + "{\\pard" + RTF_STYLE["Normal"] + "\\fi-200\\li" + ((400 * (temp_level-1))+200) + "{" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par}";
+							output = output + "{\\pard" + STYLESHEET["Normal"].toRTFstr() + "\\fi-200\\li" + ((400 * (temp_level-1))+200) + "{\\f3\\'B7\\tab}" + text + "\\par}";
 					else if (isTitle){
-						output = output + "{\\pard" + RTF_STYLE["Heading"+(temp_level+1)] + " " + text + "\\par}";
+						output = output + "{\\pard" + STYLESHEET["Heading"+(temp_level+1)].toRTFstr() + " " + text + "\\par}";
 					}
 					else
 						if(isItem){
 							if(firstItem){
-									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf1\\pnindent0{\\pntxtb" + RTF_STYLE["bullet"] + "}}\\fi-360\\li720" + RTF_STYLE["Normal"] + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + text + "\\par";
+									output = output + "\\pard{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}" + STYLESHEET["Normal"].toRTFstr() + "\\fi-360\\li720{\\pntext\\f3\\'B7\\tab}" + text + "\\par";
 									firstItem=false;
 							}
 							else
-									output = output + "{\\pntext" + RTF_STYLE["bullet"] + "\\tab}" + RTF_STYLE["Normal"] + " " + text + "\\par";
+									output = output + "{\\pntext\\f3\\'B7\\tab}" + STYLESHEET["Normal"].toRTFstr() + "\\fi-360\\li720" + text + "\\par";
 						}
 						else
-							output = output + "{\\pard" + RTF_STYLE["Normal"] + " " + text + "\\par}";
+							output = output + "{\\pard" + STYLESHEET["Normal"].toRTFstr() + " " + text + "\\par}";
 
 					if (page_break > -1)
 					{
 						output = output + "\\page";
 					}
-					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard" + RTF_STYLE["Note"] + "" + note + "\\par}";
+					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard" + STYLESHEET["Note"].toRTFstr() + "" + note + "\\par}";
 					output = output + "\n";
 				}
 				else {
