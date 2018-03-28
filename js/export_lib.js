@@ -149,6 +149,73 @@ var exportLib = (function() {
   	}
   	return objCopy;
 	}
+	function testProperty(property, value){
+		switch (property) {
+			case 'aligement':
+				if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") return "left";
+				else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") return "right";
+				else if(value.toUpperCase()=="CENTER" || value.toUpperCase()=="C") return "center";
+				else if(value.toUpperCase()=="JUSTIFIED" || value.toUpperCase()=="J") return "justified";
+			break;
+			case 'indentation_first_line':
+				if(!isNaN(value)) return value;
+			break;
+			case 'indentation_left':
+				if(!isNaN(value)) return value;
+			break;
+			case 'spacing_before':
+				if(!isNaN(value)) return value;
+			break;
+			case 'spacing_after':
+				if(!isNaN(value)) return value;
+			break;
+			case 'spacing_between_line':
+				if(!isNaN(value)) return value;
+			break;
+			case 'font':
+				if(value.toUpperCase()=="ARIAL") return "Arial";
+				else if(value.toUpperCase()=="TIMES_NEW_ROMAN") return "Times New Roman";
+				else if(value.toUpperCase()=="COURIER") return "Courier";
+				else if(value.toUpperCase()=="SYMBOL") return "Symbol";
+			break;
+			case 'font_seize':
+				if(!isNaN(value)) return value;
+			break;
+			case 'bold':
+				if(value.toUpperCase()=="TRUE" || value.toUpperCase()=="Y"|| value.toUpperCase()=="YES") return true;
+				else if(value.toUpperCase()=="FALSE" || value.toUpperCase()=="N" || value.toUpperCase()=="NO") return false;
+			break;
+			case 'italic':
+				if(value.toUpperCase()=="TRUE" || value.toUpperCase()=="Y"|| value.toUpperCase()=="YES") return true;
+				else if(value.toUpperCase()=="FALSE" || value.toUpperCase()=="N" || value.toUpperCase()=="NO") return false;
+			break;
+			case 'underline':
+				if(value.toUpperCase()=="TRUE" || value.toUpperCase()=="Y"|| value.toUpperCase()=="YES") return true;
+				else if(value.toUpperCase()=="FALSE" || value.toUpperCase()=="N" || value.toUpperCase()=="NO") return false;
+			break;
+			case 'color':
+				if(value.toUpperCase()=="WHITE") return "White";
+				else if(value.toUpperCase()=="BLACK") return "Black";
+				else if(value.toUpperCase()=="BLUE") return "Blue";
+				else if(value.toUpperCase()=="DARKGREY") return "DarkGrey";
+				else if(value.toUpperCase()=="LIGHTGREY") return "LightGrey";
+			break;
+			case 'background_color':
+				if(value.toUpperCase()=="WHITE") return "White";
+				else if(value.toUpperCase()=="BLACK") return "Black";
+				else if(value.toUpperCase()=="BLUE") return "Blue";
+				else if(value.toUpperCase()=="DARKGREY") return "DarkGrey";
+				else if(value.toUpperCase()=="LIGHTGREY") return "LightGrey";
+			break;
+			case 'before':
+				return value;
+			break;
+			case 'after':
+				return value;
+			break;
+		}
+			return null;
+	}
 
 
 
@@ -387,13 +454,19 @@ var exportLib = (function() {
 						}
 						else if(e.indexOf(" #wfe-config:"!=-1)){
 							e = e.replace(/#wfe-config:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
-								console.log("Try to change",RegExp.$1," by the value ", RegExp.$2);
+								console.log("wfe-config : Try to change",RegExp.$1,"by the value", RegExp.$2);
 								if(nodesStyle.hasOwnProperty(RegExp.$1)){
-									nodesStyle[RegExp.$1]=RegExp.$2;
-									console.log("The property ",RegExp.$1," has now the value ", RegExp.$2);
+									var value = testProperty(RegExp.$1, RegExp.$2);
+									if(value == null){
+										console.log("wfe-config : The value",RegExp.$2,"isn't a good value for the property", RegExp.$1);
+									}
+									else{
+										nodesStyle[RegExp.$1]=value;
+										console.log("wfe-config : The property",RegExp.$1,"has now the value", value);
+									}
 								}
 								else
-									console.log(RegExp.$1," isn't a good property of a paragraph");
+									console.log("wfe-config :",RegExp.$1,"isn't a good property of a paragraph");
 								return "";
 							});
 						}
