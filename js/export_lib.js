@@ -11,6 +11,7 @@ var exportLib = (function() {
 	var indentEnum=1;
 
 	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
+	var HTML_aligement={left:"text-align: left;  ", right:"text-align: right;  ", center:"text-align: center;  ", justified:"text-align: justify;  "};
 	var FONTSHEET={
 		"Arial":0,
 		"Times New Roman":1,
@@ -34,6 +35,7 @@ var exportLib = (function() {
   		this.Green = Green;
   		this.Blue = Blue;
 			this.toRTFstr = function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue};
+			this.toHTMLstr = function(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"};
 	};
 	var COLORSHEET={
 		White : new Color(1,255,255,255),
@@ -52,7 +54,7 @@ var exportLib = (function() {
 			return str;
 		}
 	};
-	function Style(Id, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, spacing_between_line, font, font_seize, bold, italic, underline, color, background_color, before="", after="") {
+	function Style(Id, aligement=null, indentation_first_line=NaN, indentation_left=NaN, indentation_right=NaN, spacing_before=NaN, spacing_after=NaN, font=null, font_size=NaN, bold=NaN, italic=NaN, underline=NaN, color=null, background_color=null, before="", after="") {
 		this.Id = Id;
 		this.aligement = aligement;
 		this.indentation_first_line = indentation_first_line;
@@ -60,9 +62,8 @@ var exportLib = (function() {
 		this.indentation_right = indentation_right;
 		this.spacing_before = spacing_before;
 		this.spacing_after = spacing_after;
-		this.spacing_between_line = spacing_between_line;
 		this.font = font;
-		this.font_seize = font_seize;
+		this.font_size = font_size;
 		this.bold = bold;
 		this.italic = italic;
 		this.underline = underline;
@@ -74,14 +75,13 @@ var exportLib = (function() {
 			var str = this.before+
 							"\\s"+this.Id+
 							RTF_aligement[this.aligement]+
-							"\\fi"+this.indentation_first_line+
-							"\\li"+this.indentation_left+
-							"\\ri"+this.indentation_right+
-							"\\sb"+this.spacing_before+
-							"\\sa"+this.spacing_after+
-							"\\sl"+this.spacing_between_line+
+							"\\fi"+(20*Number(this.indentation_first_line))+
+							"\\li"+(20*Number(this.indentation_left))+
+							"\\ri"+(20*Number(this.indentation_right))+
+							"\\sb"+(20*Number(this.spacing_before))+
+							"\\sa"+(20*Number(this.spacing_after))+
 							"\\f"+FONTSHEET[this.font]+
-							"\\fs"+this.font_seize;
+							"\\fs"+this.font_size;
 			if(this.bold) str += "\\b";
 			if(this.italic) str +="\\i";
 			if(this.underline) str += "\\ul";
@@ -89,17 +89,35 @@ var exportLib = (function() {
 			  		 "\\highlight"+COLORSHEET[this.background_color].Id+
 						 this.after;
 			return str;
-		};
+		},
+		this.toHTMLstr = function(){
+			var str = "";
+			if(this.aligement!=null) str += HTML_aligement[this.aligement];
+			if(!isNaN(this.indentation_first_line)) str += "text-indent: "+this.indentation_first_line+"px;  ";
+			if(!isNaN(this.indentation_left)) str += "margin-left: "+this.indentation_left+"px;  ";
+			if(!isNaN(this.indentation_right)) str += "margin-right: "+this.indentation_right+"px;  ";
+			if(!isNaN(this.spacing_before)) str += "margin-top: "+this.spacing_before+"px;  ";
+			if(!isNaN(this.spacing_after)) str += "margin-bottom: "+this.spacing_after+"px;  ";
+			if(this.font!=null) str += "font-family: "+this.font+";  ";
+			if(!isNaN(this.font_size)) str += "font-size: "+(this.font_size/2)+"px;  ";
+			if(!isNaN(this.bold)){if(this.bold) str += "font-weight: bold;  "; else str += "font-weight: normal;";};
+			if(!isNaN(this.italic)){if(this.italic) str +="font-style: italic;  "; else str +="font-style: normal;  ";};
+			if(!isNaN(this.underline)){if(this.underline) str += "text-decoration: underline;  "; else str += "text-decoration: none;  ";};
+			if(this.color!=null) str += "color: "+COLORSHEET[this.color].toHTMLstr()+";  ";
+			if(this.background_color!=null) str += "background-color: "+COLORSHEET[this.background_color].toHTMLstr()+";  ";
+			return this.before+str+this.after;
+		}
 	};
+	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p"];
 	var STYLESHEET={
-		Normal : new Style(0,"left",0,0,0,0,180,0,"Arial",22,false,false,false,"Black","White"),
-		Heading1 : new Style(1,"left",0,0,0,0,180,0,"Arial",32,true,false,false,"Black","White"),
-		Heading2 : new Style(2,"left",0,0,0,0,180,0,"Arial",28,true,false,false,"Black","White"),
-		Heading3 : new Style(3,"left",0,0,0,0,180,0,"Arial",24,true,false,false,"Black","White"),
-		Heading4 : new Style(4,"left",0,0,0,0,180,0,"Arial",22,true,false,false,"Black","White"),
-		Heading5 : new Style(5,"left",0,0,0,0,180,0,"Arial",22,true,false,false,"Black","White"),
-		Heading6 : new Style(6,"left",0,0,0,0,180,0,"Arial",22,true,false,false,"Black","White"),
-		Note : new Style(7,"left",0,0,0,0,180,0,"Arial",22,false,false,false,"Black","White"),
+		Normal : new Style(0,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",32,true,false,false,"Black","White"),
+		Heading2 : new Style(2,"left",0,0,0,0,10,"Arial",28,true,false,false,"Black","White"),
+		Heading3 : new Style(3,"left",0,0,0,0,10,"Arial",24,true,false,false,"Black","White"),
+		Heading4 : new Style(4,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
+		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
+		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
+		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		toRTFstr : function(){
 			var str = "{\\stylesheet";
 			for(var key in this){
@@ -109,9 +127,25 @@ var exportLib = (function() {
 			}
 			str += "}";
 			return str;
+		},
+		toHTMLstr : function(){
+			var str = "";
+			for(var key in this){
+				if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
+					str += idStyleToHTMLBalise[this[key].Id] + "." + key + "{" + this[key].toHTMLstr() + "}\n" ;
+				}
+			}
+			return str;
+		},
+		styleName : function(idStyle){
+				for(var key in this){
+					if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
+						if(this[key].Id==idStyle) return key;
+					}
+				}
+				return "";
 		}
 	};
-
 
 	var ESCAPE_CHARACTER = {
 			text: [["",""]],
@@ -163,13 +197,13 @@ var exportLib = (function() {
 			case 'indentation_left':
 				if(!isNaN(value)) return value;
 			break;
+			case 'indentation_right':
+				if(!isNaN(value)) return value;
+			break;
 			case 'spacing_before':
 				if(!isNaN(value)) return value;
 			break;
 			case 'spacing_after':
-				if(!isNaN(value)) return value;
-			break;
-			case 'spacing_between_line':
 				if(!isNaN(value)) return value;
 			break;
 			case 'font':
@@ -178,7 +212,7 @@ var exportLib = (function() {
 				else if(value.toUpperCase()=="COURIER") return "Courier";
 				else if(value.toUpperCase()=="SYMBOL") return "Symbol";
 			break;
-			case 'font_seize':
+			case 'font_size':
 				if(!isNaN(value)) return value;
 			break;
 			case 'bold':
@@ -229,7 +263,7 @@ var exportLib = (function() {
 		var HEADER = {
 			text: "",
 			md: "",
-			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n img {max-height: 1280px;max-width: 720px;} h4,h5,h6 {font-size: 1em;}\n    </style>\n  </head>\n  <body>\n",
+			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n img {max-height: 1280px;max-width: 720px;}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			LaTeX: "",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
@@ -399,10 +433,18 @@ var exportLib = (function() {
 			nodes[index].title = nodes[index].title.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
 		}
 
-		if(isTitle && level<7)
-			nodesStyle = copy(STYLESHEET["Heading"+(level+1)]);
-		else
-			nodesStyle = copy(STYLESHEET["Normal"]);
+		if(isTitle && level<7){
+			if(options.format == 'HTML')
+				nodesStyle = new Style(STYLESHEET["Heading"+(level+1)].Id);
+			else
+				nodesStyle = copy(STYLESHEET["Heading"+(level+1)])
+		}
+		else{
+			if(options.format == 'HTML')
+				nodesStyle = new Style(STYLESHEET["Normal"].Id);
+			else
+				nodesStyle = copy(STYLESHEET["Normal"]);
+		}
 		console.log('Finished processing rules:', text, options.rules.ignore_item);
 
 
@@ -424,7 +466,6 @@ var exportLib = (function() {
 				console.log('Process item:', text, options.rules.ignore_item);
 
 				textTag = text.match(WF_TAG_REGEXP);
-				console.log("AZERTY",textTag);
 				if(textTag!=null && options.applyWFERules){
 					textTag.forEach(function(e) {
 						if(e.indexOf(" #wfe-count")!=-1){
@@ -489,38 +530,28 @@ var exportLib = (function() {
 				// Update output
 				if (options.format == 'HTML') {
 					//output = output + indent + text + nodes[index].myType;
-
 					text = text.replace(/--/g, "&ndash;");
-
 					//Interpretation of `code`
 					text = text.replace(/`([^`]*)`/g, "<code style=\"background-color: #d3d3d3;\"> &nbsp;$1 </code>");
-
 					//Insert Image
 					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g, "<img src=\"$2\"  title=\"$1\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">$1</span>");
-
 					//Create hyperlinks
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
-					var temp_level = level + 1;
-					if(options.output_type=='list')
-						if(temp_level==1){
-							output = output + indent + "<h1>" + text + "</h1>\n"+"<ul>";
-							output_after_children= indent +"</ul>\n";
-						}
-						else if (nodes[index].myType == "HEADING") {
-							output = output + indent + "<li>" + text + "</li>\n"+"<ul>";
-							output_after_children= indent +"</ul>\n";
-						}
-						else {
-							output = output + indent + "<li>" + text + "</li>";
-						}
-					else if(isItem){
-							output = output + indent + "<li>" + text + "</li>"; //need to know lastItem for do <ul>
+
+					if(options.output_type=='list' && temp_level>0){
+							nodesStyle.indentation_first_line = -10;
+							nodesStyle.indentation_left = (20 * level) + 10;
+							text = "&bull; " + text;
 					}
-					else if (isTitle)
-							output = output + indent + "<h" + temp_level.toString() + ">" + text + "</h" + temp_level.toString() + ">";
-					else // #todo implement ITEM
-						output = output + indent + "<p>" + text + "</p>";
+					else if(isItem){
+							nodesStyle.indentation_first_line = -20;
+							nodesStyle.indentation_left = 40;
+							text = "&bull; " + text;
+					}
+					var style = nodesStyle.toHTMLstr();
+					if(style!="")style = "style=\""+style+"\"";
+					output += indent + "<" + idStyleToHTMLBalise[nodesStyle.Id] + " class=\"" + STYLESHEET.styleName(nodesStyle.Id)+ "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[nodesStyle.Id] + ">";
 
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p>" + note + "</p>";
 
@@ -609,13 +640,13 @@ var exportLib = (function() {
  					var temp_level = level;
 
 					if(options.output_type=='list' && temp_level>0){
-							nodesStyle.indentation_first_line = -200;
-							nodesStyle.indentation_left = (400 * level) + 200;
+							nodesStyle.indentation_first_line = -10;
+							nodesStyle.indentation_left = (20 * level) + 10;
 							nodesStyle.after="{\\f3\\'B7\\tab}";
 					}
 					else if(isItem){
-							nodesStyle.indentation_first_line = -360;
-							nodesStyle.indentation_left = 720;
+							nodesStyle.indentation_first_line = -20;
+							nodesStyle.indentation_left = 40;
 							nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
 							if(firstItem){
 								nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
@@ -629,7 +660,6 @@ var exportLib = (function() {
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt\\cf3\\ul $1}}");
 					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt\\cf3\\ul $1}}");//URL in note
 
-					console.log("AZERTY: ", nodesStyle);
 					output = output + "{\\pard" + nodesStyle.toRTFstr() + "{" + text + "}\\par}";
 
 					if (page_break > -1)
