@@ -86,7 +86,7 @@ var exportLib = (function() {
 			if(this.italic) str +="\\i";
 			if(this.underline) str += "\\ul";
 			str += "\\cf"+COLORSHEET[this.color].Id +
-			  		 "\\cb"+COLORSHEET[this.background_color].Id+
+			  		 "\\highlight"+COLORSHEET[this.background_color].Id+
 						 this.after;
 			return str;
 		};
@@ -357,6 +357,7 @@ var exportLib = (function() {
 				console.log('Process item:', text, options.rules.ignore_item);
 
 				textTag = text.match(WF_TAG_REGEXP);
+				console.log("AZERTY",textTag);
 				if(textTag!=null && options.applyWFERules){
 					textTag.forEach(function(e) {
 						if(e.indexOf(" #wfe-count")!=-1){
@@ -385,7 +386,7 @@ var exportLib = (function() {
 							});
 						}
 						else if(e.indexOf(" #wfe-config:"!=-1)){
-							text = text.replace(/#wfe-config:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
+							e = e.replace(/#wfe-config:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
 								console.log("Try to change",RegExp.$1," by the value ", RegExp.$2);
 								if(nodesStyle.hasOwnProperty(RegExp.$1)){
 									nodesStyle[RegExp.$1]=RegExp.$2;
