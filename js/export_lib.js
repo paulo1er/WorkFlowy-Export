@@ -118,7 +118,7 @@ var exportLib = (function() {
 		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item : new Style(8,"left",-10,40,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item : new Style(8,"left",-11,40,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		toRTFstr : function(){
 			var str = "{\\stylesheet";
 			for(var key in this){
@@ -264,7 +264,7 @@ var exportLib = (function() {
 		var HEADER = {
 			text: "",
 			md: "",
-			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
+			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			LaTeX: "",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
@@ -338,7 +338,7 @@ var exportLib = (function() {
 		var ignore_outline = false;
 		var output_children;
 		var isItem=false;
-		var isTitle=(nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle";
+		var isTitle=((nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle") && (options.output_type!="list" || level==0);
 
 		// Create section heading LaTeX
 /* 					var title_level = 0;
@@ -440,7 +440,7 @@ var exportLib = (function() {
 			else
 				nodesStyle = copy(STYLESHEET["Heading"+(level+1)])
 		}
-		else if(isItem){
+		else if(isItem || options.output_type=='list'){
 			if(options.format == 'HTML')
 				nodesStyle = new Style(STYLESHEET["Item"].Id);
 			else
@@ -546,9 +546,10 @@ var exportLib = (function() {
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
 
-					if(options.output_type=='list' && temp_level>0){
+					if(options.output_type=='list' && level>0){
 							nodesStyle.indentation_left = (20 * level) + 10;
 					}
+					console.log("AZERTY",options.output_type);
 					var style = nodesStyle.toHTMLstr();
 					if(style!="")style = "style=\""+style+"\"";
 					output += indent + "<" + idStyleToHTMLBalise[nodesStyle.Id] + " class=\"" + STYLESHEET.styleName(nodesStyle.Id)+ "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[nodesStyle.Id] + ">";
