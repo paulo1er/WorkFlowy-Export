@@ -108,7 +108,7 @@ var exportLib = (function() {
 			return this.before+str+this.after;
 		}
 	};
-	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p"];
+	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li"];
 	var STYLESHEET={
 		Normal : new Style(0,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",32,true,false,false,"Black","White"),
@@ -118,6 +118,7 @@ var exportLib = (function() {
 		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item : new Style(8,"left",-10,40,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		toRTFstr : function(){
 			var str = "{\\stylesheet";
 			for(var key in this){
@@ -263,7 +264,7 @@ var exportLib = (function() {
 		var HEADER = {
 			text: "",
 			md: "",
-			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n img {max-height: 1280px;max-width: 720px;}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
+			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			LaTeX: "",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
@@ -352,7 +353,7 @@ var exportLib = (function() {
 		var subsection_level = -1;
 		var frame_level = 1;
 		var heading = 0;
-		var page_break = -1;
+		var page_break = false;
 
 		console.log("nodesTreeToText -- processing nodes["+index.toString()+"] = ", nodes[index].title, 'at level', level.toString());
 		console.log("options:", options);
@@ -420,7 +421,7 @@ var exportLib = (function() {
 			if (nodes[index].title.search(/#wfe-page-break($|\s)/ig) != -1)
 			{
 				console.log('page break found');
-				page_break = 0;
+				page_break = true;
 			}
 			if (nodes[index].title.search(/#item($|\s)/ig) != -1)
 			{
@@ -438,6 +439,12 @@ var exportLib = (function() {
 				nodesStyle = new Style(STYLESHEET["Heading"+(level+1)].Id);
 			else
 				nodesStyle = copy(STYLESHEET["Heading"+(level+1)])
+		}
+		else if(isItem){
+			if(options.format == 'HTML')
+				nodesStyle = new Style(STYLESHEET["Item"].Id);
+			else
+				nodesStyle = copy(STYLESHEET["Item"]);
 		}
 		else{
 			if(options.format == 'HTML')
@@ -540,14 +547,7 @@ var exportLib = (function() {
 
 
 					if(options.output_type=='list' && temp_level>0){
-							nodesStyle.indentation_first_line = -10;
 							nodesStyle.indentation_left = (20 * level) + 10;
-							text = "&bull; " + text;
-					}
-					else if(isItem){
-							nodesStyle.indentation_first_line = -20;
-							nodesStyle.indentation_left = 40;
-							text = "&bull; " + text;
 					}
 					var style = nodesStyle.toHTMLstr();
 					if(style!="")style = "style=\""+style+"\"";
@@ -557,7 +557,8 @@ var exportLib = (function() {
 
 
 					output = output + options.item_sep;
-
+					if (page_break)
+							output = output + "<div class=\"page-break\"></div>";
 				}
 				else if (options.format == 'beamer')
 				{
@@ -640,13 +641,10 @@ var exportLib = (function() {
  					var temp_level = level;
 
 					if(options.output_type=='list' && temp_level>0){
-							nodesStyle.indentation_first_line = -10;
 							nodesStyle.indentation_left = (20 * level) + 10;
 							nodesStyle.after="{\\f3\\'B7\\tab}";
 					}
 					else if(isItem){
-							nodesStyle.indentation_first_line = -20;
-							nodesStyle.indentation_left = 40;
 							nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
 							if(firstItem){
 								nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
@@ -662,10 +660,8 @@ var exportLib = (function() {
 
 					output = output + "{\\pard" + nodesStyle.toRTFstr() + "{" + text + "}\\par}";
 
-					if (page_break > -1)
-					{
+					if (page_break)
 						output = output + "\\page";
-					}
 					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard" + STYLESHEET["Note"].toRTFstr() + "" + note + "\\par}";
 					output = output + "\n";
 				}
