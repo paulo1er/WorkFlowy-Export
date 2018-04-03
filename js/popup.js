@@ -27,6 +27,9 @@
 
 			// Format options
 			case "markdown":
+				g_options.format = 'markdown';
+				g_current_format = type;
+				break;
 			case "HTML":
 				g_options.format = 'HTML';
 				g_current_format = type;

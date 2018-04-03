@@ -535,7 +535,23 @@ var exportLib = (function() {
 					});
 
 				// Update output
-				if (options.format == 'HTML') {
+				if(options.format == 'markdown'){
+
+					if(options.output_type=="list")
+						if(level==0) indent = "# ";
+						else indent = "\t".repeat(level-1) + "* ";
+					else if(isTitle)
+						indent = "#".repeat(level+1) + " ";
+					else if(isItem)
+						indent = "* ";
+					else
+						indent = "";
+
+					output += indent + text + "\n\n";
+					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
+				}
+
+				else if (options.format == 'HTML') {
 					//output = output + indent + text + nodes[index].myType;
 					text = text.replace(/--/g, "&ndash;");
 					//Interpretation of `code`
