@@ -475,7 +475,7 @@ var exportLib = (function() {
 				textTag = text.match(WF_TAG_REGEXP);
 				if(textTag!=null && options.applyWFERules){
 					textTag.forEach(function(e) {
-						if(e.indexOf(" #wfe-count")!=-1){
+						if(e.indexOf("#wfe-count")!=-1){
 							text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
 								if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[RegExp.$1]=parseInt(RegExp.$3)-1;
 								if(!wfe_count[RegExp.$1])
@@ -486,21 +486,21 @@ var exportLib = (function() {
 								return wfe_count[RegExp.$1];
 							});
 						}
-						else if(e.indexOf(" #wfe-refLast:")!=-1){
+						else if(e.indexOf("#wfe-refLast:")!=-1){
 							text = text.replace(/#wfe-refLast:([^|\s|,|:|;|.]*)/g,function(){
 								if(wfe_count[RegExp.$1])
 									return wfe_count[RegExp.$1];
 								return "NaN";
 							});
 						}
-						else if(e.indexOf(" #wfe-ref:")!=-1){
+						else if(e.indexOf("#wfe-ref:")!=-1){
 							text = text.replace(/#wfe-ref:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
 								if(wfe_count_ID[RegExp.$1+":"+RegExp.$2])
 									return wfe_count_ID[RegExp.$1+":"+RegExp.$2];
 								return "NaN";
 							});
 						}
-						else if(e.indexOf(" #wfe-config:"!=-1)){
+						else if(e.indexOf("#wfe-config:"!=-1)){
 							e = e.replace(/#wfe-config:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
 								console.log("wfe-config : Try to change",RegExp.$1,"by the value", RegExp.$2);
 								if(nodesStyle.hasOwnProperty(RegExp.$1)){
@@ -525,6 +525,8 @@ var exportLib = (function() {
 					// Strip off tags
 					text = text.replace(WF_TAG_REGEXP, "");
 					note = note.replace(WF_TAG_REGEXP, "");
+					text = text.replace(/(^|\s|,|:|;|.)(#|@) /ig, "$1$2");
+					note = note.replace(/(^|\s|,|:|;|.)(#|@) /ig, "$1$2");
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
 
