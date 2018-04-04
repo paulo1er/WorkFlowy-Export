@@ -10,6 +10,16 @@ var exportLib = (function() {
 	var counter_item=[0,0,0,0,0,0];
 	var indentEnum=1;
 
+	var ALIAS=[
+		["#wfe-style:Heading1","#h1"],
+		["#wfe-style:Heading2","#h2"],
+		["#wfe-style:Heading3","#h3"],
+		["#wfe-style:Heading4","#h4"],
+		["#wfe-style:Heading5","#h5"],
+		["#wfe-style:Heading6","#h6"],
+		["#wfe-style:Item1","#item"]
+	];
+
 	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
 	var HTML_aligement={left:"text-align: left;  ", right:"text-align: right;  ", center:"text-align: center;  ", justified:"text-align: justify;  "};
 	var FONTSHEET={
@@ -323,28 +333,15 @@ var exportLib = (function() {
 		var output_children;
 
 		if(options.output_type=="list" && level>6) level=6;
-		var isItem=(options.output_type=="list" && level!=0) && level<7;
-		var isTitle=((nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle") && (options.output_type!="list" || level==0) && level<7;
 		var nodesStyle;
+		var styleName;
 
-		if(isTitle){
-			if(options.format == 'HTML')
-				nodesStyle = new Style(STYLESHEET["Heading"+(level+1)].Id);
-			else
-				nodesStyle = copy(STYLESHEET["Heading"+(level+1)])
-		}
-		else if(isItem){
-			if(options.format == 'HTML')
-				nodesStyle = new Style(STYLESHEET["Item"+(level)].Id);
-			else
-				nodesStyle = copy(STYLESHEET["Item"+(level)]);
-		}
-		else{
-			if(options.format == 'HTML')
-				nodesStyle = new Style(STYLESHEET["Normal"].Id);
-			else
-				nodesStyle = copy(STYLESHEET["Normal"]);
-		}
+		if(((nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle") && (options.output_type!="list" || level==0) && level<6)
+			styleName = "Heading"+(level+1)
+		else if((options.output_type=="list" && level!=0) && level<7)
+			styleName = "Item"+(level);
+		else
+			styleName = "Normal";
 
 
 		// Create section heading LaTeX
@@ -367,115 +364,137 @@ var exportLib = (function() {
 
 		//	if (!options.rules.ignore_item && !options.rules.ignore_outline) {
 
-		text = "";
-		note = "";
-
-		if (options.applyWFERules && (nodes[index].title !== null))
-		{
-			// Assign new rules from WFE-tags in item
-			if (nodes[index].title.search(/(^|\s)#wfe\-ignore\-tags($|\s)/ig) != -1)
-			{
-				console.log('ignore-tags found');
-				options.rules.ignore_tags = true;
-			}
-			if (nodes[index].title.search(/(^|\s)#(note|wfe\-ignore\-item)($|\s)/ig) != -1)
-			{
-				console.log('ignore-item found');
-				//options.rules.ignore_item = true;
-				ignore_item = true;
-			}
-			if (nodes[index].title.search(/(^|\s)#wfe\-ignore\-outline($|\s)/ig) != -1)
-			{
-				console.log('ignore-outline found');
-				ignore_outline = true; // todo: ! ? anywhere
-			}
-
-			// Match style tags
-
-			// bullets https://stackoverflow.com/questions/15367975/rtf-bullet-list-example
-			if (options.format == 'beamer'){
-	 			if (nodes[index].title.search(/#h4($|\s)/ig) != -1)
-				{
-					console.log('#h4 found');
-					level = 1;
-				}
-				if (nodes[index].title.search(/#slide($|\s)/ig) != -1)
-				{
-					console.log('#slide found');
-					level = frame_level;
-				}
-				if (nodes[index].title.search(/#section($|\s)/ig) != -1)
-				{
-					console.log('#section found');
-					level = section_level;
-				}
-				if (nodes[index].title.search(/#subsection($|\s)/ig) != -1)
-				{
-					console.log('#subsection found');
-					level = subsection_level;
-				}
-			}
-
-			if (nodes[index].title.search(/#wfe-page-break($|\s)/ig) != -1)
-			{
-				console.log('page break found');
-				page_break = true;
-			}
-
-			if (nodes[index].title.search(/#wfe-style:([a-zA-Z0-9]*)(?:\s|$)/ig) != -1)
-			{
-				if(STYLESHEET.hasOwnProperty(RegExp.$1)) {
-					if(options.format == 'HTML')
-						nodesStyle = new Style(STYLESHEET[RegExp.$1].Id);
-					else
-						nodesStyle = copy(STYLESHEET[RegExp.$1]);
-				}
-			}
-			//
-			// marks
-			console.log('matching marks');
-			nodes[index].title = nodes[index].title.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
-		}
-
-		switch (nodesStyle.Id) {
-			case STYLESHEET["Item1"].Id :
-				counter_item[0]++;
-				break;
-			case STYLESHEET["Item2"].Id :
-				counter_item[1]++;
-				break;
-			case STYLESHEET["Item3"].Id :
-				counter_item[2]++;
-				break;
-			case STYLESHEET["Item4"].Id :
-				counter_item[3]++;
-				break;
-			case STYLESHEET["Item5"].Id :
-				counter_item[4]++;
-				break;
-			case STYLESHEET["Item6"].Id :
-				counter_item[5]++;
-				break;
-		}
-
-		console.log('Finished processing rules:', text, options.rules.ignore_item);
-
-
-		if(level>0) indent = Array(level+1).join(prefix_indent_chars);
-		if(options.format == 'text') indent = indent + indent_chars;
-		indent = indent.replace(/(enum)/g,indentEnum++);
-		indent = indent.replace(/(bull)/g,'•');
-		indent = indent.replace(/(\\t)/g,"\t");
-
-
-		if (nodes[index].title !== null) {
+		if(nodes[index].title != null){
 			// Not a dummy node
+
+			text = nodes[index].title;
+			note = nodes[index].note;
+			if (options.applyWFERules)
+			{
+				// Assign new rules from WFE-tags in item
+
+				ALIAS.forEach(function(e) {
+						text = text.split(e[1]).join(e[0]);
+						console.log("TESTESTE:", text, e[1], e[0]);
+				});
+
+				if (text.search(/(^|\s)#wfe\-ignore\-tags($|\s)/ig) != -1)
+				{
+					console.log('ignore-tags found');
+					options.rules.ignore_tags = true;
+				}
+				if (text.search(/(^|\s)#(note|wfe\-ignore\-item)($|\s)/ig) != -1)
+				{
+					console.log('ignore-item found');
+					//options.rules.ignore_item = true;
+					ignore_item = true;
+				}
+				if (text.search(/(^|\s)#wfe\-ignore\-outline($|\s)/ig) != -1)
+				{
+					console.log('ignore-outline found');
+					ignore_outline = true; // todo: ! ? anywhere
+				}
+
+				// Match style tags
+
+				// bullets https://stackoverflow.com/questions/15367975/rtf-bullet-list-example
+				if (options.format == 'beamer'){
+		 			if (text.search(/#h4($|\s)/ig) != -1)
+					{
+						console.log('#h4 found');
+						level = 1;
+					}
+					if (text.search(/#slide($|\s)/ig) != -1)
+					{
+						console.log('#slide found');
+						level = frame_level;
+					}
+					if (text.search(/#section($|\s)/ig) != -1)
+					{
+						console.log('#section found');
+						level = section_level;
+					}
+					if (text.search(/#subsection($|\s)/ig) != -1)
+					{
+						console.log('#subsection found');
+						level = subsection_level;
+					}
+				}
+
+				if (text.search(/#wfe-page-break($|\s)/ig) != -1)
+				{
+					console.log('page break found');
+					page_break = true;
+				}
+
+				if (text.search(/#wfe-style:([a-zA-Z0-9]*)(?:\s|$)/ig) != -1)
+				{
+					if(STYLESHEET.hasOwnProperty(RegExp.$1)) {
+						styleName=RegExp.$1;
+					}
+				}
+				//
+				// marks
+				//console.log('matching marks');
+				//text = text.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
+			}
+
+			if(options.format == 'HTML')
+				nodesStyle = new Style(STYLESHEET[styleName].Id);
+			else
+				nodesStyle = copy(STYLESHEET[styleName]);
+
+			switch (styleName) {
+				case "Item1" :
+					counter_item[0]++;
+					break;
+				case "Item2" :
+					counter_item[1]++;
+					break;
+				case "Item3" :
+					counter_item[2]++;
+					break;
+				case "Item4" :
+					counter_item[3]++;
+					break;
+				case "Item5" :
+					counter_item[4]++;
+					break;
+				case "Item6" :
+					counter_item[5]++;
+				break;
+				case "Heading1" :
+					level=0;
+					break;
+				case "Heading2" :
+					level=1;
+					break;
+				case "Heading3" :
+					level=2;
+					break;
+				case "Heading4" :
+					level=3;
+					break;
+				case "Heading5" :
+					level=4;
+					break;
+				case "Heading6" :
+					level=5;
+					break;
+			}
+
+			console.log('Finished processing rules:', text, options.rules.ignore_item);
+
+
+			if(level>0) indent = Array(level+1).join(prefix_indent_chars);
+			if(options.format == 'text') indent = indent + indent_chars;
+			indent = indent.replace(/(enum)/g,indentEnum++);
+			indent = indent.replace(/(bull)/g,'•');
+			indent = indent.replace(/(\\t)/g,"\t");
 
 			// Only process item if no rule specifies ignoring it
 			if (!ignore_item && !ignore_outline) {
 
-				text = nodes[index].title;
-				note = nodes[index].note;
 				console.log('Process item:', text, options.rules.ignore_item);
 
 				textTag = text.match(WF_TAG_REGEXP);
@@ -548,9 +567,9 @@ var exportLib = (function() {
 					if(options.output_type=="list")
 						if(level==0) indent = "# ";
 						else indent = "\t".repeat(level-1) + "* ";
-					else if(isTitle)
+					else if(styleName=="Heading"+level)
 						indent = "#".repeat(level+1) + " ";
-					else if(isItem)
+					else if(styleName=="Item1")
 						indent = "* ";
 					else
 						indent = "";
@@ -569,14 +588,9 @@ var exportLib = (function() {
 					//Create hyperlinks
 					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
-
-					if(options.output_type=='list' && level>0){
-							nodesStyle.indentation_left = (20 * level) + 10;
-					}
-					console.log("AZERTY",options.output_type);
 					var style = nodesStyle.toHTMLstr();
 					if(style!="")style = "style=\""+style+"\"";
-					output += indent + "<" + idStyleToHTMLBalise[nodesStyle.Id] + " class=\"" + STYLESHEET.styleName(nodesStyle.Id)+ "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[nodesStyle.Id] + ">";
+					output += indent + "<" + idStyleToHTMLBalise[nodesStyle.Id] + " class=\"" + styleName + "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[nodesStyle.Id] + ">";
 
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p>" + note + "</p>";
 
@@ -665,7 +679,7 @@ var exportLib = (function() {
 					//output = output + indent + text + nodes[index].myType;
  					var temp_level = level;
 
-					if(isItem){
+					if(styleName="Item"+level){
 						nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
 						//if(counter_item[level]==1){
 							nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
@@ -699,7 +713,7 @@ var exportLib = (function() {
 			}
 		}
 
-			if(!isItem) counter_item[level]=0;
+			if(styleName!="Item"+level) counter_item[level]=0;
 			//console.log(nodes[index].note);
 			console.log("Output: ", output);
 			// Reset item-local rules
