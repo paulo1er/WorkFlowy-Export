@@ -7,7 +7,7 @@ var exportLib = (function() {
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
-	var firstItem=true;
+	var counter_item=[0,0,0,0,0,0];
 	var indentEnum=1;
 
 	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
@@ -108,7 +108,7 @@ var exportLib = (function() {
 			return this.before+str+this.after;
 		}
 	};
-	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li"];
+	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li","li","li","li","li","li"];
 	var STYLESHEET={
 		Normal : new Style(0,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",32,true,false,false,"Black","White"),
@@ -118,7 +118,12 @@ var exportLib = (function() {
 		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item : new Style(8,"left",-11,40,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item1 : new Style(8,"left",-11,40,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item2 : new Style(9,"left",-11,60,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item3 : new Style(10,"left",-11,80,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item4 : new Style(11,"left",-11,100,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item5 : new Style(12,"left",-11,120,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item6 : new Style(13,"left",-11,140,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		toRTFstr : function(){
 			var str = "{\\stylesheet";
 			for(var key in this){
@@ -259,7 +264,6 @@ var exportLib = (function() {
 		var body = "";
 		var footer = "";
 		var is_document = nodes[index].is_title;
-		var new_level = level;
 
 		var HEADER = {
 			text: "",
@@ -272,7 +276,7 @@ var exportLib = (function() {
 			     FONTSHEET.toRTFstr()+"\n"+
 			     COLORSHEET.toRTFstr()+"\n"+
 			     STYLESHEET.toRTFstr()+"\n"
-			};
+		};
 		var FOOTER = {
 			text: "",
 			md: "",
@@ -281,55 +285,35 @@ var exportLib = (function() {
 			beamer: "",
 			opml: "  </body>\n</opml>",
 			RTF: "}"
-			};
+		};
 		// Set default rules
 		options.rules.ignore_item = false;
 		options.rules.ignore_outline = false;
 
 		// Create header text
-		switch (options.format) {
-			case 'HTML':
-				header = HEADER[options.format];
-			break;
-			case 'opml':
-				header = HEADER[options.format];
-				new_level = level + 1;
-			break;
-			case 'RTF':
-				header = HEADER[options.format];
-				new_level = level;
-			break;
-		}
+		header = HEADER[options.format];
+
 		console.log("header", header, nodes[index].type);
 		console.log("STYLESHEET",STYLESHEET.Normal);
 		// Create body text
-		body = exportNodesTreeBody(nodes, index, new_level, options, indent_chars, prefix_indent_chars);
+		body = exportNodesTreeBody(nodes, index, level, options, indent_chars, prefix_indent_chars);
 
 		// Create footer text
-		switch (options.format) {
-			case 'HTML':
-				footer = FOOTER[options.format];
-			break;
-			case 'opml':
-				footer = FOOTER[options.format];
-			break;
-			case 'RTF':
-				footer = FOOTER[options.format];
-			break;
-		}
+		footer = FOOTER[options.format];
+
 		wfe_count={};
 		wfe_count_ID={};
 		indentEnum=1;
+		counter_item=[0,0,0,0,0,0];
 		return header + body + footer;
 	}
 
 	exportNodesTreeBody = function(nodes, index, level, options, indent_chars, prefix_indent_chars) {
 		var start = 0; //nodes[0].node_forest[0]; // EP
-		var nodesStyle;
 		var indent = "";
 		var output = "";
 		var output_after_children = "";
-		var new_level = level;
+		var children_level;
 		var text = "";
 		var note = "";
 		var textTag=[""];
@@ -337,8 +321,31 @@ var exportLib = (function() {
 		var ignore_item = false;
 		var ignore_outline = false;
 		var output_children;
-		var isItem=false;
-		var isTitle=((nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle") && (options.output_type!="list" || level==0);
+
+		if(options.output_type=="list" && level>6) level=6;
+		var isItem=(options.output_type=="list" && level!=0) && level<7;
+		var isTitle=((nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle") && (options.output_type!="list" || level==0) && level<7;
+		var nodesStyle;
+
+		if(isTitle){
+			if(options.format == 'HTML')
+				nodesStyle = new Style(STYLESHEET["Heading"+(level+1)].Id);
+			else
+				nodesStyle = copy(STYLESHEET["Heading"+(level+1)])
+		}
+		else if(isItem){
+			if(options.format == 'HTML')
+				nodesStyle = new Style(STYLESHEET["Item"+(level)].Id);
+			else
+				nodesStyle = copy(STYLESHEET["Item"+(level)]);
+		}
+		else{
+			if(options.format == 'HTML')
+				nodesStyle = new Style(STYLESHEET["Normal"].Id);
+			else
+				nodesStyle = copy(STYLESHEET["Normal"]);
+		}
+
 
 		// Create section heading LaTeX
 /* 					var title_level = 0;
@@ -357,8 +364,6 @@ var exportLib = (function() {
 
 		console.log("nodesTreeToText -- processing nodes["+index.toString()+"] = ", nodes[index].title, 'at level', level.toString());
 		console.log("options:", options);
-
-		if (nodes[index].title == null) new_level = new_level; // + 1;
 
 		//	if (!options.rules.ignore_item && !options.rules.ignore_outline) {
 
@@ -388,45 +393,43 @@ var exportLib = (function() {
 			// Match style tags
 
 			// bullets https://stackoverflow.com/questions/15367975/rtf-bullet-list-example
-
- 			if (nodes[index].title.search(/#h4($|\s)/ig) != -1)
-			{
-				console.log('#h4 found');
-				if (options.format == 'beamer') level = 1; else level = 4; // ppt
-			}
-			if (nodes[index].title.search(/#slide($|\s)/ig) != -1)
-			{
-				console.log('#slide found');
-				if (options.format == 'beamer') level = frame_level; else level = 0; // ppt
-			}
-			if (nodes[index].title.search(/#section($|\s)/ig) != -1)
-			{
-				console.log('#section found');
-				if (options.format == 'beamer') level = section_level; else level = 0; // ppt
-			}
-			if (nodes[index].title.search(/#subsection($|\s)/ig) != -1)
-			{
-				console.log('#section found');
-				if (options.format == 'beamer') level = subsection_level; else level = 0; // ppt
-			}
-
-			if (nodes[index].title.match(/#h([0-9]+)(?:\s|$)/ig)!=null)
-			{
-				console.log('#h'+RegExp.$1+' found');
-				level = parseInt(RegExp.$1)-1;
-				isTitle=true;
+			if (options.format == 'beamer'){
+	 			if (nodes[index].title.search(/#h4($|\s)/ig) != -1)
+				{
+					console.log('#h4 found');
+					level = 1;
+				}
+				if (nodes[index].title.search(/#slide($|\s)/ig) != -1)
+				{
+					console.log('#slide found');
+					level = frame_level;
+				}
+				if (nodes[index].title.search(/#section($|\s)/ig) != -1)
+				{
+					console.log('#section found');
+					level = section_level;
+				}
+				if (nodes[index].title.search(/#subsection($|\s)/ig) != -1)
+				{
+					console.log('#subsection found');
+					level = subsection_level;
+				}
 			}
 
-			new_level = level;
 			if (nodes[index].title.search(/#wfe-page-break($|\s)/ig) != -1)
 			{
 				console.log('page break found');
 				page_break = true;
 			}
-			if (nodes[index].title.search(/#item($|\s)/ig) != -1)
+
+			if (nodes[index].title.search(/#wfe-style:([a-zA-Z0-9]*)(?:\s|$)/ig) != -1)
 			{
-				console.log('item found');
-				isItem=true;
+				if(STYLESHEET.hasOwnProperty(RegExp.$1)) {
+					if(options.format == 'HTML')
+						nodesStyle = new Style(STYLESHEET[RegExp.$1].Id);
+					else
+						nodesStyle = copy(STYLESHEET[RegExp.$1]);
+				}
 			}
 			//
 			// marks
@@ -434,24 +437,27 @@ var exportLib = (function() {
 			nodes[index].title = nodes[index].title.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
 		}
 
-		if(isTitle && level<7){
-			if(options.format == 'HTML')
-				nodesStyle = new Style(STYLESHEET["Heading"+(level+1)].Id);
-			else
-				nodesStyle = copy(STYLESHEET["Heading"+(level+1)])
+		switch (nodesStyle.Id) {
+			case STYLESHEET["Item1"].Id :
+				counter_item[0]++;
+				break;
+			case STYLESHEET["Item2"].Id :
+				counter_item[1]++;
+				break;
+			case STYLESHEET["Item3"].Id :
+				counter_item[2]++;
+				break;
+			case STYLESHEET["Item4"].Id :
+				counter_item[3]++;
+				break;
+			case STYLESHEET["Item5"].Id :
+				counter_item[4]++;
+				break;
+			case STYLESHEET["Item6"].Id :
+				counter_item[5]++;
+				break;
 		}
-		else if(isItem || options.output_type=='list'){
-			if(options.format == 'HTML')
-				nodesStyle = new Style(STYLESHEET["Item"].Id);
-			else
-				nodesStyle = copy(STYLESHEET["Item"]);
-		}
-		else{
-			if(options.format == 'HTML')
-				nodesStyle = new Style(STYLESHEET["Normal"].Id);
-			else
-				nodesStyle = copy(STYLESHEET["Normal"]);
-		}
+
 		console.log('Finished processing rules:', text, options.rules.ignore_item);
 
 
@@ -659,15 +665,11 @@ var exportLib = (function() {
 					//output = output + indent + text + nodes[index].myType;
  					var temp_level = level;
 
-					if(options.output_type=='list' && temp_level>0){
-							nodesStyle.indentation_left = (20 * level) + 10;
-							nodesStyle.after="{\\f3\\'B7\\tab}";
-					}
-					else if(isItem){
-							nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
-							if(firstItem){
-								nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
-							}
+					if(isItem){
+						nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
+						//if(counter_item[level]==1){
+							nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
+						//}
 					}
 
 
@@ -697,7 +699,7 @@ var exportLib = (function() {
 			}
 		}
 
-			if(!isItem) firstItem=true;
+			if(!isItem) counter_item[level]=0;
 			//console.log(nodes[index].note);
 			console.log("Output: ", output);
 			// Reset item-local rules
@@ -706,12 +708,13 @@ var exportLib = (function() {
 			output_children = '';
 			if (!ignore_outline) {
 				// Recursion on children
-				if ((!ignore_item) && (nodes[index].title !== null)) new_level = level + 1;
-				console.log("Apply recursion to: ", nodes[index].children);
+				if ((!ignore_item) && (nodes[index].title !== null)) children_level = level + 1;
+				else children_level = level;
 
+				console.log("Apply recursion to: ", nodes[index].children);
 				for (var i = 0; i < nodes[index].children.length; i++)
 				{
-					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], new_level, options, indent_chars, prefix_indent_chars);
+					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], children_level, options, indent_chars, prefix_indent_chars);
 				}
 
 			}
