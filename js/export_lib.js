@@ -676,10 +676,8 @@ var exportLib = (function() {
 					output = output + options.item_sep;
 
 				} else if (options.format == 'RTF') {
-					//output = output + indent + text + nodes[index].myType;
- 					var temp_level = level;
 
-					if(styleName="Item"+level){
+					if(styleName.includes("Item")){
 						nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
 						//if(counter_item[level]==1){
 							nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
