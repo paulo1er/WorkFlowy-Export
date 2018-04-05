@@ -369,6 +369,13 @@ var exportLib = (function() {
 
 			text = nodes[index].title;
 			note = nodes[index].note;
+
+			//find and Replace
+			if(options.findReplace != null){
+				console.log("#F&R",text, options.findReplace.regexFind, options.findReplace.txtReplace);
+				text = text.replace(options.findReplace.regexFind, options.findReplace.txtReplace);
+			}
+
 			if (options.applyWFERules)
 			{
 				// Assign new rules from WFE-tags in item

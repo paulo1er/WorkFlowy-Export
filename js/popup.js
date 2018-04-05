@@ -7,6 +7,28 @@
 	var g_output_toc = false;
 	var g_title, g_url;
 
+	function functionRegexFind(txtFind, isRegex, isMatchCase){
+		var temp_find="";
+		var temp_regexFind = null;
+		if(isRegex)
+			temp_find = txtFind;
+		else
+			temp_find = txtFind.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+
+		if(isMatchCase)
+			temp_regexFind = new RegExp(temp_find, "g");
+		else
+			temp_regexFind = new RegExp(temp_find, "gi");
+		return temp_regexFind;
+	}
+
+	function FindReplace(txtFind, txtReplace, isRegex, isMatchCase){
+		this.regexFind = functionRegexFind(txtFind, isRegex, isMatchCase),
+		this.txtReplace = txtReplace
+	}
+
+	g_options.findReplace = null;
+
 	g_options.indent_chars = "";
 	g_options.prefix_indent_chars = "\t";
 	g_options.titleOptions = "titleParents";
@@ -20,8 +42,6 @@
 	// change export Mode
 	function changeFormat(type) {
 		var text;
-
-		console.log("##################### changeFormat", type, "options", g_options);
 
 		switch (type) {
 
@@ -89,6 +109,9 @@
 				break;
 			case "indentOther":
 				g_options.indent_chars = document.getElementById("indentOther").value;
+				break
+			case "addFindReplace":
+				g_options.findReplace = new FindReplace(document.getElementById("find").value, document.getElementById("replace").value, document.getElementById("regex").checked, document.getElementById("matchCase").checked);
 				break
 		};
 
@@ -202,6 +225,10 @@
 		}, false);
 		document.getElementById("close").addEventListener("click", function() {
 			window.close();
+		}, false);
+
+		document.getElementById("addFindReplace").addEventListener("click", function() {
+			changeFormat('addFindReplace');
 		}, false);
 	}
 
