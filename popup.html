@@ -99,22 +99,18 @@ Output Format<br>
 							<input type="checkbox" id="outputToc"> <span class="locale Outputtoc" style="font-weight: normal;">Include TOC</span>
 						</label>
 						<br>
+						<br>
 						<!--<div class="form-group">-->
-							<label class="checkbox-inline">
-								<input checked type="checkbox" id="indentCheck" value="indent"> <span class="" style="font-weight: normal;">Use Indentation</span>
-							</label>
 							<label class="radio-inline">
 								<input checked type="radio" name="indentOptions" id="tab" value="tab"> Tab
 							</label>
 							<label class="radio-inline">
-								<input  type="radio" name="indentOptions" id="space" value="space"> Space
+								<input type="radio" name="indentOptions" id="space" value="space"> Space
 							</label>
 							<label class="radio-inline">
-								<input  type="radio" name="indentOptions" id="hyphen" value="hyphen"> Hyphen (-)
+								<input type="radio" name="indentOptions" id="withoutIndent" value="withoutIndent"> Without Indentation
 							</label>
-							<label class="radio-inline">
-								<input  type="radio" name="indentOptions" id="asterisk" value="asterisk"> Asterisk (*)
-							</label>
+							<br>Text after indentation : <input type="text" id="indentOther"><br>
 						<!--</div>-->
 						<br>
 						<label class="checkbox-inline">
@@ -130,8 +126,23 @@ Output Format<br>
 						<label class="radio-inline">
 							<input  type="radio" name="titleOptions" id="alwaysTitle" value="alwaysTitle"> always use title
 						</label>
+						<br>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="escapeCharacter"> <span class="" style="font-weight: normal;">Escape Character Safe</span>
+						</label>
 
 
+					</div>
+					<div class="form-group"><!-- Find&Replace -->
+						Find : <input type="text" id="find"><br>
+						Replace : <input type="text" id="replace"><br>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="regex"> <span>Regex</span>
+						</label>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="matchCase"> <span>Match Case</span>
+						</label>
+						<button id="addFindReplace" type="button"><span>Add</span></button>
 					</div>
 					<button id="close" type="button" class="btn btn-default pull-right"><span class="locale Close">Close</span></button>
 				</form>
