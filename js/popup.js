@@ -2,7 +2,6 @@
 	var g_nodes = null;
 	var g_my_nodes = null;
 	var g_options = {format: 'text', output_type: "list", rules: []};
-	var g_current_format = 'text';
 	var g_output_notes = false;
 	var g_output_toc = false;
 	var g_title, g_url;
@@ -40,89 +39,59 @@
 	};
 
 	// change export Mode
-	function changeFormat(type) {
+	function changeFormat() {
 		var text;
 
-		switch (type) {
-
-			// Format options
-			case "markdown":
-				g_options.format = 'markdown';
-				g_current_format = type;
-				break;
-			case "HTML":
-				g_options.format = 'HTML';
-				g_current_format = type;
-				break;
-			case "latex":
-				document.getElementById("beamer").checked = true;
-				g_options.format = 'beamer';
-				g_current_format = type;
-				break;
-			case "beamer":
-				document.getElementById("latex").checked = true;
-				g_options.format = 'beamer';
-				g_current_format = type;
-				break;
-			case "opml":
-				g_options.format = 'opml';
-				g_current_format = type;
-				break;
-			case "wfe":
-				g_options.format = 'WFE-TAGGED';
-				g_current_format = type;
-				break;
-			case "rtf":
-				g_options.format = 'RTF';
-				g_current_format = type;
-				break;
-			case "text":
-				g_options.format = 'text';
-				g_current_format = type;
-				break;
-
-			case "list":
-				g_options.output_type = 'list';
-			break;
-			case "hierdoc":
-				g_options.output_type = 'hierdoc';
-			break;
-
-			case "titleParents":
-				g_options.titleOptions = 'titleParents';
-				break;
-			case "neverTitle":
-				g_options.titleOptions = 'neverTitle';
-				break;
-			case "alwaysTitle":
-				g_options.titleOptions = 'alwaysTitle';
-				break;
-
-			case "tab":
-				g_options.prefix_indent_chars = "\t";
-				break;
-			case "space":
-				g_options.prefix_indent_chars = "    ";
-				break;
-			case "withoutIndent":
-				g_options.prefix_indent_chars = "";
-				break;
-			case "indentOther":
-				g_options.indent_chars = document.getElementById("indentOther").value;
-				break
-			case "addFindReplace":
-				g_options.findReplace = new FindReplace(document.getElementById("find").value, document.getElementById("replace").value, document.getElementById("regex").checked, document.getElementById("matchCase").checked);
-				break
-		};
-
-		if (!document.getElementById("latex").checked) {
-			document.getElementById("beamer").checked = false;
-			document.getElementById("book").checked = false;
-			document.getElementById("article").checked = false;
-			document.getElementById("report").checked = false;
+		var formatOptions = document.getElementsByName('formatOptions');
+		for ( var i = 0; i < formatOptions.length; i++) {
+    	if(formatOptions[i].checked) {
+				g_options.format = formatOptions[i].value;
+        break;
+    	}
 		}
 
-		if (document.getElementById("insertLine").checked)
+		var sourceOptions = document.getElementsByName('sourceOptions');
+		for ( var i = 0; i < sourceOptions.length; i++) {
+			if(sourceOptions[i].checked) {
+				g_options.output_type = sourceOptions[i].value;
+				break;
+			}
+		}
+
+		var titleOptions = document.getElementsByName('titleOptions');
+		for ( var i = 0; i < titleOptions.length; i++) {
+			if(titleOptions[i].checked) {
+				g_options.titleOptions = titleOptions[i].value;
+				break;
+			}
+		}
+
+		var indentOptions = document.getElementsByName('indentOptions');
+		for ( var i = 0; i < indentOptions.length; i++) {
+			if(indentOptions[i].checked) {
+				switch (indentOptions[i].value) {
+					case "tab":
+						g_options.prefix_indent_chars = "\t";
+						break;
+					case "space":
+						g_options.prefix_indent_chars = "    ";
+						break;
+					case "withoutIndent":
+						g_options.prefix_indent_chars = "";
+						break;
+					case "indentOther":
+						g_options.indent_chars = document.getElementById("indentOther").value;
+						break;
+				}
+				break;
+			}
+		}
+
+		if(document.getElementById("find").value!=""){
+			g_options.findReplace = new FindReplace(document.getElementById("find").value, document.getElementById("replace").value, document.getElementById("regex").checked, document.getElementById("matchCase").checked);
+		}
+
+		if(document.getElementById("insertLine").checked)
 			g_options.item_sep = "\n\n";
 		else
 			g_options.item_sep = "\n";
@@ -134,10 +103,10 @@
 		g_options.rules.ignore_tags = document.getElementById("stripTags").checked;
 		g_options.rules.escapeCharacter = document.getElementById("escapeCharacter").checked;
 
-		console.log("##################### changeFormat", type, "options", g_options, g_options.rules.ignore_tags );
+		console.log("##################### Export the page with options", g_options);
 		text = exportLib.toMyText(g_my_nodes, g_options);
 		document.getElementById('textArea').innerText = text;
-		document.getElementById("popupTitle").innerHTML = makeTitleLabel(g_current_format, g_title, g_url);
+		document.getElementById("popupTitle").innerHTML = makeTitleLabel(g_options.format, g_title, g_url);
 		textarea_select();
 	};
 
@@ -151,84 +120,16 @@
 	};
 
 	function setEventListers() {
-		document.getElementById("markDown").addEventListener("click", function() {
-			changeFormat('markdown');
+		document.getElementById("export").addEventListener("click", function() {
+			changeFormat();
 		}, false);
-		document.getElementById("html").addEventListener("click", function() {
-			changeFormat('HTML');
-		}, false);
-		document.getElementById("latex").addEventListener("click", function() {
-			changeFormat('latex');
-		}, false);
-		document.getElementById("beamer").addEventListener("click", function() {
-			changeFormat('beamer');
-		}, false);
-		document.getElementById("opml").addEventListener("click", function() {
-			changeFormat('opml');
-		}, false);
-		document.getElementById("wfe").addEventListener("click", function() {
-			changeFormat('wfe');
-		}, false);
-		document.getElementById("rtf").addEventListener("click", function() {
-			changeFormat('rtf');
-		}, false);
-		document.getElementById("text").addEventListener("click", function() {
-			changeFormat('text');
-		}, false);
-		document.getElementById("indentOther").addEventListener("keypress", function(e) {
-			if(13 == e.keyCode){
-      	event.preventDefault();
-				changeFormat('indentOther');
-			}
-		}, false);
-		document.getElementById("space").addEventListener("click", function() {
-			changeFormat('space');
-		}, false);
-		document.getElementById("tab").addEventListener("click", function() {
-			changeFormat('tab');
-		}, false);
-		document.getElementById("withoutIndent").addEventListener("click", function() {
-			changeFormat('withoutIndent');
-		}, false);
-		document.getElementById("outputNotes").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("outputToc").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("insertLine").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("stripTags").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("wfeRules").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("list").addEventListener("click", function() {
-			changeFormat('list');
-		}, false);
-		document.getElementById("hierdoc").addEventListener("click", function() {
-			changeFormat('hierdoc');
-		}, false);
-		document.getElementById("titleParents").addEventListener("click", function() {
-			changeFormat("titleParents");
-		}, false);
-		document.getElementById("neverTitle").addEventListener("click", function() {
-			changeFormat("neverTitle");
-		}, false);
-		document.getElementById("alwaysTitle").addEventListener("click", function() {
-			changeFormat("alwaysTitle");
-		}, false);
-		document.getElementById("escapeCharacter").addEventListener("click", function() {
-			changeFormat("escapeCharacter");
-		}, false);
+
 		document.getElementById("close").addEventListener("click", function() {
 			window.close();
 		}, false);
 
 		document.getElementById("addFindReplace").addEventListener("click", function() {
-			changeFormat('addFindReplace');
+			//changeFormat('addFindReplace');
 		}, false);
 	}
 

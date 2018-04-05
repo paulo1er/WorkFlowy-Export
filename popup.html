@@ -17,10 +17,9 @@
 						<textarea class="form-control" id="textArea" rows="10">
 						</textarea>
 					</div>
-					<!-- markup export -->
-					<!--<label class="radio-inline">
-						<input checked type="radio" name="export" id="markupExport" value="markupExport">Markup Export
-					</label>-->
+					<div class="form-group">
+						<button id="export" type="button"><span>Export</span></button>
+					</div>
 					<div class="form-group"><!-- WorkFlowy source -->
 						Output Type<br>
 						<label class="radio-inline">
@@ -41,25 +40,24 @@ Output Format<br>
 						</label>
 						<br>
 						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="html" value="html"> HTML
+							<input type="radio" name="formatOptions" id="html" value="HTML"> HTML
 						</label>
 						<br>
-						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="latex" value="latex"> LaTeX
-						</label>
 
+
+						<label class="radio-inline">LaTeX</label>
 						<br>&nbsp;&nbsp;
 						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="beamer" value="beamer"> Beamer
+							<input type="radio" name="formatOptions" id="beamer" value="beamer"> Beamer
 						</label>
 						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="article" value="article"> Article
+							<input type="radio" name="formatOptions" id="article" value="article"> Article
 						</label>
 						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="report" value="report"> Report
+							<input type="radio" name="formatOptions" id="report" value="report"> Report
 						</label>
 						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="book" value="book"> Book
+							<input type="radio" name="formatOptions" id="book" value="book"> Book
 						</label>
 						<!--</div>-->
 						<br>
@@ -68,11 +66,11 @@ Output Format<br>
 						</label>
 						<br>
 						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="wfe" value="wfe"> WFE-Tagged Text
+							<input type="radio" name="formatOptions" id="wfe" value="WFE-TAGGED"> WFE-Tagged Text
 						</label>
 						<br>
 						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="rtf" value="rtf"> Rich Text (RTF)
+							<input type="radio" name="formatOptions" id="rtf" value="RTF"> Rich Text (RTF)
 						</label>
 						<br>
 						<label class="radio-inline">
