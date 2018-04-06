@@ -371,10 +371,12 @@ var exportLib = (function() {
 			note = nodes[index].note;
 
 			//find and Replace
-			if(options.findReplace != null){
-				console.log("#F&R",text, options.findReplace.regexFind, options.findReplace.txtReplace);
-				text = text.replace(options.findReplace.regexFind, options.findReplace.txtReplace);
-			}
+			options.findReplace.forEach(function(e) {
+				if(e!=null){
+					console.log("#F&R",text, e.regexFind, e.txtReplace);
+					text = text.replace(e.regexFind, e.txtReplace);
+				}
+			});
 
 			if (options.applyWFERules)
 			{

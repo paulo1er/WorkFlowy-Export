@@ -26,18 +26,64 @@
 		this.txtReplace = txtReplace
 	}
 
-	g_options.findReplace = null;
+	g_options.findReplace = [];
 
 	g_options.indent_chars = "";
 	g_options.prefix_indent_chars = "\t";
 	g_options.titleOptions = "titleParents";
-	// change option
-	function changeOption(type) {
-		g_output_notes = document.getElementById("outputNotes").checked;
-		g_output_toc = document.getElementById("outputToc").checked;
-		changeFormat("indent");
-	};
 
+	function addFindReplace(){
+		if(document.getElementById("find").value!=""){
+			g_options.findReplace.push(new FindReplace(document.getElementById("find").value, document.getElementById("replace").value, document.getElementById("regex").checked, document.getElementById("matchCase").checked));
+			var tableRef = document.getElementById('findReplace').getElementsByTagName('tbody')[0];
+			var newRow   = tableRef.insertRow(tableRef.rows.length);
+			newRow.setAttribute("id", "findReplace"+(g_options.findReplace.length-1));
+			var newCell  = newRow.insertCell(0);
+			var newText  = document.createTextNode(g_options.findReplace.length);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(1);
+			newText  = document.createTextNode(document.getElementById("find").value);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(2);
+			newText  = document.createTextNode(document.getElementById("replace").value);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(3);
+			newText  = document.createTextNode(document.getElementById("regex").checked);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(4);
+			newText  = document.createTextNode(document.getElementById("matchCase").checked);
+			newCell.appendChild(newText);
+
+			newCell  = newRow.insertCell(5);
+			var but = document.createElement("button");
+			var span = document.createElement("span");
+			newText  = document.createTextNode("delete");
+			but.setAttribute("type", "button");
+			but.setAttribute("id", (g_options.findReplace.length-1));
+
+			newCell.appendChild(but);
+			but.appendChild(span);
+			span.appendChild(newText);
+
+			addEventListenerButton(g_options.findReplace.length-1);
+
+			document.getElementById("find").value = "";
+			document.getElementById("replace").value = "";
+		}
+	}
+
+	function addEventListenerButton(id){
+		document.getElementById(id).addEventListener("click", function() {
+			deleteFindReplace(id);
+		}, false);
+	}
+
+	function deleteFindReplace(index){
+		console.log("Before g_options.findReplace", g_options.findReplace);
+		g_options.findReplace[index]=null;
+		document.getElementById("findReplace" + index).remove();
+		console.log("After g_options.findReplace", g_options.findReplace);
+	}
 	// change export Mode
 	function changeFormat() {
 		var text;
@@ -87,10 +133,6 @@
 			}
 		}
 
-		if(document.getElementById("find").value!=""){
-			g_options.findReplace = new FindReplace(document.getElementById("find").value, document.getElementById("replace").value, document.getElementById("regex").checked, document.getElementById("matchCase").checked);
-		}
-
 		if(document.getElementById("insertLine").checked)
 			g_options.item_sep = "\n\n";
 		else
@@ -129,7 +171,7 @@
 		}, false);
 
 		document.getElementById("addFindReplace").addEventListener("click", function() {
-			//changeFormat('addFindReplace');
+			addFindReplace();
 		}, false);
 	}
 
@@ -315,7 +357,7 @@
 				g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 				g_title = response.title;
 				g_url = response.url;
-				changeFormat('text');
+				changeFormat();
 			});
 		});
 		setEventListers();
