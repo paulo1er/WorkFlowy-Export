@@ -1,10 +1,111 @@
 (function() {
 	var g_nodes = null;
 	var g_my_nodes = null;
-	var g_options = {format: 'text', output_type: "list", rules: []};
 	var g_output_notes = false;
 	var g_output_toc = false;
+
+	function copy(o) {
+	  var output, v, key;
+	  output = Array.isArray(o) ? [] : {};
+	  for (key in o) {
+	    v = o[key];
+	    output[key] = (typeof v === "object" && v !== null) ? copy(v) : v;
+	  }
+	  return output;
+	}
+
+	function Options(format, output_type, indent_chars, prefix_indent_chars, titleOptions, item_sep, applyWFERules, outputToc, outputNotes, ignore_tags, escapeCharacter, findReplace){
+		this.format = format,
+		this.output_type = output_type,
+		this.indent_chars = indent_chars,
+		this.prefix_indent_chars = prefix_indent_chars,
+		this.titleOptions = titleOptions,
+		this.item_sep = item_sep,
+		this.applyWFERules = applyWFERules,
+		this.outputToc = outputToc,
+		this.outputNotes = outputNotes,
+		this.ignore_tags = ignore_tags,
+		this.escapeCharacter = escapeCharacter,
+		this.findReplace = findReplace
+	};
+
+	var optionsChoice ={
+		default : new Options("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
+		OptionsHTML : new Options("HTML", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, [])
+	}
+
+	var g_options;
+
 	var g_title, g_url;
+
+	function updateOptionsChoice(){
+		var documentOptionsChoice =	document.getElementById("optionsChoice");
+		for (var name in optionsChoice){
+    	if (optionsChoice.hasOwnProperty(name) && !document.getElementById("optionsChoice"+name)) {
+				var option = document.createElement("option");
+				option.setAttribute("value", name);
+				option.setAttribute("id", "optionsChoice"+name);
+				option.text = name;
+				documentOptionsChoice.add(option);
+    	}
+		}
+	}
+
+	function newOptions(){
+		document.getElementById("optionSelect").hidden = true;
+		document.getElementById("optionsEdit").hidden = false;
+		document.getElementById("nameOptions").value = document.getElementById('optionsChoice').value;
+		g_options = copy(optionsChoice[document.getElementById("nameOptions").value]);
+
+		document.getElementById(g_options.format).checked = true;
+		document.getElementById(g_options.output_type).checked = true;
+
+		document.getElementById("wfeRules").checked = g_options.applyWFERules;
+		document.getElementById("outputToc").checked = g_options.outputToc;
+		document.getElementById("outputNotes").checked = g_options.outputNotes;
+	  document.getElementById("stripTags").checked =	g_options.ignore_tags;
+		document.getElementById("escapeCharacter").checked = g_options.escapeCharacter;
+		document.getElementById("insertLine").checked = (g_options.item_sep == "\n\n");
+
+		switch (g_options.prefix_indent_chars) {
+			case "\t":
+				document.getElementById('tab');
+				break;
+			case "    ":
+				document.getElementById('space');
+				break;
+			case "":
+				document.getElementById('withoutIndent');
+				break;
+		}
+		document.getElementById("indentOther").value = g_options.indent_chars;
+		document.getElementById(g_options.titleOptions).checked = true;
+
+		document.getElementById('findReplace').getElementsByTagName('tbody')[0].innerHTML = "";
+		g_options.findReplace.forEach(function(e, id){
+			addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
+		});
+
+		console.log("Options choice", optionsChoice);
+	}
+
+	function saveOptions(){
+		var optionsName = document.getElementById("nameOptions").value;
+		if(optionsName != ""){
+			changeFormat();
+			var idnull=g_options.findReplace.indexOf(null);
+			while(idnull!=-1){
+				g_options.findReplace.splice(idnull,1);
+				idnull=g_options.findReplace.indexOf(null);
+			};
+			optionsChoice[optionsName] = copy(g_options);
+			updateOptionsChoice();
+			console.log("All options saved ", optionsChoice);
+			document.getElementById("optionSelect").hidden = false;
+			document.getElementById("optionsEdit").hidden = true;
+			document.getElementById('optionsChoice').value = optionsName;
+		}
+	}
 
 	function functionRegexFind(txtFind, isRegex, isMatchCase){
 		var temp_find="";
@@ -23,57 +124,65 @@
 
 	function FindReplace(txtFind, txtReplace, isRegex, isMatchCase){
 		this.regexFind = functionRegexFind(txtFind, isRegex, isMatchCase),
-		this.txtReplace = txtReplace
+		this.txtReplace = txtReplace,
+		this.txtFind = txtFind,
+		this.isRegex = isRegex,
+		this.isMatchCase = isMatchCase
 	}
-
-	g_options.findReplace = [];
-
-	g_options.indent_chars = "";
-	g_options.prefix_indent_chars = "\t";
-	g_options.titleOptions = "titleParents";
 
 	function addFindReplace(){
 		if(document.getElementById("find").value!=""){
-			g_options.findReplace.push(new FindReplace(document.getElementById("find").value, document.getElementById("replace").value, document.getElementById("regex").checked, document.getElementById("matchCase").checked));
-			var tableRef = document.getElementById('findReplace').getElementsByTagName('tbody')[0];
-			var newRow   = tableRef.insertRow(tableRef.rows.length);
-			newRow.setAttribute("id", "findReplace"+(g_options.findReplace.length-1));
-			var newCell  = newRow.insertCell(0);
-			var newText  = document.createTextNode(g_options.findReplace.length);
-			newCell.appendChild(newText);
-			newCell  = newRow.insertCell(1);
-			newText  = document.createTextNode(document.getElementById("find").value);
-			newCell.appendChild(newText);
-			newCell  = newRow.insertCell(2);
-			newText  = document.createTextNode(document.getElementById("replace").value);
-			newCell.appendChild(newText);
-			newCell  = newRow.insertCell(3);
-			newText  = document.createTextNode(document.getElementById("regex").checked);
-			newCell.appendChild(newText);
-			newCell  = newRow.insertCell(4);
-			newText  = document.createTextNode(document.getElementById("matchCase").checked);
-			newCell.appendChild(newText);
+			var idFindReplace = g_options.findReplace.length;
+			var txtFind = document.getElementById("find").value;
+			var txtReplace = document.getElementById("replace").value;
+			var isRegex = document.getElementById("regex").checked;
+			var isMatchCase = document.getElementById("matchCase").checked;
 
-			newCell  = newRow.insertCell(5);
-			var but = document.createElement("button");
-			var span = document.createElement("span");
-			newText  = document.createTextNode("delete");
-			but.setAttribute("type", "button");
-			but.setAttribute("id", (g_options.findReplace.length-1));
+			g_options.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, document.getElementById("matchCase").checked));
 
-			newCell.appendChild(but);
-			but.appendChild(span);
-			span.appendChild(newText);
-
-			addEventListenerButton(g_options.findReplace.length-1);
+			addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase);
 
 			document.getElementById("find").value = "";
 			document.getElementById("replace").value = "";
 		}
 	}
 
+	function addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase){
+		var tableRef = document.getElementById('findReplace').getElementsByTagName('tbody')[0];
+		var newRow   = tableRef.insertRow(tableRef.rows.length);
+		newRow.setAttribute("id", "findReplace" + idFindReplace);
+		var newCell  = newRow.insertCell(0);
+		var newText  = document.createTextNode(idFindReplace + 1);
+		newCell.appendChild(newText);
+		newCell  = newRow.insertCell(1);
+		newText  = document.createTextNode(txtFind);
+		newCell.appendChild(newText);
+		newCell  = newRow.insertCell(2);
+		newText  = document.createTextNode(txtReplace);
+		newCell.appendChild(newText);
+		newCell  = newRow.insertCell(3);
+		newText  = document.createTextNode(isRegex);
+		newCell.appendChild(newText);
+		newCell  = newRow.insertCell(4);
+		newText  = document.createTextNode(isMatchCase);
+		newCell.appendChild(newText);
+
+		newCell  = newRow.insertCell(5);
+		var but = document.createElement("button");
+		var span = document.createElement("span");
+		newText  = document.createTextNode("delete");
+		but.setAttribute("type", "button");
+		but.setAttribute("id", "findReplace" + (idFindReplace));
+
+		newCell.appendChild(but);
+		but.appendChild(span);
+		span.appendChild(newText);
+
+		addEventListenerButton(idFindReplace);
+	}
+
 	function addEventListenerButton(id){
-		document.getElementById(id).addEventListener("click", function() {
+		document.getElementById("findReplace" + id).addEventListener("click", function() {
 			deleteFindReplace(id);
 		}, false);
 	}
@@ -84,6 +193,9 @@
 		document.getElementById("findReplace" + index).remove();
 		console.log("After g_options.findReplace", g_options.findReplace);
 	}
+
+
+
 	// change export Mode
 	function changeFormat() {
 		var text;
@@ -125,13 +237,12 @@
 					case "withoutIndent":
 						g_options.prefix_indent_chars = "";
 						break;
-					case "indentOther":
-						g_options.indent_chars = document.getElementById("indentOther").value;
-						break;
 				}
 				break;
 			}
 		}
+
+		g_options.indent_chars = document.getElementById("indentOther").value;
 
 		if(document.getElementById("insertLine").checked)
 			g_options.item_sep = "\n\n";
@@ -142,8 +253,14 @@
 		g_options.applyWFERules = document.getElementById("wfeRules").checked;
 		g_options.outputToc = document.getElementById("outputToc").checked;
 		g_options.outputNotes = document.getElementById("outputNotes").checked;
-		g_options.rules.ignore_tags = document.getElementById("stripTags").checked;
-		g_options.rules.escapeCharacter = document.getElementById("escapeCharacter").checked;
+		g_options.ignore_tags = document.getElementById("stripTags").checked;
+		g_options.escapeCharacter = document.getElementById("escapeCharacter").checked;
+
+	};
+
+	function exportText(){
+
+		g_options=copy(optionsChoice[document.getElementById('optionsChoice').value]);
 
 		console.log("##################### Export the page with options", g_options);
 		text = exportLib.toMyText(g_my_nodes, g_options);
@@ -156,14 +273,14 @@
 		var t = document.getElementById('textArea');
 		t.focus();
 		t.select();
-		setTimeout(function() {
-			document.execCommand("copy")
-		}, 200);
+		//setTimeout(function() {
+		//	document.execCommand("copy")
+		//}, 200);
 	};
 
 	function setEventListers() {
 		document.getElementById("export").addEventListener("click", function() {
-			changeFormat();
+			exportText();
 		}, false);
 
 		document.getElementById("close").addEventListener("click", function() {
@@ -172,6 +289,14 @@
 
 		document.getElementById("addFindReplace").addEventListener("click", function() {
 			addFindReplace();
+		}, false);
+
+		document.getElementById("newOptions").addEventListener("click", function() {
+			newOptions();
+		}, false);
+
+		document.getElementById("saveOptions").addEventListener("click", function() {
+			saveOptions();
 		}, false);
 	}
 
@@ -346,6 +471,7 @@
 	}
 
 	function main() {
+		updateOptionsChoice();
 		chrome.tabs.query({
 			active: true,
 			currentWindow: true
@@ -357,11 +483,10 @@
 				g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 				g_title = response.title;
 				g_url = response.url;
-				changeFormat();
+				exportText();
 			});
 		});
 		setEventListers();
-		//textarea_select();
 	}
 
 	window.onload = main;
