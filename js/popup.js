@@ -31,7 +31,8 @@
 
 	var optionsChoice ={
 		default : new Options("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
-		OptionsHTML : new Options("HTML", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, [])
+		HTML : new Options("html", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, []),
+		RTF : new Options("rtf", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, [])
 	}
 
 	var g_options;

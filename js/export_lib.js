@@ -166,11 +166,11 @@ var exportLib = (function() {
 	var ESCAPE_CHARACTER = {
 			text: [["",""]],
 			md: [["",""]],
-			HTML: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
+			html: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
 			LaTeX: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			beamer: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			opml: [["",""]],
-			RTF: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
+			rtf: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
 		};
 
 	hasChild = function(nodes, pos) {
@@ -278,11 +278,11 @@ var exportLib = (function() {
 		var HEADER = {
 			text: "",
 			md: "",
-			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
+			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			LaTeX: "",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
-			RTF: "{\\rtf1\\ansi\\deff0\n"+
+			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEET.toRTFstr()+"\n"+
 			     COLORSHEET.toRTFstr()+"\n"+
 			     STYLESHEET.toRTFstr()+"\n"
@@ -290,11 +290,11 @@ var exportLib = (function() {
 		var FOOTER = {
 			text: "",
 			md: "",
-			HTML: "  </body>\n</html>",
+			html: "  </body>\n</html>",
 			LaTeX: "",
 			beamer: "",
 			opml: "  </body>\n</opml>",
-			RTF: "}"
+			rtf: "}"
 		};
 		// Set default rules
 		options.ignore_item = false;
@@ -384,7 +384,6 @@ var exportLib = (function() {
 
 				ALIAS.forEach(function(e) {
 						text = text.split(e[1]).join(e[0]);
-						console.log("TESTESTE:", text, e[1], e[0]);
 				});
 
 				if (text.search(/(^|\s)#wfe\-ignore\-tags($|\s)/ig) != -1)
@@ -448,7 +447,7 @@ var exportLib = (function() {
 				//text = text.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
 			}
 
-			if(options.format == 'HTML')
+			if(options.format == 'html')
 				nodesStyle = new Style(STYLESHEET[styleName].Id);
 			else
 				nodesStyle = copy(STYLESHEET[styleName]);
@@ -587,7 +586,7 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
 				}
 
-				else if (options.format == 'HTML') {
+				else if (options.format == 'html') {
 					//output = output + indent + text + nodes[index].myType;
 					text = text.replace(/--/g, "&ndash;");
 					//Interpretation of `code`
@@ -684,7 +683,7 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
 					output = output + options.item_sep;
 
-				} else if (options.format == 'RTF') {
+				} else if (options.format == 'rtf') {
 
 					if(styleName.includes("Item")){
 						nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
