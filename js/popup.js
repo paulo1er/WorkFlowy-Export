@@ -3,6 +3,17 @@
 	var g_my_nodes = null;
 	var g_output_notes = false;
 	var g_output_toc = false;
+	var optionsChoice = loadOptionsChoice();
+	var g_options;
+	var g_title, g_url;
+
+	chrome.storage.onChanged.addListener(function(changes, namespace) {
+		for (key in changes) {
+			var storageChange = changes[key];
+			console.log("Storage key ",key," in namespace ",namespace," changed. Old value was ",storageChange.oldValue,", new value is ",storageChange.newValue,".");
+		}
+	});
+
 
 	function copy(o) {
 	  var output, v, key;
@@ -29,15 +40,29 @@
 		this.findReplace = findReplace
 	};
 
-	var optionsChoice ={
-		default : new Options("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
-		HTML : new Options("html", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, []),
-		RTF : new Options("rtf", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, [])
+
+	function loadOptionsChoice(){
+		var tmp_optionsChoice = null;
+		chrome.storage.sync.get(['optionsChoice'], function(result) {
+			tmp_optionsChoice = result.optionsChoice;
+		});
+		console.log("optionsChoice",tmp_optionsChoice);
+		if(tmp_optionsChoice == null){
+			tmp_optionsChoice = {
+				default : new Options("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
+				HTML : new Options("html", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, []),
+				RTF : new Options("rtf", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, [])
+			};
+		}
+		console.log("optionsChoice",tmp_optionsChoice);
+		return tmp_optionsChoice;
 	}
 
-	var g_options;
-
-	var g_title, g_url;
+	function loadOptionsChoiceFromInternet(callback) {
+		chrome.storage.sync.get(['optionsChoice'], function(result) {
+			callback(result.optionsChoice);
+		});
+	}
 
 	function updateOptionsChoice(){
 		var documentOptionsChoice =	document.getElementById("optionsChoice");
@@ -86,8 +111,6 @@
 		g_options.findReplace.forEach(function(e, id){
 			addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 		});
-
-		console.log("Options choice", optionsChoice);
 	}
 
 	function saveOptions(){
@@ -101,10 +124,12 @@
 			};
 			optionsChoice[optionsName] = copy(g_options);
 			updateOptionsChoice();
-			console.log("All options saved ", optionsChoice);
 			document.getElementById("optionSelect").hidden = false;
 			document.getElementById("optionsEdit").hidden = true;
 			document.getElementById('optionsChoice').value = optionsName;
+			chrome.storage.sync.set({'optionsChoice' : optionsChoice}, function() {
+				console.log("optionsChoice saved ");
+			});
 		}
 	}
 
@@ -260,8 +285,8 @@
 	};
 
 	function exportText(){
-
-		g_options=copy(optionsChoice[document.getElementById('optionsChoice').value]);
+		console.log("aaaaaaaaa" ,document.getElementById('optionsChoice').value,  optionsChoice);
+		g_options = copy(optionsChoice[document.getElementById('optionsChoice').value]);
 
 		console.log("##################### Export the page with options", g_options);
 		text = exportLib.toMyText(g_my_nodes, g_options);
@@ -472,7 +497,6 @@
 	}
 
 	function main() {
-		updateOptionsChoice();
 		chrome.tabs.query({
 			active: true,
 			currentWindow: true
@@ -480,6 +504,7 @@
 			chrome.tabs.sendMessage(tabs[0].id, {
 				request: 'getTopic'
 			}, function(response) {
+				console.log("optionsChoice",optionsChoice);
 				g_nodes = response.content;
 				g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 				g_title = response.title;
@@ -487,6 +512,7 @@
 				exportText();
 			});
 		});
+		updateOptionsChoice();
 		setEventListers();
 	}
 
