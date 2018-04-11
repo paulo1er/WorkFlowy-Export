@@ -138,7 +138,7 @@ var exportLib = (function() {
 			var str = "{\\stylesheet";
 			for(var key in this){
 				if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
-					str += "{" + this[key].toRTFstr() + " " + key + "}";
+					str += "{" + this[key].toRTFstr() + " " + key + ";}";
 				}
 			}
 			str += "}";
