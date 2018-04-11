@@ -13,6 +13,7 @@
 	function load(response) {
 	chrome.storage.sync.get(['profileList', 'profileName'], function(result) {
 		//return a copy of an object (recursif)
+		try{
 		function copy(o) {
 		  var output, v, key;
 		  output = Array.isArray(o) ? [] : {};
@@ -295,22 +296,11 @@
 			document.getElementById("export").addEventListener("click", function() {
 					var $loading = $("#loading");
 					var $content = $("#content");
-					var $error = $("#error");
 					$content.hide("fast", function(){
 						$loading.show("fast",function(){
-							try{
-								exportText();
-								$content.show("fast");
-								$loading.hide("fast");
-								$error.hide("fast");
-								console.log("OK");
-							}
-							catch(err){
-								$content.hide("fast");
-								$loading.hide("fast");
-								$error.show("fast");
-								console.log("Error", err);
-							}
+							exportText();
+							$content.show("fast");
+							$loading.hide("fast");
 						});
 					});
 			}, false);
@@ -524,7 +514,7 @@
 		if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
 			profileName_LastConnexion="default";
 		};
-		STUPIDCODE =qsfaezfgesd()
+		console.log("OK", chrome);
 		updateProfileChoice();
 		var g_nodes = response.content;
 		var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
@@ -532,6 +522,13 @@
 		var g_url = response.url;
 		exportText();
 		setEventListers();
+	}
+		catch(err){
+			$("#loading").hide("fast");
+			$("#content").hide("fast");
+			$("#error").show("fast");
+			console.log("Error", err);
+		}
 })}
 
 	function main() {
@@ -544,22 +541,11 @@
 			}, function(response) {
 					var $loading = $("#loading");
 					var $content = $("#content");
-					var $error = $("#error");
 					$content.hide("fast", function(){
 						$loading.show("fast",function(){
-							try{
-								load(response)
-								$content.show("fast");
-								$loading.hide("fast");
-								$error.hide("fast");
-								console.log("OK");
-							}
-							catch(err){
-								$content.hide("fast");
-								$loading.hide("fast");
-								$error.show("fast");
-								console.log("Error", err);
-							}
+						load(response);
+						$content.show("fast");
+						$loading.hide("fast");
 					});
 				});
 			});
