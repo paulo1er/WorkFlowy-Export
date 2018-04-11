@@ -24,7 +24,6 @@
 			});
 		};
 
-		var dateStart=Date.now();
 		var g_nodes = null;
 		var g_my_nodes = null;
 		var g_output_notes = false;
@@ -32,6 +31,7 @@
 		var g_options;
 		var g_title, g_url;
 
+		//return a copy of an object (recursif)
 		function copy(o) {
 		  var output, v, key;
 		  output = Array.isArray(o) ? [] : {};
@@ -54,9 +54,10 @@
 			this.outputNotes = outputNotes,
 			this.ignore_tags = ignore_tags,
 			this.escapeCharacter = escapeCharacter,
-			this.findReplace = findReplace
+			this.findReplace = copy(findReplace)
 		};
 
+		//update the list in the popup with the different preset of options
 		function updateOptionsChoice(){
 			var documentOptionsChoice =	document.getElementById("optionsChoice");
 			for (var name in optionsChoice){
@@ -73,6 +74,7 @@
 			}
 		}
 
+		//open a form to create or update a preset of options
 		function newOptions(){
 			document.getElementById("optionSelect").hidden = true;
 			document.getElementById("optionsEdit").hidden = false;
@@ -109,6 +111,7 @@
 			});
 		}
 
+		//save the form for create or update a preset of options
 		function saveOptions(){
 			var optionsName = document.getElementById("nameOptions").value;
 			if(optionsName != ""){
@@ -129,6 +132,7 @@
 			}
 		}
 
+		//delete a preset of option
 		function removeOption(){
 			var nameOptions = document.getElementById("optionsChoice").value;
 			console.log("TEST",nameOptions);
@@ -143,29 +147,15 @@
 			}
 		}
 
-		function functionRegexFind(txtFind, isRegex, isMatchCase){
-			var temp_find="";
-			var temp_regexFind = null;
-			if(isRegex)
-				temp_find = txtFind;
-			else
-				temp_find = txtFind.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
-
-			if(isMatchCase)
-				temp_regexFind = new RegExp(temp_find, "g");
-			else
-				temp_regexFind = new RegExp(temp_find, "gi");
-			return temp_regexFind;
-		}
 
 		function FindReplace(txtFind, txtReplace, isRegex, isMatchCase){
-			this.regexFind = functionRegexFind(txtFind, isRegex, isMatchCase),
-			this.txtReplace = txtReplace,
-			this.txtFind = txtFind,
-			this.isRegex = isRegex,
-			this.isMatchCase = isMatchCase
+			this.txtReplace = txtReplace;
+			this.txtFind = txtFind;
+			this.isRegex = isRegex;
+			this.isMatchCase = isMatchCase;
 		}
 
+		//create a new rule for Find and Replace
 		function addFindReplace(){
 			if(document.getElementById("find").value!=""){
 				var idFindReplace = g_options.findReplace.length;
@@ -183,6 +173,7 @@
 			}
 		}
 
+		//add the new rule in the table of the popup
 		function addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase){
 			var tableRef = document.getElementById('findReplace').getElementsByTagName('tbody')[0];
 			var newRow   = tableRef.insertRow(tableRef.rows.length);
@@ -217,12 +208,14 @@
 			addEventListenerButton(idFindReplace);
 		}
 
+		//add event Listener for delete a rule of Find an Replace
 		function addEventListenerButton(id){
 			document.getElementById("findReplace" + id).addEventListener("click", function() {
 				deleteFindReplace(id);
 			}, false);
 		}
 
+		//delete a rule of find and replace
 		function deleteFindReplace(index){
 			console.log("Before g_options.findReplace", g_options.findReplace);
 			g_options.findReplace[index]=null;
@@ -232,7 +225,7 @@
 
 
 
-		// change export Mode
+		// change g_options with the value enter in the form
 		function changeFormat() {
 			var text;
 
@@ -294,27 +287,21 @@
 
 		};
 
+		//export the nodes in the textArea in the popup
 		function exportText(){
-			console.log("aaaaaaaaa" ,document.getElementById('optionsChoice').value,  optionsChoice);
+
 			g_options = copy(optionsChoice[document.getElementById('optionsChoice').value]);
-			console.log("aaaaaaaaa" ,g_options);
 
 			console.log("##################### Export the page with options", g_options);
 			text = exportLib.toMyText(g_my_nodes, g_options);
-			document.getElementById('textArea').innerText = text;
+			var textArea = document.getElementById('textArea');
+			textArea.innerText = text;
 			document.getElementById("popupTitle").innerHTML = makeTitleLabel(g_options.format, g_title, g_url);
-			textarea_select();
+			textArea.focus();
+			textArea.select();
 		};
 
-		function textarea_select() {
-			var t = document.getElementById('textArea');
-			t.focus();
-			t.select();
-			//setTimeout(function() {
-			//	document.execCommand("copy")
-			//}, 200);
-		};
-
+		//add event Listener for the button in the popup
 		function setEventListers() {
 			document.getElementById("export").addEventListener("click", function() {
 				exportText();
@@ -346,6 +333,7 @@
 			return (format == "markdown") ? '[' + title + '](' + url + ')' : title + ' - ' + url;
 		}
 
+		/*
 		// not use
 		function preview() {
 			var img = '<img src="' + chrome.extension.getURL('image/space.gif') + '" width="800" height="1" alt="">';
@@ -358,8 +346,9 @@
 			link.type = "text/css";
 			link.rel = "stylesheet";
 			document.getElementsByTagName("head")[0].appendChild(link);
-		}
+		}*/
 
+		//import the WorkFlowy text in Nodes
 		function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
 			var start = 0; //nodes[0].node_forest[0]; EP
 			var text = nodes[start].title + "\n";
@@ -511,7 +500,6 @@
 			return [nodes, root];
 		}
 
-		console.log("Responce in", Date.now()-dateStart, "ms : ", optionsChoice);
 		updateOptionsChoice();
 		g_nodes = response.content;
 		g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
