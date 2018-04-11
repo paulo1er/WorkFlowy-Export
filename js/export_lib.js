@@ -268,12 +268,34 @@ var exportLib = (function() {
 	}
 
 
+	//create a regular expression with txtFind isRegex and isMatchCase
+	function functionRegexFind(txtFind, isRegex, isMatchCase){
+		var temp_find="";
+		var temp_regexFind = null;
+		if(isRegex)
+			temp_find = txtFind;
+		else
+			temp_find = txtFind.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+
+		if(isMatchCase)
+			temp_regexFind = new RegExp(temp_find, "g");
+		else
+			temp_regexFind = new RegExp(temp_find, "gi");
+		return temp_regexFind;
+	}
 
 	exportNodesTree = function(nodes, index, level, options, indent_chars, prefix_indent_chars) {
 		var header = "";
 		var body = "";
 		var footer = "";
 		var is_document = nodes[index].is_title;
+
+		options.findReplace.forEach(function(e) {
+			console.log("#F&R",e);
+			if(e!=null){
+				e.regexFind = functionRegexFind(e.txtFind, e.isRegex, e.isMatchCase);
+			}
+		});
 
 		var HEADER = {
 			text: "",
@@ -372,8 +394,8 @@ var exportLib = (function() {
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
+				console.log("#F&R",e);
 				if(e!=null){
-					console.log("#F&R",text, e.regexFind, e.txtReplace);
 					text = text.replace(e.regexFind, e.txtReplace);
 				}
 			});
@@ -772,7 +794,7 @@ var exportLib = (function() {
 			var indent_chars = options.indent_chars;
 			var prefix_indent_chars = options.prefix_indent_chars;
 
-			console.log("Options in toMyText:", options, options.ignore_tags);
+			console.log("Options in toMyText:", options);
 			text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options, indent_chars, prefix_indent_chars); // EP
 /* 			for (var i = 0; i < nodes[0].node_forest.length; i++) {
 				text = text + nodesTreeToText(nodes, nodes[0].node_forest[i], 0, options, indent_chars, prefix_indent_chars);
