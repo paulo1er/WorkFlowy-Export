@@ -10,27 +10,8 @@
 	});
 
 
-	function load(response) {chrome.storage.sync.get(['optionsChoice'], function(result) {
-
-		var optionsChoice = result.optionsChoice;
-		if(optionsChoice == null){
-			optionsChoice = {
-				default : new Options("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
-				HTML : new Options("html", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, []),
-				RTF : new Options("rtf", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, [])
-			};
-			chrome.storage.sync.set({'optionsChoice' : optionsChoice}, function() {
-				console.log("optionsChoice init");
-			});
-		};
-
-		var g_nodes = null;
-		var g_my_nodes = null;
-		var g_output_notes = false;
-		var g_output_toc = false;
-		var g_options;
-		var g_title, g_url;
-
+	function load(response) {
+	chrome.storage.sync.get(['profileList', 'profileName'], function(result) {
 		//return a copy of an object (recursif)
 		function copy(o) {
 		  var output, v, key;
@@ -42,7 +23,7 @@
 		  return output;
 		}
 
-		function Options(format, output_type, indent_chars, prefix_indent_chars, titleOptions, item_sep, applyWFERules, outputToc, outputNotes, ignore_tags, escapeCharacter, findReplace){
+		function Profile(format, output_type, indent_chars, prefix_indent_chars, titleOptions, item_sep, applyWFERules, outputToc, outputNotes, ignore_tags, escapeCharacter, findReplace){
 			this.format = format,
 			this.output_type = output_type,
 			this.indent_chars = indent_chars,
@@ -58,40 +39,48 @@
 		};
 
 		//update the list in the popup with the different preset of options
-		function updateOptionsChoice(){
-			var documentOptionsChoice =	document.getElementById("optionsChoice");
-			for (var name in optionsChoice){
-	    	if (optionsChoice.hasOwnProperty(name) && !document.getElementById("optionsChoice"+name)) {
+		function updateProfileChoice(){
+			var documentProfileChoice =	document.getElementById("profileList");
+			for (var name in profileList){
+	    	if (profileList.hasOwnProperty(name) && !document.getElementById("profileList"+name)) {
 					var option = document.createElement("option");
 					option.setAttribute("value", name);
-					option.setAttribute("id", "optionsChoice"+name);
+					option.setAttribute("id", "profileList"+name);
 					option.text = name;
-					documentOptionsChoice.add(option);
+					documentProfileChoice.add(option);
 	    	}
 			}
-			if(document.getElementById("nameOptions").value == ""){
-				document.getElementById("optionsChoicedefault").setAttribute('selected', true);
+			for (var i=0; i<documentProfileChoice.options.length; i++){
+				var option = documentProfileChoice.options[i];
+				var name = option.value;
+				console.log("TEST",option, !profileList.hasOwnProperty(name) && document.getElementById("profileList"+name));
+	    	if (!profileList.hasOwnProperty(name) && document.getElementById("profileList"+name)) {
+					documentProfileChoice.removeChild(option);
+	    	}
+			}
+			if(document.getElementById("nameProfile").value == ""){
+				document.getElementById("profileList"+profileName_LastConnexion).setAttribute('selected', true);
 			}
 		}
 
 		//open a form to create or update a preset of options
-		function newOptions(){
-			document.getElementById("optionSelect").hidden = true;
-			document.getElementById("optionsEdit").hidden = false;
-			document.getElementById("nameOptions").value = document.getElementById('optionsChoice').value;
-			g_options = copy(optionsChoice[document.getElementById("nameOptions").value]);
+		function newProfile(){
+			document.getElementById("profileSelect").hidden = true;
+			document.getElementById("profileEdit").hidden = false;
+			document.getElementById("nameProfile").value = document.getElementById('profileList').value;
+			curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
-			document.getElementById(g_options.format).checked = true;
-			document.getElementById(g_options.output_type).checked = true;
+			document.getElementById(curent_profile.format).checked = true;
+			document.getElementById(curent_profile.output_type).checked = true;
 
-			document.getElementById("wfeRules").checked = g_options.applyWFERules;
-			document.getElementById("outputToc").checked = g_options.outputToc;
-			document.getElementById("outputNotes").checked = g_options.outputNotes;
-		  document.getElementById("stripTags").checked =	g_options.ignore_tags;
-			document.getElementById("escapeCharacter").checked = g_options.escapeCharacter;
-			document.getElementById("insertLine").checked = (g_options.item_sep == "\n\n");
+			document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
+			document.getElementById("outputToc").checked = curent_profile.outputToc;
+			document.getElementById("outputNotes").checked = curent_profile.outputNotes;
+		  document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
+			document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
+			document.getElementById("insertLine").checked = (curent_profile.item_sep == "\n\n");
 
-			switch (g_options.prefix_indent_chars) {
+			switch (curent_profile.prefix_indent_chars) {
 				case "\t":
 					document.getElementById('tab');
 					break;
@@ -102,47 +91,44 @@
 					document.getElementById('withoutIndent');
 					break;
 			}
-			document.getElementById("indentOther").value = g_options.indent_chars;
-			document.getElementById(g_options.titleOptions).checked = true;
+			document.getElementById("indentOther").value = curent_profile.indent_chars;
+			document.getElementById(curent_profile.titleOptions).checked = true;
 
 			document.getElementById('findReplace').getElementsByTagName('tbody')[0].innerHTML = "";
-			g_options.findReplace.forEach(function(e, id){
+			curent_profile.findReplace.forEach(function(e, id){
 				addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 			});
 		}
 
 		//save the form for create or update a preset of options
-		function saveOptions(){
-			var optionsName = document.getElementById("nameOptions").value;
-			if(optionsName != ""){
+		function saveProfile(){
+			var profileName = document.getElementById("nameProfile").value;
+			if(profileName != ""){
 				changeFormat();
-				var idnull=g_options.findReplace.indexOf(null);
+				var idnull=curent_profile.findReplace.indexOf(null);
 				while(idnull!=-1){
-					g_options.findReplace.splice(idnull,1);
-					idnull=g_options.findReplace.indexOf(null);
+					curent_profile.findReplace.splice(idnull,1);
+					idnull=curent_profile.findReplace.indexOf(null);
 				};
-				optionsChoice[optionsName] = copy(g_options);
-				updateOptionsChoice();
-				document.getElementById("optionSelect").hidden = false;
-				document.getElementById("optionsEdit").hidden = true;
-				document.getElementById('optionsChoice').value = optionsName;
-				chrome.storage.sync.set({'optionsChoice' : optionsChoice}, function() {
-					console.log("optionsChoice saved ");
+				profileList[profileName] = copy(curent_profile);
+				updateProfileChoice();
+				document.getElementById("profileSelect").hidden = false;
+				document.getElementById("profileEdit").hidden = true;
+				document.getElementById('profileList').value = profileName;
+				chrome.storage.sync.set({'profileList' : profileList}, function() {
+					console.log("profileList saved ");
 				});
 			}
 		}
 
 		//delete a preset of option
 		function removeOption(){
-			var nameOptions = document.getElementById("optionsChoice").value;
-			console.log("TEST",nameOptions);
-			if(nameOptions!="default"){
-				delete optionsChoice[document.getElementById("optionsChoice").value];
-				updateOptionsChoice();
-				var optionTag = document.getElementById("optionsChoice"+nameOptions);
-				optionTag.parentNode.removeChild(optionTag);
-				chrome.storage.sync.set({'optionsChoice' : optionsChoice}, function() {
-					console.log("optionsChoice saved ");
+			var nameProfile = document.getElementById("profileList").value;
+			if(nameProfile!="default"){
+				delete profileList[document.getElementById("profileList").value];
+				updateProfileChoice();
+				chrome.storage.sync.set({'profileList' : profileList}, function() {
+					console.log("profileList saved ");
 				});
 			}
 		}
@@ -158,13 +144,13 @@
 		//create a new rule for Find and Replace
 		function addFindReplace(){
 			if(document.getElementById("find").value!=""){
-				var idFindReplace = g_options.findReplace.length;
+				var idFindReplace = curent_profile.findReplace.length;
 				var txtFind = document.getElementById("find").value;
 				var txtReplace = document.getElementById("replace").value;
 				var isRegex = document.getElementById("regex").checked;
 				var isMatchCase = document.getElementById("matchCase").checked;
 
-				g_options.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, document.getElementById("matchCase").checked));
+				curent_profile.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, document.getElementById("matchCase").checked));
 
 				addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase);
 
@@ -199,7 +185,7 @@
 			var span = document.createElement("span");
 			newText  = document.createTextNode("delete");
 			but.setAttribute("type", "button");
-			but.setAttribute("id", "findReplace" + (idFindReplace));
+			but.setAttribute("id", "ButtonfindReplace" + (idFindReplace));
 
 			newCell.appendChild(but);
 			but.appendChild(span);
@@ -210,29 +196,29 @@
 
 		//add event Listener for delete a rule of Find an Replace
 		function addEventListenerButton(id){
-			document.getElementById("findReplace" + id).addEventListener("click", function() {
+			document.getElementById("ButtonfindReplace" + id).addEventListener("click", function() {
 				deleteFindReplace(id);
 			}, false);
 		}
 
 		//delete a rule of find and replace
 		function deleteFindReplace(index){
-			console.log("Before g_options.findReplace", g_options.findReplace);
-			g_options.findReplace[index]=null;
+			console.log("Before curent_profile.findReplace", curent_profile.findReplace);
+			curent_profile.findReplace[index]=null;
 			document.getElementById("findReplace" + index).remove();
-			console.log("After g_options.findReplace", g_options.findReplace);
+			console.log("After curent_profile.findReplace", curent_profile.findReplace);
 		}
 
 
 
-		// change g_options with the value enter in the form
+		// change curent_profile with the value enter in the form
 		function changeFormat() {
 			var text;
 
 			var formatOptions = document.getElementsByName('formatOptions');
 			for ( var i = 0; i < formatOptions.length; i++) {
 	    	if(formatOptions[i].checked) {
-					g_options.format = formatOptions[i].value;
+					curent_profile.format = formatOptions[i].value;
 	        break;
 	    	}
 			}
@@ -240,7 +226,7 @@
 			var sourceOptions = document.getElementsByName('sourceOptions');
 			for ( var i = 0; i < sourceOptions.length; i++) {
 				if(sourceOptions[i].checked) {
-					g_options.output_type = sourceOptions[i].value;
+					curent_profile.output_type = sourceOptions[i].value;
 					break;
 				}
 			}
@@ -248,7 +234,7 @@
 			var titleOptions = document.getElementsByName('titleOptions');
 			for ( var i = 0; i < titleOptions.length; i++) {
 				if(titleOptions[i].checked) {
-					g_options.titleOptions = titleOptions[i].value;
+					curent_profile.titleOptions = titleOptions[i].value;
 					break;
 				}
 			}
@@ -258,47 +244,50 @@
 				if(indentOptions[i].checked) {
 					switch (indentOptions[i].value) {
 						case "tab":
-							g_options.prefix_indent_chars = "\t";
+							curent_profile.prefix_indent_chars = "\t";
 							break;
 						case "space":
-							g_options.prefix_indent_chars = "    ";
+							curent_profile.prefix_indent_chars = "    ";
 							break;
 						case "withoutIndent":
-							g_options.prefix_indent_chars = "";
+							curent_profile.prefix_indent_chars = "";
 							break;
 					}
 					break;
 				}
 			}
 
-			g_options.indent_chars = document.getElementById("indentOther").value;
+			curent_profile.indent_chars = document.getElementById("indentOther").value;
 
 			if(document.getElementById("insertLine").checked)
-				g_options.item_sep = "\n\n";
+				curent_profile.item_sep = "\n\n";
 			else
-				g_options.item_sep = "\n";
+				curent_profile.item_sep = "\n";
 
 
-			g_options.applyWFERules = document.getElementById("wfeRules").checked;
-			g_options.outputToc = document.getElementById("outputToc").checked;
-			g_options.outputNotes = document.getElementById("outputNotes").checked;
-			g_options.ignore_tags = document.getElementById("stripTags").checked;
-			g_options.escapeCharacter = document.getElementById("escapeCharacter").checked;
+			curent_profile.applyWFERules = document.getElementById("wfeRules").checked;
+			curent_profile.outputToc = document.getElementById("outputToc").checked;
+			curent_profile.outputNotes = document.getElementById("outputNotes").checked;
+			curent_profile.ignore_tags = document.getElementById("stripTags").checked;
+			curent_profile.escapeCharacter = document.getElementById("escapeCharacter").checked;
 
 		};
 
 		//export the nodes in the textArea in the popup
 		function exportText(){
 
-			g_options = copy(optionsChoice[document.getElementById('optionsChoice').value]);
+			curent_profile = copy(profileList[document.getElementById('profileList').value]);
 
-			console.log("##################### Export the page with options", g_options);
-			text = exportLib.toMyText(g_my_nodes, g_options);
+			console.log("##################### Export the page with profile", curent_profile);
+			text = exportLib.toMyText(g_my_nodes, curent_profile);
 			var textArea = document.getElementById('textArea');
 			textArea.innerText = text;
-			document.getElementById("popupTitle").innerHTML = makeTitleLabel(g_options.format, g_title, g_url);
+			document.getElementById("popupTitle").innerHTML = makeTitleLabel(curent_profile.format, g_title, g_url);
 			textArea.focus();
 			textArea.select();
+			chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
+				console.log("profileName init");
+			});
 		};
 
 		//add event Listener for the button in the popup
@@ -315,12 +304,12 @@
 				addFindReplace();
 			}, false);
 
-			document.getElementById("newOptions").addEventListener("click", function() {
-				newOptions();
+			document.getElementById("newProfile").addEventListener("click", function() {
+				newProfile();
 			}, false);
 
-			document.getElementById("saveOptions").addEventListener("click", function() {
-				saveOptions();
+			document.getElementById("saveProfile").addEventListener("click", function() {
+				saveProfile();
 			}, false);
 
 			document.getElementById("removeOption").addEventListener("click", function() {
@@ -500,11 +489,27 @@
 			return [nodes, root];
 		}
 
-		updateOptionsChoice();
-		g_nodes = response.content;
-		g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
-		g_title = response.title;
-		g_url = response.url;
+		var profileList = result.profileList;
+		if(profileList == null){
+			profileList = {
+				default : new Profile("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
+				HTML : new Profile("html", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, []),
+				RTF : new Profile("rtf", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, [])
+			};
+			chrome.storage.sync.set({'profileList' : profileList}, function() {
+				console.log("profileList init");
+			});
+		};
+		var profileName_LastConnexion = result.profileName;
+		if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
+			profileName_LastConnexion="default";
+		};
+
+		updateProfileChoice();
+		var g_nodes = response.content;
+		var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
+		var g_title = response.title;
+		var g_url = response.url;
 		exportText();
 		setEventListers();
 
