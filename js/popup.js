@@ -279,12 +279,12 @@
 			curent_profile = copy(profileList[document.getElementById('profileList').value]);
 
 			console.log("##################### Export the page with profile", curent_profile);
+			var $textArea = $('#textArea');
 			text = exportLib.toMyText(g_my_nodes, curent_profile);
-			var textArea = document.getElementById('textArea');
-			textArea.innerText = text;
+			$textArea.val(text);
 			document.getElementById("popupTitle").innerHTML = makeTitleLabel(curent_profile.format, g_title, g_url);
-			textArea.focus();
-			textArea.select();
+			//textArea.focus();
+			//textArea.select();
 			chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 				console.log("profileName init");
 			});
@@ -293,7 +293,26 @@
 		//add event Listener for the button in the popup
 		function setEventListers() {
 			document.getElementById("export").addEventListener("click", function() {
-				exportText();
+					var $loading = $("#loading");
+					var $content = $("#content");
+					var $error = $("#error");
+					$content.hide("fast", function(){
+						$loading.show("fast",function(){
+							try{
+								exportText();
+								$content.show("fast");
+								$loading.hide("fast");
+								$error.hide("fast");
+								console.log("OK");
+							}
+							catch(err){
+								$content.hide("fast");
+								$loading.hide("fast");
+								$error.show("fast");
+								console.log("Error", err);
+							}
+						});
+					});
 			}, false);
 
 			document.getElementById("close").addEventListener("click", function() {
@@ -339,6 +358,7 @@
 
 		//import the WorkFlowy text in Nodes
 		function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
+
 			var start = 0; //nodes[0].node_forest[0]; EP
 			var text = nodes[start].title + "\n";
 			var indent = "";
@@ -504,7 +524,7 @@
 		if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
 			profileName_LastConnexion="default";
 		};
-
+		STUPIDCODE =qsfaezfgesd()
 		updateProfileChoice();
 		var g_nodes = response.content;
 		var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
@@ -512,7 +532,6 @@
 		var g_url = response.url;
 		exportText();
 		setEventListers();
-
 })}
 
 	function main() {
@@ -522,7 +541,28 @@
 		}, function(tabs) {
 			chrome.tabs.sendMessage(tabs[0].id, {
 				request: 'getTopic'
-			}, function(response) {load(response)});
+			}, function(response) {
+					var $loading = $("#loading");
+					var $content = $("#content");
+					var $error = $("#error");
+					$content.hide("fast", function(){
+						$loading.show("fast",function(){
+							try{
+								load(response)
+								$content.show("fast");
+								$loading.hide("fast");
+								$error.hide("fast");
+								console.log("OK");
+							}
+							catch(err){
+								$content.hide("fast");
+								$loading.hide("fast");
+								$error.show("fast");
+								console.log("Error", err);
+							}
+					});
+				});
+			});
 		});
 	}
 

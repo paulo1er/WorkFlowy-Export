@@ -13,9 +13,17 @@
 			</div>
 			<div class="panel-body">
 				<form>
-					<div class="form-group"><!-- text area for output -->
-						<textarea class="form-control" id="textArea" rows="10">
-						</textarea>
+					<div class="form-group" id="divTextArea"><!-- text area for output -->
+						<div id="content" hidden>
+							<textarea class="form-control" id="textArea" rows="10">
+							</textarea>
+						</div>
+						<div id="loading" style="height:240px">
+							<img src="image/Loading_icon.gif" >
+						</div>
+						<div id="error" style="height:240px" hidden>
+							<span class="" style="font-weight: bold;">An error append during the export</span>
+						</div>
 					</div>
 					<div class="form-group">
 						<button id="export" type="button"><span>Export</span></button>
