@@ -166,11 +166,11 @@ var exportLib = (function() {
 	var ESCAPE_CHARACTER = {
 			text: [["",""]],
 			md: [["",""]],
-			HTML: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
+			html: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
 			LaTeX: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			beamer: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			opml: [["",""]],
-			RTF: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
+			rtf: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
 		};
 
 	hasChild = function(nodes, pos) {
@@ -278,11 +278,11 @@ var exportLib = (function() {
 		var HEADER = {
 			text: "",
 			md: "",
-			HTML: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
+			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			LaTeX: "",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
-			RTF: "{\\rtf1\\ansi\\deff0\n"+
+			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEET.toRTFstr()+"\n"+
 			     COLORSHEET.toRTFstr()+"\n"+
 			     STYLESHEET.toRTFstr()+"\n"
@@ -290,15 +290,15 @@ var exportLib = (function() {
 		var FOOTER = {
 			text: "",
 			md: "",
-			HTML: "  </body>\n</html>",
+			html: "  </body>\n</html>",
 			LaTeX: "",
 			beamer: "",
 			opml: "  </body>\n</opml>",
-			RTF: "}"
+			rtf: "}"
 		};
 		// Set default rules
-		options.rules.ignore_item = false;
-		options.rules.ignore_outline = false;
+		options.ignore_item = false;
+		options.ignore_outline = false;
 
 		// Create header text
 		header = HEADER[options.format];
@@ -362,7 +362,7 @@ var exportLib = (function() {
 		console.log("nodesTreeToText -- processing nodes["+index.toString()+"] = ", nodes[index].title, 'at level', level.toString());
 		console.log("options:", options);
 
-		//	if (!options.rules.ignore_item && !options.rules.ignore_outline) {
+		//	if (!options.ignore_item && !options.ignore_outline) {
 
 		if(nodes[index].title != null){
 			// Not a dummy node
@@ -371,10 +371,12 @@ var exportLib = (function() {
 			note = nodes[index].note;
 
 			//find and Replace
-			if(options.findReplace != null){
-				console.log("#F&R",text, options.findReplace.regexFind, options.findReplace.txtReplace);
-				text = text.replace(options.findReplace.regexFind, options.findReplace.txtReplace);
-			}
+			options.findReplace.forEach(function(e) {
+				if(e!=null){
+					console.log("#F&R",text, e.regexFind, e.txtReplace);
+					text = text.replace(e.regexFind, e.txtReplace);
+				}
+			});
 
 			if (options.applyWFERules)
 			{
@@ -382,18 +384,17 @@ var exportLib = (function() {
 
 				ALIAS.forEach(function(e) {
 						text = text.split(e[1]).join(e[0]);
-						console.log("TESTESTE:", text, e[1], e[0]);
 				});
 
 				if (text.search(/(^|\s)#wfe\-ignore\-tags($|\s)/ig) != -1)
 				{
 					console.log('ignore-tags found');
-					options.rules.ignore_tags = true;
+					options.ignore_tags = true;
 				}
 				if (text.search(/(^|\s)#(note|wfe\-ignore\-item)($|\s)/ig) != -1)
 				{
 					console.log('ignore-item found');
-					//options.rules.ignore_item = true;
+					//options.ignore_item = true;
 					ignore_item = true;
 				}
 				if (text.search(/(^|\s)#wfe\-ignore\-outline($|\s)/ig) != -1)
@@ -446,7 +447,7 @@ var exportLib = (function() {
 				//text = text.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
 			}
 
-			if(options.format == 'HTML')
+			if(options.format == 'html')
 				nodesStyle = new Style(STYLESHEET[styleName].Id);
 			else
 				nodesStyle = copy(STYLESHEET[styleName]);
@@ -490,7 +491,7 @@ var exportLib = (function() {
 					break;
 			}
 
-			console.log('Finished processing rules:', text, options.rules.ignore_item);
+			console.log('Finished processing rules:', text, options.ignore_item);
 
 
 			if(level>0) indent = Array(level+1).join(prefix_indent_chars);
@@ -502,7 +503,7 @@ var exportLib = (function() {
 			// Only process item if no rule specifies ignoring it
 			if (!ignore_item && !ignore_outline) {
 
-				console.log('Process item:', text, options.rules.ignore_item);
+				console.log('Process item:', text, options.ignore_item);
 
 				textTag = text.match(WF_TAG_REGEXP);
 				if(textTag!=null && options.applyWFERules){
@@ -553,7 +554,7 @@ var exportLib = (function() {
 					});
 				}
 
-				if (options.rules.ignore_tags) {
+				if (options.ignore_tags) {
 					// Strip off tags
 					text = text.replace(WF_TAG_REGEXP, "");
 					note = note.replace(WF_TAG_REGEXP, "");
@@ -562,7 +563,7 @@ var exportLib = (function() {
 					//console.log('regexp' + myArray, 'replced:', text);
 				}
 
-				if(options.rules.escapeCharacter)
+				if(options.escapeCharacter)
 					ESCAPE_CHARACTER[options.format].forEach(function(e) {
 	  					text = text.split(e[0]).join(e[1]);
 			  			note = note.split(e[0]).join(e[1]);
@@ -585,7 +586,7 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
 				}
 
-				else if (options.format == 'HTML') {
+				else if (options.format == 'html') {
 					//output = output + indent + text + nodes[index].myType;
 					text = text.replace(/--/g, "&ndash;");
 					//Interpretation of `code`
@@ -682,7 +683,7 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
 					output = output + options.item_sep;
 
-				} else if (options.format == 'RTF') {
+				} else if (options.format == 'rtf') {
 
 					if(styleName.includes("Item")){
 						nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
@@ -707,7 +708,7 @@ var exportLib = (function() {
 				}
 				else {
 					output = output + indent + text;
-					//if (options.rules.include_notes) output = output + " [" + note + "]";
+					//if (options.include_notes) output = output + " [" + note + "]";
 					//console.log(options);
 					if ((note !== "") && (options.outputNotes))
 						output = output + "\n" + indent + "[" + note + "]";
@@ -722,7 +723,7 @@ var exportLib = (function() {
 			//console.log(nodes[index].note);
 			console.log("Output: ", output);
 			// Reset item-local rules
-			options.rules.ignore_item = false;
+			options.ignore_item = false;
 
 			output_children = '';
 			if (!ignore_outline) {
@@ -771,7 +772,7 @@ var exportLib = (function() {
 			var indent_chars = options.indent_chars;
 			var prefix_indent_chars = options.prefix_indent_chars;
 
-			console.log("Options in toMyText:", options, options.rules.ignore_tags);
+			console.log("Options in toMyText:", options, options.ignore_tags);
 			text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options, indent_chars, prefix_indent_chars); // EP
 /* 			for (var i = 0; i < nodes[0].node_forest.length; i++) {
 				text = text + nodesTreeToText(nodes, nodes[0].node_forest[i], 0, options, indent_chars, prefix_indent_chars);

@@ -17,132 +17,158 @@
 						<textarea class="form-control" id="textArea" rows="10">
 						</textarea>
 					</div>
-					<!-- markup export -->
-					<!--<label class="radio-inline">
-						<input checked type="radio" name="export" id="markupExport" value="markupExport">Markup Export
-					</label>-->
-					<div class="form-group"><!-- WorkFlowy source -->
-						Output Type<br>
-						<label class="radio-inline">
-							<input type="radio" name="sourceOptions" id="hierdoc" value="hierdoc">Document
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input type="radio" name="sourceOptions" id="present" value="hierdoc">Presentation
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input checked type="radio" name="sourceOptions" id="list" value="list">Outline
-						</label>
-						<br>
-Output Format<br>
-						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="markDown" value="markdown"> Markdown
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="html" value="html"> HTML
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="latex" value="latex"> LaTeX
-						</label>
-
-						<br>&nbsp;&nbsp;
-						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="beamer" value="beamer"> Beamer
-						</label>
-						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="article" value="article"> Article
-						</label>
-						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="report" value="report"> Report
-						</label>
-						<label class="radio-inline">
-							<input type="radio" name="latexOptions" id="book" value="book"> Book
-						</label>
-						<!--</div>-->
-						<br>
-						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="opml" value="opml"> OPML
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="wfe" value="wfe"> WFE-Tagged Text
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input type="radio" name="formatOptions" id="rtf" value="rtf"> Rich Text (RTF)
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input checked type="radio" name="formatOptions" id="text" value="text">Text
-						</label>
-						<br>
-
+					<div class="form-group">
+						<button id="export" type="button"><span>Export</span></button>
 					</div>
-					<!-- text export -->
-					Options<br>
-					<div class="form-group"><!-- options -->
 
-						<label class="checkbox-inline">
-							<input checked type="checkbox" id="wfeRules"> <span class="" style="font-weight: normal;">Apply WFE Rules</span>
-						</label>
+					<div id='optionSelect'>
+						<span class="" style="font-weight: bold;">Options</span>
+						<select id="optionsChoice"></select>
+						<button id="removeOption" type="button"><span>Delete preset</span></button>
 						<br>
-						<label class="checkbox-inline">
-							<input checked type="checkbox" id="stripTags"> <span class="" style="font-weight: normal;">Strip Tags</span>
-						</label>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="outputNotes"> <span class="locale Outputnotes" style="font-weight: normal;">Include Notes</span>
-						</label>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="outputToc"> <span class="locale Outputtoc" style="font-weight: normal;">Include TOC</span>
-						</label>
-						<br>
-						<br>
-						<!--<div class="form-group">-->
-							<label class="radio-inline">
-								<input checked type="radio" name="indentOptions" id="tab" value="tab"> Tab
-							</label>
-							<label class="radio-inline">
-								<input type="radio" name="indentOptions" id="space" value="space"> Space
-							</label>
-							<label class="radio-inline">
-								<input type="radio" name="indentOptions" id="withoutIndent" value="withoutIndent"> Without Indentation
-							</label>
-							<br>Text after indentation : <input type="text" id="indentOther"><br>
-						<!--</div>-->
-						<br>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="insertLine"> <span class="" style="font-weight: normal;">Add line break</span>
-						</label>
-						<br>
-						<label class="radio-inline">
-							<input checked type="radio" name="titleOptions" id="titleParents" value="titleParents"> Use title for parents
-						</label>
-						<label class="radio-inline">
-							<input  type="radio" name="titleOptions" id="neverTitle" value="neverTitle"> Never use title
-						</label>
-						<label class="radio-inline">
-							<input  type="radio" name="titleOptions" id="alwaysTitle" value="alwaysTitle"> always use title
-						</label>
-						<br>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="escapeCharacter"> <span class="" style="font-weight: normal;">Escape Character Safe</span>
-						</label>
-
-
+						<button id="newOptions" type="button"><span>New options</span></button>
 					</div>
-					<div class="form-group"><!-- Find&Replace -->
-						Find : <input type="text" id="find"><br>
-						Replace : <input type="text" id="replace"><br>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="regex"> <span>Regex</span>
-						</label>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="matchCase"> <span>Match Case</span>
-						</label>
-						<button id="addFindReplace" type="button"><span>Add</span></button>
+
+					<div id='optionsEdit' hidden>
+						<span class="" style="font-weight: bold;">Options</span>
+						<input type="text" id="nameOptions">
+						<br>
+						<div class="form-group"><!-- WorkFlowy source -->
+							Output Type<br>
+							<label class="radio-inline">
+								<input type="radio" name="sourceOptions" id="hierdoc" value="hierdoc">Document
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="sourceOptions" id="present" value="hierdoc">Presentation
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input checked type="radio" name="sourceOptions" id="list" value="list">Outline
+							</label>
+							<br>
+	Output Format<br>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="markDown" value="markdown"> Markdown
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="html" value="html"> HTML
+							</label>
+							<br>
+
+
+							<label class="radio-inline">LaTeX</label>
+							<br>&nbsp;&nbsp;
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="beamer" value="beamer"> Beamer
+							</label>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="article" value="article"> Article
+							</label>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="report" value="report"> Report
+							</label>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="book" value="book"> Book
+							</label>
+							<!--</div>-->
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="opml" value="opml"> OPML
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="wfe" value="WFE-TAGGED"> WFE-Tagged Text
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="rtf" value="rtf"> Rich Text (RTF)
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="formatOptions" id="text" value="text">Text
+							</label>
+							<br>
+
+						</div>
+						<!-- text export -->
+						<div class="form-group"><!-- options -->
+
+							<label class="checkbox-inline">
+								<input checked type="checkbox" id="wfeRules"> <span class="" style="font-weight: normal;">Apply WFE Rules</span>
+							</label>
+							<br>
+							<label class="checkbox-inline">
+								<input checked type="checkbox" id="stripTags"> <span class="" style="font-weight: normal;">Strip Tags</span>
+							</label>
+							<label class="checkbox-inline">
+								<input type="checkbox" id="outputNotes"> <span class="locale Outputnotes" style="font-weight: normal;">Include Notes</span>
+							</label>
+							<label class="checkbox-inline">
+								<input type="checkbox" id="outputToc"> <span class="locale Outputtoc" style="font-weight: normal;">Include TOC</span>
+							</label>
+							<br>
+							<br>
+							<!--<div class="form-group">-->
+								<label class="radio-inline">
+									<input checked type="radio" name="indentOptions" id="tab" value="tab"> Tab
+								</label>
+								<label class="radio-inline">
+									<input type="radio" name="indentOptions" id="space" value="space"> Space
+								</label>
+								<label class="radio-inline">
+									<input type="radio" name="indentOptions" id="withoutIndent" value="withoutIndent"> Without Indentation
+								</label>
+								<br>Text after indentation : <input type="text" id="indentOther"><br>
+							<!--</div>-->
+							<br>
+							<label class="checkbox-inline">
+								<input type="checkbox" id="insertLine"> <span class="" style="font-weight: normal;">Add line break</span>
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input checked type="radio" name="titleOptions" id="titleParents" value="titleParents"> Use title for parents
+							</label>
+							<label class="radio-inline">
+								<input  type="radio" name="titleOptions" id="neverTitle" value="neverTitle"> Never use title
+							</label>
+							<label class="radio-inline">
+								<input  type="radio" name="titleOptions" id="alwaysTitle" value="alwaysTitle"> always use title
+							</label>
+							<br>
+							<label class="checkbox-inline">
+								<input type="checkbox" id="escapeCharacter"> <span class="" style="font-weight: normal;">Escape Character Safe</span>
+							</label>
+
+
+						</div>
+						<div class="form-group"><!-- Find&Replace -->
+							Find : <input type="text" id="find"><br>
+							Replace : <input type="text" id="replace"><br>
+							<label class="checkbox-inline">
+								<input type="checkbox" id="regex"> <span>Regex</span>
+							</label>
+							<label class="checkbox-inline">
+								<input type="checkbox" id="matchCase"> <span>Match Case</span>
+							</label>
+							<button id="addFindReplace" type="button"><span>Add</span></button>
+							<table class="table" id="findReplace">
+								<thead>
+									<tr>
+										<th scope="col">#</th>
+										<th scope="col">Find</th>
+										<th scope="col">Replace</th>
+										<th scope="col">Regex</th>
+										<th scope="col">Match Case</th>
+										<th scope="col">Delete</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+						<button id="saveOptions" type="button"><span>Save options</span></button>
 					</div>
 					<button id="close" type="button" class="btn btn-default pull-right"><span class="locale Close">Close</span></button>
 				</form>

@@ -1,406 +1,526 @@
 (function() {
-	var g_nodes = null;
-	var g_my_nodes = null;
-	var g_options = {format: 'text', output_type: "list", rules: []};
-	var g_current_format = 'text';
-	var g_output_notes = false;
-	var g_output_toc = false;
-	var g_title, g_url;
+	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
 
-	function functionRegexFind(txtFind, isRegex, isMatchCase){
-		var temp_find="";
-		var temp_regexFind = null;
-		if(isRegex)
-			temp_find = txtFind;
-		else
-			temp_find = txtFind.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
 
-		if(isMatchCase)
-			temp_regexFind = new RegExp(temp_find, "g");
-		else
-			temp_regexFind = new RegExp(temp_find, "gi");
-		return temp_regexFind;
-	}
+	chrome.storage.onChanged.addListener(function(changes, namespace) {
+		for (key in changes) {
+			var storageChange = changes[key];
+			console.log("Storage key ",key," in namespace ",namespace," changed. Old value was ",storageChange.oldValue,", new value is ",storageChange.newValue,".");
+		}
+	});
 
-	function FindReplace(txtFind, txtReplace, isRegex, isMatchCase){
-		this.regexFind = functionRegexFind(txtFind, isRegex, isMatchCase),
-		this.txtReplace = txtReplace
-	}
 
-	g_options.findReplace = null;
+	function load(response) {chrome.storage.sync.get(['optionsChoice'], function(result) {
 
-	g_options.indent_chars = "";
-	g_options.prefix_indent_chars = "\t";
-	g_options.titleOptions = "titleParents";
-	// change option
-	function changeOption(type) {
-		g_output_notes = document.getElementById("outputNotes").checked;
-		g_output_toc = document.getElementById("outputToc").checked;
-		changeFormat("indent");
-	};
-
-	// change export Mode
-	function changeFormat(type) {
-		var text;
-
-		switch (type) {
-
-			// Format options
-			case "markdown":
-				g_options.format = 'markdown';
-				g_current_format = type;
-				break;
-			case "HTML":
-				g_options.format = 'HTML';
-				g_current_format = type;
-				break;
-			case "latex":
-				document.getElementById("beamer").checked = true;
-				g_options.format = 'beamer';
-				g_current_format = type;
-				break;
-			case "beamer":
-				document.getElementById("latex").checked = true;
-				g_options.format = 'beamer';
-				g_current_format = type;
-				break;
-			case "opml":
-				g_options.format = 'opml';
-				g_current_format = type;
-				break;
-			case "wfe":
-				g_options.format = 'WFE-TAGGED';
-				g_current_format = type;
-				break;
-			case "rtf":
-				g_options.format = 'RTF';
-				g_current_format = type;
-				break;
-			case "text":
-				g_options.format = 'text';
-				g_current_format = type;
-				break;
-
-			case "list":
-				g_options.output_type = 'list';
-			break;
-			case "hierdoc":
-				g_options.output_type = 'hierdoc';
-			break;
-
-			case "titleParents":
-				g_options.titleOptions = 'titleParents';
-				break;
-			case "neverTitle":
-				g_options.titleOptions = 'neverTitle';
-				break;
-			case "alwaysTitle":
-				g_options.titleOptions = 'alwaysTitle';
-				break;
-
-			case "tab":
-				g_options.prefix_indent_chars = "\t";
-				break;
-			case "space":
-				g_options.prefix_indent_chars = "    ";
-				break;
-			case "withoutIndent":
-				g_options.prefix_indent_chars = "";
-				break;
-			case "indentOther":
-				g_options.indent_chars = document.getElementById("indentOther").value;
-				break
-			case "addFindReplace":
-				g_options.findReplace = new FindReplace(document.getElementById("find").value, document.getElementById("replace").value, document.getElementById("regex").checked, document.getElementById("matchCase").checked);
-				break
+		var optionsChoice = result.optionsChoice;
+		if(optionsChoice == null){
+			optionsChoice = {
+				default : new Options("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
+				HTML : new Options("html", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, []),
+				RTF : new Options("rtf", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, [])
+			};
+			chrome.storage.sync.set({'optionsChoice' : optionsChoice}, function() {
+				console.log("optionsChoice init");
+			});
 		};
 
-		if (!document.getElementById("latex").checked) {
-			document.getElementById("beamer").checked = false;
-			document.getElementById("book").checked = false;
-			document.getElementById("article").checked = false;
-			document.getElementById("report").checked = false;
+		var dateStart=Date.now();
+		var g_nodes = null;
+		var g_my_nodes = null;
+		var g_output_notes = false;
+		var g_output_toc = false;
+		var g_options;
+		var g_title, g_url;
+
+		function copy(o) {
+		  var output, v, key;
+		  output = Array.isArray(o) ? [] : {};
+		  for (key in o) {
+		    v = o[key];
+		    output[key] = (typeof v === "object" && v !== null) ? copy(v) : v;
+		  }
+		  return output;
 		}
 
-		if (document.getElementById("insertLine").checked)
-			g_options.item_sep = "\n\n";
-		else
-			g_options.item_sep = "\n";
+		function Options(format, output_type, indent_chars, prefix_indent_chars, titleOptions, item_sep, applyWFERules, outputToc, outputNotes, ignore_tags, escapeCharacter, findReplace){
+			this.format = format,
+			this.output_type = output_type,
+			this.indent_chars = indent_chars,
+			this.prefix_indent_chars = prefix_indent_chars,
+			this.titleOptions = titleOptions,
+			this.item_sep = item_sep,
+			this.applyWFERules = applyWFERules,
+			this.outputToc = outputToc,
+			this.outputNotes = outputNotes,
+			this.ignore_tags = ignore_tags,
+			this.escapeCharacter = escapeCharacter,
+			this.findReplace = findReplace
+		};
 
-
-		g_options.applyWFERules = document.getElementById("wfeRules").checked;
-		g_options.outputToc = document.getElementById("outputToc").checked;
-		g_options.outputNotes = document.getElementById("outputNotes").checked;
-		g_options.rules.ignore_tags = document.getElementById("stripTags").checked;
-		g_options.rules.escapeCharacter = document.getElementById("escapeCharacter").checked;
-
-		console.log("##################### changeFormat", type, "options", g_options, g_options.rules.ignore_tags );
-		text = exportLib.toMyText(g_my_nodes, g_options);
-		document.getElementById('textArea').innerText = text;
-		document.getElementById("popupTitle").innerHTML = makeTitleLabel(g_current_format, g_title, g_url);
-		textarea_select();
-	};
-
-	function textarea_select() {
-		var t = document.getElementById('textArea');
-		t.focus();
-		t.select();
-		setTimeout(function() {
-			document.execCommand("copy")
-		}, 200);
-	};
-
-	function setEventListers() {
-		document.getElementById("markDown").addEventListener("click", function() {
-			changeFormat('markdown');
-		}, false);
-		document.getElementById("html").addEventListener("click", function() {
-			changeFormat('HTML');
-		}, false);
-		document.getElementById("latex").addEventListener("click", function() {
-			changeFormat('latex');
-		}, false);
-		document.getElementById("beamer").addEventListener("click", function() {
-			changeFormat('beamer');
-		}, false);
-		document.getElementById("opml").addEventListener("click", function() {
-			changeFormat('opml');
-		}, false);
-		document.getElementById("wfe").addEventListener("click", function() {
-			changeFormat('wfe');
-		}, false);
-		document.getElementById("rtf").addEventListener("click", function() {
-			changeFormat('rtf');
-		}, false);
-		document.getElementById("text").addEventListener("click", function() {
-			changeFormat('text');
-		}, false);
-		document.getElementById("indentOther").addEventListener("keypress", function(e) {
-			if(13 == e.keyCode){
-      	event.preventDefault();
-				changeFormat('indentOther');
+		function updateOptionsChoice(){
+			var documentOptionsChoice =	document.getElementById("optionsChoice");
+			for (var name in optionsChoice){
+	    	if (optionsChoice.hasOwnProperty(name) && !document.getElementById("optionsChoice"+name)) {
+					var option = document.createElement("option");
+					option.setAttribute("value", name);
+					option.setAttribute("id", "optionsChoice"+name);
+					option.text = name;
+					documentOptionsChoice.add(option);
+	    	}
 			}
-		}, false);
-		document.getElementById("space").addEventListener("click", function() {
-			changeFormat('space');
-		}, false);
-		document.getElementById("tab").addEventListener("click", function() {
-			changeFormat('tab');
-		}, false);
-		document.getElementById("withoutIndent").addEventListener("click", function() {
-			changeFormat('withoutIndent');
-		}, false);
-		document.getElementById("outputNotes").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("outputToc").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("insertLine").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("stripTags").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("wfeRules").addEventListener("click", function() {
-			changeFormat(g_current_format);
-		}, false);
-		document.getElementById("list").addEventListener("click", function() {
-			changeFormat('list');
-		}, false);
-		document.getElementById("hierdoc").addEventListener("click", function() {
-			changeFormat('hierdoc');
-		}, false);
-		document.getElementById("titleParents").addEventListener("click", function() {
-			changeFormat("titleParents");
-		}, false);
-		document.getElementById("neverTitle").addEventListener("click", function() {
-			changeFormat("neverTitle");
-		}, false);
-		document.getElementById("alwaysTitle").addEventListener("click", function() {
-			changeFormat("alwaysTitle");
-		}, false);
-		document.getElementById("escapeCharacter").addEventListener("click", function() {
-			changeFormat("escapeCharacter");
-		}, false);
-		document.getElementById("close").addEventListener("click", function() {
-			window.close();
-		}, false);
+			if(document.getElementById("nameOptions").value == ""){
+				document.getElementById("optionsChoicedefault").setAttribute('selected', true);
+			}
+		}
 
-		document.getElementById("addFindReplace").addEventListener("click", function() {
-			changeFormat('addFindReplace');
-		}, false);
-	}
+		function newOptions(){
+			document.getElementById("optionSelect").hidden = true;
+			document.getElementById("optionsEdit").hidden = false;
+			document.getElementById("nameOptions").value = document.getElementById('optionsChoice').value;
+			g_options = copy(optionsChoice[document.getElementById("nameOptions").value]);
+
+			document.getElementById(g_options.format).checked = true;
+			document.getElementById(g_options.output_type).checked = true;
+
+			document.getElementById("wfeRules").checked = g_options.applyWFERules;
+			document.getElementById("outputToc").checked = g_options.outputToc;
+			document.getElementById("outputNotes").checked = g_options.outputNotes;
+		  document.getElementById("stripTags").checked =	g_options.ignore_tags;
+			document.getElementById("escapeCharacter").checked = g_options.escapeCharacter;
+			document.getElementById("insertLine").checked = (g_options.item_sep == "\n\n");
+
+			switch (g_options.prefix_indent_chars) {
+				case "\t":
+					document.getElementById('tab');
+					break;
+				case "    ":
+					document.getElementById('space');
+					break;
+				case "":
+					document.getElementById('withoutIndent');
+					break;
+			}
+			document.getElementById("indentOther").value = g_options.indent_chars;
+			document.getElementById(g_options.titleOptions).checked = true;
+
+			document.getElementById('findReplace').getElementsByTagName('tbody')[0].innerHTML = "";
+			g_options.findReplace.forEach(function(e, id){
+				addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
+			});
+		}
+
+		function saveOptions(){
+			var optionsName = document.getElementById("nameOptions").value;
+			if(optionsName != ""){
+				changeFormat();
+				var idnull=g_options.findReplace.indexOf(null);
+				while(idnull!=-1){
+					g_options.findReplace.splice(idnull,1);
+					idnull=g_options.findReplace.indexOf(null);
+				};
+				optionsChoice[optionsName] = copy(g_options);
+				updateOptionsChoice();
+				document.getElementById("optionSelect").hidden = false;
+				document.getElementById("optionsEdit").hidden = true;
+				document.getElementById('optionsChoice').value = optionsName;
+				chrome.storage.sync.set({'optionsChoice' : optionsChoice}, function() {
+					console.log("optionsChoice saved ");
+				});
+			}
+		}
+
+		function removeOption(){
+			var nameOptions = document.getElementById("optionsChoice").value;
+			console.log("TEST",nameOptions);
+			if(nameOptions!="default"){
+				delete optionsChoice[document.getElementById("optionsChoice").value];
+				updateOptionsChoice();
+				var optionTag = document.getElementById("optionsChoice"+nameOptions);
+				optionTag.parentNode.removeChild(optionTag);
+				chrome.storage.sync.set({'optionsChoice' : optionsChoice}, function() {
+					console.log("optionsChoice saved ");
+				});
+			}
+		}
+
+		function functionRegexFind(txtFind, isRegex, isMatchCase){
+			var temp_find="";
+			var temp_regexFind = null;
+			if(isRegex)
+				temp_find = txtFind;
+			else
+				temp_find = txtFind.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+
+			if(isMatchCase)
+				temp_regexFind = new RegExp(temp_find, "g");
+			else
+				temp_regexFind = new RegExp(temp_find, "gi");
+			return temp_regexFind;
+		}
+
+		function FindReplace(txtFind, txtReplace, isRegex, isMatchCase){
+			this.regexFind = functionRegexFind(txtFind, isRegex, isMatchCase),
+			this.txtReplace = txtReplace,
+			this.txtFind = txtFind,
+			this.isRegex = isRegex,
+			this.isMatchCase = isMatchCase
+		}
+
+		function addFindReplace(){
+			if(document.getElementById("find").value!=""){
+				var idFindReplace = g_options.findReplace.length;
+				var txtFind = document.getElementById("find").value;
+				var txtReplace = document.getElementById("replace").value;
+				var isRegex = document.getElementById("regex").checked;
+				var isMatchCase = document.getElementById("matchCase").checked;
+
+				g_options.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, document.getElementById("matchCase").checked));
+
+				addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase);
+
+				document.getElementById("find").value = "";
+				document.getElementById("replace").value = "";
+			}
+		}
+
+		function addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase){
+			var tableRef = document.getElementById('findReplace').getElementsByTagName('tbody')[0];
+			var newRow   = tableRef.insertRow(tableRef.rows.length);
+			newRow.setAttribute("id", "findReplace" + idFindReplace);
+			var newCell  = newRow.insertCell(0);
+			var newText  = document.createTextNode(idFindReplace + 1);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(1);
+			newText  = document.createTextNode(txtFind);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(2);
+			newText  = document.createTextNode(txtReplace);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(3);
+			newText  = document.createTextNode(isRegex);
+			newCell.appendChild(newText);
+			newCell  = newRow.insertCell(4);
+			newText  = document.createTextNode(isMatchCase);
+			newCell.appendChild(newText);
+
+			newCell  = newRow.insertCell(5);
+			var but = document.createElement("button");
+			var span = document.createElement("span");
+			newText  = document.createTextNode("delete");
+			but.setAttribute("type", "button");
+			but.setAttribute("id", "findReplace" + (idFindReplace));
+
+			newCell.appendChild(but);
+			but.appendChild(span);
+			span.appendChild(newText);
+
+			addEventListenerButton(idFindReplace);
+		}
+
+		function addEventListenerButton(id){
+			document.getElementById("findReplace" + id).addEventListener("click", function() {
+				deleteFindReplace(id);
+			}, false);
+		}
+
+		function deleteFindReplace(index){
+			console.log("Before g_options.findReplace", g_options.findReplace);
+			g_options.findReplace[index]=null;
+			document.getElementById("findReplace" + index).remove();
+			console.log("After g_options.findReplace", g_options.findReplace);
+		}
 
 
-	function makeTitleLabel(format, title, url) {
-		return (format == "markdown") ? '[' + title + '](' + url + ')' : title + ' - ' + url;
-	}
 
-	// not use
-	function preview() {
-		var img = '<img src="' + chrome.extension.getURL('image/space.gif') + '" width="800" height="1" alt="">';
-		var html = '<div id="content">' + img + exportLib.toHtml(g_output_toc) + '</div>';
-		//$('#contents').load(chrome.extension.getURL("css/theme/"+option.theme+".css");
-		$('body').html(html);
+		// change export Mode
+		function changeFormat() {
+			var text;
 
-		var link = document.createElement("link");
-		link.href = chrome.extension.getURL("css/preview/porter.css");
-		link.type = "text/css";
-		link.rel = "stylesheet";
-		document.getElementsByTagName("head")[0].appendChild(link);
-	}
+			var formatOptions = document.getElementsByName('formatOptions');
+			for ( var i = 0; i < formatOptions.length; i++) {
+	    	if(formatOptions[i].checked) {
+					g_options.format = formatOptions[i].value;
+	        break;
+	    	}
+			}
 
-	function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
-		var start = 0; //nodes[0].node_forest[0]; EP
-		var text = nodes[start].title + "\n";
-		var indent = "";
-		var level = 0;
-		var output;
-		var parent = -1;
-		var root = 0;
-		var doctype = "OUTLINE";
-		var l = nodes.length;
-		var oldestChild = start;
+			var sourceOptions = document.getElementsByName('sourceOptions');
+			for ( var i = 0; i < sourceOptions.length; i++) {
+				if(sourceOptions[i].checked) {
+					g_options.output_type = sourceOptions[i].value;
+					break;
+				}
+			}
 
-		nodes[start].allSiblings = [start];
-		console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
-		console.log("Document type is OUTLINE");
-		if ((nodes[start].type == "node") || (nodes[start].type == "note")) console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type, ", text is:", nodes[start].title)
-		else console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type);
+			var titleOptions = document.getElementsByName('titleOptions');
+			for ( var i = 0; i < titleOptions.length; i++) {
+				if(titleOptions[i].checked) {
+					g_options.titleOptions = titleOptions[i].value;
+					break;
+				}
+			}
 
-		for (var i = start + 1; i < l; i++) {
+			var indentOptions = document.getElementsByName('indentOptions');
+			for ( var i = 0; i < indentOptions.length; i++) {
+				if(indentOptions[i].checked) {
+					switch (indentOptions[i].value) {
+						case "tab":
+							g_options.prefix_indent_chars = "\t";
+							break;
+						case "space":
+							g_options.prefix_indent_chars = "    ";
+							break;
+						case "withoutIndent":
+							g_options.prefix_indent_chars = "";
+							break;
+					}
+					break;
+				}
+			}
 
-			if ((nodes[i].type == "node") || (nodes[i].type == "note")) console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type, ", text is:", nodes[i].title)
-			else console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type);
+			g_options.indent_chars = document.getElementById("indentOther").value;
 
-			// Updating level, indentation and heading info
-			if (((i > 0) && (nodes[i - 1].type == "title") || (nodes[i - 1].type == "node")) && (nodes[i].type == "node")) {
-				level = level + 1;
-				console.log("Increase level to " + level.toString());
-				parent = i - 1;
-				oldestChild = i;
-				nodes[oldestChild].allSiblings = []; // fill in info later
-				nodes[parent].myType = "HEADING";
-				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
-				nodes[i].myType = "ITEM";
-				console.log("Node", i.toString(), "new type: " + nodes[i].myType);
+			if(document.getElementById("insertLine").checked)
+				g_options.item_sep = "\n\n";
+			else
+				g_options.item_sep = "\n";
 
-			} else if ((i > 1) && (nodes[i - 1].type == "note") && (nodes[i].type == "node")) {
-				level = level + 1;
-				console.log("Increase level to " + level.toString());
-				parent = i - 2;
-				oldestChild = i;
-				nodes[oldestChild].allSiblings = []; // fill in info later
-				nodes[parent].myType = "HEADING";
-				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
 
-			} else if ((nodes[i - 1].type == "node") && (nodes[i].type == "eoc")) {
-				nodes[i - 1].myType = "ITEM";
-				console.log("Node", i.toString() + "-1 : new type: " + nodes[i - 1].myType);
+			g_options.applyWFERules = document.getElementById("wfeRules").checked;
+			g_options.outputToc = document.getElementById("outputToc").checked;
+			g_options.outputNotes = document.getElementById("outputNotes").checked;
+			g_options.ignore_tags = document.getElementById("stripTags").checked;
+			g_options.escapeCharacter = document.getElementById("escapeCharacter").checked;
 
-			} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
-				level = level - 1;
-				console.log("Decrease level to " + level.toString());
+		};
 
+		function exportText(){
+			console.log("aaaaaaaaa" ,document.getElementById('optionsChoice').value,  optionsChoice);
+			g_options = copy(optionsChoice[document.getElementById('optionsChoice').value]);
+			console.log("aaaaaaaaa" ,g_options);
+
+			console.log("##################### Export the page with options", g_options);
+			text = exportLib.toMyText(g_my_nodes, g_options);
+			document.getElementById('textArea').innerText = text;
+			document.getElementById("popupTitle").innerHTML = makeTitleLabel(g_options.format, g_title, g_url);
+			textarea_select();
+		};
+
+		function textarea_select() {
+			var t = document.getElementById('textArea');
+			t.focus();
+			t.select();
+			//setTimeout(function() {
+			//	document.execCommand("copy")
+			//}, 200);
+		};
+
+		function setEventListers() {
+			document.getElementById("export").addEventListener("click", function() {
+				exportText();
+			}, false);
+
+			document.getElementById("close").addEventListener("click", function() {
+				window.close();
+			}, false);
+
+			document.getElementById("addFindReplace").addEventListener("click", function() {
+				addFindReplace();
+			}, false);
+
+			document.getElementById("newOptions").addEventListener("click", function() {
+				newOptions();
+			}, false);
+
+			document.getElementById("saveOptions").addEventListener("click", function() {
+				saveOptions();
+			}, false);
+
+			document.getElementById("removeOption").addEventListener("click", function() {
+				removeOption();
+			}, false);
+		}
+
+
+		function makeTitleLabel(format, title, url) {
+			return (format == "markdown") ? '[' + title + '](' + url + ')' : title + ' - ' + url;
+		}
+
+		// not use
+		function preview() {
+			var img = '<img src="' + chrome.extension.getURL('image/space.gif') + '" width="800" height="1" alt="">';
+			var html = '<div id="content">' + img + exportLib.toHtml(g_output_toc) + '</div>';
+			//$('#contents').load(chrome.extension.getURL("css/theme/"+option.theme+".css");
+			$('body').html(html);
+
+			var link = document.createElement("link");
+			link.href = chrome.extension.getURL("css/preview/porter.css");
+			link.type = "text/css";
+			link.rel = "stylesheet";
+			document.getElementsByTagName("head")[0].appendChild(link);
+		}
+
+		function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
+			var start = 0; //nodes[0].node_forest[0]; EP
+			var text = nodes[start].title + "\n";
+			var indent = "";
+			var level = 0;
+			var output;
+			var parent = -1;
+			var root = 0;
+			var doctype = "OUTLINE";
+			var l = nodes.length;
+			var oldestChild = start;
+
+			nodes[start].allSiblings = [start];
+			console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
+			console.log("Document type is OUTLINE");
+			if ((nodes[start].type == "node") || (nodes[start].type == "note")) console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type, ", text is:", nodes[start].title)
+			else console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type);
+
+			for (var i = start + 1; i < l; i++) {
+
+				if ((nodes[i].type == "node") || (nodes[i].type == "note")) console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type, ", text is:", nodes[i].title)
+				else console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type);
+
+				// Updating level, indentation and heading info
+				if (((i > 0) && (nodes[i - 1].type == "title") || (nodes[i - 1].type == "node")) && (nodes[i].type == "node")) {
+					level = level + 1;
+					console.log("Increase level to " + level.toString());
+					parent = i - 1;
+					oldestChild = i;
+					nodes[oldestChild].allSiblings = []; // fill in info later
+					nodes[parent].myType = "HEADING";
+					console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
+					nodes[i].myType = "ITEM";
+					console.log("Node", i.toString(), "new type: " + nodes[i].myType);
+
+				} else if ((i > 1) && (nodes[i - 1].type == "note") && (nodes[i].type == "node")) {
+					level = level + 1;
+					console.log("Increase level to " + level.toString());
+					parent = i - 2;
+					oldestChild = i;
+					nodes[oldestChild].allSiblings = []; // fill in info later
+					nodes[parent].myType = "HEADING";
+					console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
+
+				} else if ((nodes[i - 1].type == "node") && (nodes[i].type == "eoc")) {
+					nodes[i - 1].myType = "ITEM";
+					console.log("Node", i.toString() + "-1 : new type: " + nodes[i - 1].myType);
+
+				} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
+					level = level - 1;
+					console.log("Decrease level to " + level.toString());
+
+					if (level > 0) {
+						parent = nodes[parent].parent;
+						oldestChild = nodes[parent].children[0];
+					} else if (level == 0) parent = -1
+					else {
+						console.log("dummy node");
+						l = nodes.length;
+						console.log("insert dummy node: nodes[" + l.toString() + "]");
+
+						parent = l;
+						root = l;
+
+						nodes[i - 2].parent = parent;
+						console.log("node[" + i.toString() + "-2] = " + nodes[i].title + " has now parent", parent);
+
+						nodes.push({
+							type: 'dummy',
+							title: null,
+							note: '',
+							children: [i - 2]
+						});
+						console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+						console.log("dummy node: nodes[" + l.toString() + "] has title ", nodes[l].title);
+
+						level = level + 1;
+						parent = -1;
+						doctype = "FRAGMENT"; // #todo don't need this
+						console.log("Document type is FRAGMENT");
+
+					}
+				}
+
+				// Update level info
+				nodes[i].level = level;
 				if (level > 0) {
-					parent = nodes[parent].parent;
-					oldestChild = nodes[parent].children[0];
-				} else if (level == 0) parent = -1
-				else {
-					console.log("dummy node");
-					l = nodes.length;
-					console.log("insert dummy node: nodes[" + l.toString() + "]");
+					indent = indent_chars;
+					if (level > 1) {
+						indent = Array(level).join(prefix_indent_chars) + indent_chars;
+					}
+				} else indent = "";
 
-					parent = l;
-					root = l;
+				// Update parent and sibling info and create notes
+				if (nodes[i].type == "node") {
+					if (parent >= 0) {
+						console.log("Oldest child is ", oldestChild);
+						nodes[oldestChild].allSiblings.push(i);
+						console.log("All siblings of node[" + oldestChild.toString() + "]=", nodes[oldestChild].allSiblings);
 
-					nodes[i - 2].parent = parent;
-					console.log("node[" + i.toString() + "-2] = " + nodes[i].title + " has now parent", parent);
+						nodes[i].parent = parent;
+						console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
 
-					nodes.push({
-						type: 'dummy',
-						title: null,
-						note: '',
-						children: [i - 2]
-					});
-					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-					console.log("dummy node: nodes[" + l.toString() + "] has title ", nodes[l].title);
+						nodes[parent].children.push(i);
+						console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+					} else {
+						l = nodes.length;
+						console.log("insert dummy node:: nodes[" + l.toString() + "]");
 
-					level = level + 1;
-					parent = -1;
-					doctype = "FRAGMENT"; // #todo don't need this
-					console.log("Document type is FRAGMENT");
+						parent = l;
+						root = l;
 
+						nodes[i].parent = parent;
+						console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
+
+						nodes.push({
+							type: 'dummy',
+							title: null,
+							note: '',
+							children: [0, i]
+						});
+						console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+
+						level = level + 1;
+
+						doctype = "FRAGMENT";
+						console.log("Document type is FRAGMENT");
+
+					}
+				} else if (nodes[i].type == "note") {
+					console.log("Set note of item", nodes[i - 1].title, "to", nodes[i].title);
+					nodes[i - 1].note = nodes[i].title;
 				}
+
+				// Update output
+				if (nodes[i].type == "node") {
+					output = indent + nodes[i].title + "\n";
+					console.log("** Output: ", output);
+				} else if (nodes[i].type == "note") {
+					output = indent + "[" + nodes[i].title + "]\n";
+					console.log("** Output: ", output);
+				} else output = "";
+
+				text = text + output;
+
+				// Update level and document info
+				nodes[i].level = level;
 			}
-
-			// Update level info
-			nodes[i].level = level;
-			if (level > 0) {
-				indent = indent_chars;
-				if (level > 1) {
-					indent = Array(level).join(prefix_indent_chars) + indent_chars;
-				}
-			} else indent = "";
-
-			// Update parent and sibling info and create notes
-			if (nodes[i].type == "node") {
-				if (parent >= 0) {
-					console.log("Oldest child is ", oldestChild);
-					nodes[oldestChild].allSiblings.push(i);
-					console.log("All siblings of node[" + oldestChild.toString() + "]=", nodes[oldestChild].allSiblings);
-
-					nodes[i].parent = parent;
-					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
-
-					nodes[parent].children.push(i);
-					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-				} else {
-					l = nodes.length;
-					console.log("insert dummy node:: nodes[" + l.toString() + "]");
-
-					parent = l;
-					root = l;
-
-					nodes[i].parent = parent;
-					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
-
-					nodes.push({
-						type: 'dummy',
-						title: null,
-						note: '',
-						children: [0, i]
-					});
-					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-
-					level = level + 1;
-
-					doctype = "FRAGMENT";
-					console.log("Document type is FRAGMENT");
-
-				}
-			} else if (nodes[i].type == "note") {
-				console.log("Set note of item", nodes[i - 1].title, "to", nodes[i].title);
-				nodes[i - 1].note = nodes[i].title;
-			}
-
-			// Update output
-			if (nodes[i].type == "node") {
-				output = indent + nodes[i].title + "\n";
-				console.log("** Output: ", output);
-			} else if (nodes[i].type == "note") {
-				output = indent + "[" + nodes[i].title + "]\n";
-				console.log("** Output: ", output);
-			} else output = "";
-
-			text = text + output;
-
-			// Update level and document info
-			nodes[i].level = level;
+			return [nodes, root];
 		}
-		return [nodes, root];
-	}
+
+		console.log("Responce in", Date.now()-dateStart, "ms : ", optionsChoice);
+		updateOptionsChoice();
+		g_nodes = response.content;
+		g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
+		g_title = response.title;
+		g_url = response.url;
+		exportText();
+		setEventListers();
+
+})}
 
 	function main() {
 		chrome.tabs.query({
@@ -409,16 +529,8 @@
 		}, function(tabs) {
 			chrome.tabs.sendMessage(tabs[0].id, {
 				request: 'getTopic'
-			}, function(response) {
-				g_nodes = response.content;
-				g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
-				g_title = response.title;
-				g_url = response.url;
-				changeFormat('text');
-			});
+			}, function(response) {load(response)});
 		});
-		setEventListers();
-		//textarea_select();
 	}
 
 	window.onload = main;
