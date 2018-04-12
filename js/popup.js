@@ -293,7 +293,7 @@
 
 		//add event Listener for the button in the popup
 		function setEventListers() {
-			document.getElementById("export").addEventListener("click", function() {
+			document.getElementById("refresh").addEventListener("click", function() {
 					loading(exportText);
 			}, false);
 
@@ -310,12 +310,19 @@
 			}, false);
 
 			document.getElementById("saveProfile").addEventListener("click", function() {
-				saveProfile();
+				loading(function(){
+					saveProfile();
+					exportText();
+				});
 			}, false);
 
 			document.getElementById("removeOption").addEventListener("click", function() {
 				removeOption();
 			}, false);
+
+			document.getElementById("profileSelect").onchange=function(){
+				loading(exportText);
+			};
 		}
 
 
@@ -506,7 +513,7 @@
 		if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
 			profileName_LastConnexion="default";
 		};
-		
+
 		updateProfileChoice();
 		var g_nodes = response.content;
 		var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
