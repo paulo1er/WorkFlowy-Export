@@ -122,6 +122,15 @@
 			}
 		}
 
+		function updateTextSaveUpdate(){
+			var nameProfile =	document.getElementById("nameProfile").value;
+			if(nameProfile!=''){
+				if(profileList.hasOwnProperty(nameProfile))document.getElementById("saveProfile").innerHTML = "<span>Update Profile</span>";
+				else document.getElementById("saveProfile").innerHTML = "<span>New Profile</span>";
+			}
+			else document.getElementById("saveProfile").innerHTML = "<span></span>";
+		}
+
 		//delete a preset of option
 		function removeOption(){
 			var nameProfile = document.getElementById("profileList").value;
@@ -307,6 +316,7 @@
 
 			document.getElementById("newProfile").addEventListener("click", function() {
 				newProfile();
+				updateTextSaveUpdate();
 			}, false);
 
 			document.getElementById("saveProfile").addEventListener("click", function() {
@@ -322,6 +332,10 @@
 
 			document.getElementById("profileSelect").onchange=function(){
 				loading(exportText);
+			};
+
+			document.getElementById("nameProfile").onchange=function(){
+				updateTextSaveUpdate();
 			};
 		}
 
