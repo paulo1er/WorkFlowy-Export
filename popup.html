@@ -13,12 +13,21 @@
 			</div>
 			<div class="panel-body">
 				<form>
-					<div class="form-group"><!-- text area for output -->
-						<textarea class="form-control" id="textArea" rows="10">
-						</textarea>
+					<div class="form-group" id="divTextArea" style="height:240px"><!-- text area for output -->
+						<div id="content" hidden>
+							<textarea class="form-control" id="textArea" rows="10">
+							</textarea>
+						</div>
+						<div id="loading">
+							<img src="image/Loading_icon.gif" class="center-block" style="height:240px">
+						</div>
+						<div id="error" hidden>
+							<span class="" style="font-weight: bold;">An error append during the export</span><br>
+							<span style="color: red;" id="textError"></span>
+						</div>
 					</div>
 					<div class="form-group">
-						<button id="export" type="button"><span>Export</span></button>
+						<button id="refresh" type="button"><span>Refresh</span></button>
 					</div>
 
 					<div id='profileSelect'>
@@ -168,7 +177,7 @@
 								</tbody>
 							</table>
 						</div>
-						<button id="saveProfile" type="button"><span>Save Profile</span></button>
+						<button id="saveProfile" type="button"><span>Update Profile</span></button>
 					</div>
 					<button id="close" type="button" class="btn btn-default pull-right"><span class="locale Close">Close</span></button>
 				</form>

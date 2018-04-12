@@ -13,6 +13,7 @@
 	function load(response) {
 	chrome.storage.sync.get(['profileList', 'profileName'], function(result) {
 		//return a copy of an object (recursif)
+		try{
 		function copy(o) {
 		  var output, v, key;
 		  output = Array.isArray(o) ? [] : {};
@@ -119,6 +120,15 @@
 					console.log("profileList saved ");
 				});
 			}
+		}
+
+		function updateTextSaveUpdate(){
+			var nameProfile =	document.getElementById("nameProfile").value;
+			if(nameProfile!=''){
+				if(profileList.hasOwnProperty(nameProfile))document.getElementById("saveProfile").innerHTML = "<span>Update Profile</span>";
+				else document.getElementById("saveProfile").innerHTML = "<span>New Profile</span>";
+			}
+			else document.getElementById("saveProfile").innerHTML = "<span></span>";
 		}
 
 		//delete a preset of option
@@ -279,12 +289,12 @@
 			curent_profile = copy(profileList[document.getElementById('profileList').value]);
 
 			console.log("##################### Export the page with profile", curent_profile);
+			var $textArea = $('#textArea');
 			text = exportLib.toMyText(g_my_nodes, curent_profile);
-			var textArea = document.getElementById('textArea');
-			textArea.innerText = text;
+			$textArea.val(text);
 			document.getElementById("popupTitle").innerHTML = makeTitleLabel(curent_profile.format, g_title, g_url);
-			textArea.focus();
-			textArea.select();
+			//textArea.focus();
+			//textArea.select();
 			chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 				console.log("profileName init");
 			});
@@ -292,8 +302,8 @@
 
 		//add event Listener for the button in the popup
 		function setEventListers() {
-			document.getElementById("export").addEventListener("click", function() {
-				exportText();
+			document.getElementById("refresh").addEventListener("click", function() {
+					loading(exportText);
 			}, false);
 
 			document.getElementById("close").addEventListener("click", function() {
@@ -306,15 +316,27 @@
 
 			document.getElementById("newProfile").addEventListener("click", function() {
 				newProfile();
+				updateTextSaveUpdate();
 			}, false);
 
 			document.getElementById("saveProfile").addEventListener("click", function() {
-				saveProfile();
+				loading(function(){
+					saveProfile();
+					exportText();
+				});
 			}, false);
 
 			document.getElementById("removeOption").addEventListener("click", function() {
 				removeOption();
 			}, false);
+
+			document.getElementById("profileSelect").onchange=function(){
+				loading(exportText);
+			};
+
+			document.getElementById("nameProfile").onchange=function(){
+				updateTextSaveUpdate();
+			};
 		}
 
 
@@ -339,6 +361,7 @@
 
 		//import the WorkFlowy text in Nodes
 		function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
+
 			var start = 0; //nodes[0].node_forest[0]; EP
 			var text = nodes[start].title + "\n";
 			var indent = "";
@@ -512,8 +535,28 @@
 		var g_url = response.url;
 		exportText();
 		setEventListers();
+	}
+		catch(err){
+			$("#loading").hide("fast");
+			$("#content").hide("fast");
+			$("#error").show("fast");
+			$("#textError").text(err.toString());
 
+			console.log("Error", err);
+		}
 })}
+
+	function loading(func){
+		var $loading = $("#loading");
+		var $content = $("#content");
+		$content.hide("fast", function(){
+			$loading.show("fast", function(){
+				func();
+				$content.show("fast");
+				$loading.hide("fast");
+			});
+		});
+	}
 
 	function main() {
 		chrome.tabs.query({
@@ -522,7 +565,9 @@
 		}, function(tabs) {
 			chrome.tabs.sendMessage(tabs[0].id, {
 				request: 'getTopic'
-			}, function(response) {load(response)});
+			}, function(response) {
+					loading(function(){load(response)});
+			});
 		});
 	}
 
