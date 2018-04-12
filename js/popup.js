@@ -294,15 +294,7 @@
 		//add event Listener for the button in the popup
 		function setEventListers() {
 			document.getElementById("export").addEventListener("click", function() {
-					var $loading = $("#loading");
-					var $content = $("#content");
-					$content.hide("fast", function(){
-						$loading.show("fast",function(){
-							exportText();
-							$content.show("fast");
-							$loading.hide("fast");
-						});
-					});
+					loading(exportText);
 			}, false);
 
 			document.getElementById("close").addEventListener("click", function() {
@@ -514,7 +506,7 @@
 		if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
 			profileName_LastConnexion="default";
 		};
-		console.log("OK", chrome);
+		
 		updateProfileChoice();
 		var g_nodes = response.content;
 		var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
@@ -527,9 +519,23 @@
 			$("#loading").hide("fast");
 			$("#content").hide("fast");
 			$("#error").show("fast");
+			$("#textError").text(err.toString());
+
 			console.log("Error", err);
 		}
 })}
+
+	function loading(func){
+		var $loading = $("#loading");
+		var $content = $("#content");
+		$content.hide("fast", function(){
+			$loading.show("fast", function(){
+				func();
+				$content.show("fast");
+				$loading.hide("fast");
+			});
+		});
+	}
 
 	function main() {
 		chrome.tabs.query({
@@ -539,15 +545,7 @@
 			chrome.tabs.sendMessage(tabs[0].id, {
 				request: 'getTopic'
 			}, function(response) {
-					var $loading = $("#loading");
-					var $content = $("#content");
-					$content.hide("fast", function(){
-						$loading.show("fast",function(){
-						load(response);
-						$content.show("fast");
-						$loading.hide("fast");
-					});
-				});
+					loading(function(){load(response)});
 			});
 		});
 	}
