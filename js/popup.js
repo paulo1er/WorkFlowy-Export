@@ -286,8 +286,6 @@
 		//export the nodes in the textArea in the popup
 		function exportText(){
 
-			curent_profile = copy(profileList[document.getElementById('profileList').value]);
-
 			console.log("##################### Export the page with profile", curent_profile);
 			var $textArea = $('#textArea');
 			text = exportLib.toMyText(g_my_nodes, curent_profile);
@@ -303,6 +301,7 @@
 		//add event Listener for the button in the popup
 		function setEventListers() {
 			document.getElementById("refresh").addEventListener("click", function() {
+					changeFormat();
 					loading(exportText);
 			}, false);
 
@@ -330,7 +329,8 @@
 				removeOption();
 			}, false);
 
-			document.getElementById("profileSelect").onchange=function(){
+			document.getElementById("profileList").onchange=function(){
+				curent_profile = copy(profileList[document.getElementById('profileList').value]);
 				loading(exportText);
 			};
 
@@ -529,6 +529,7 @@
 		};
 
 		updateProfileChoice();
+		curent_profile = copy(profileList[document.getElementById('profileList').value]);
 		var g_nodes = response.content;
 		var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 		var g_title = response.title;
