@@ -43,6 +43,7 @@
 						<input type="text" id="nameProfile">
 						<br>
 						<div class="form-group"><!-- WorkFlowy source -->
+							<!--
 							Output Type<br>
 							<label class="radio-inline">
 								<input type="radio" name="sourceOptions" id="hierdoc" value="hierdoc">Document
@@ -56,6 +57,7 @@
 								<input checked type="radio" name="sourceOptions" id="list" value="list">Outline
 							</label>
 							<br>
+						-->
 	Output Format<br>
 							<label class="radio-inline">
 								<input type="radio" name="formatOptions" id="markDown" value="markdown"> Markdown
@@ -99,7 +101,29 @@
 								<input type="radio" name="formatOptions" id="text" value="text">Text
 							</label>
 							<br>
+							<br>
 
+							Default Item Style<br>
+							<label class="radio-inline">
+								<input type="radio" name="defaultItemStyle" id="None" value="None">None
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="defaultItemStyle" id="Bullet" value="Bullet">Bullet
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="defaultItemStyle" id="Enumeration" value="Enumeration">Enumeration
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="defaultItemStyle" id="Heading" value="Heading">Heading
+							</label>
+							<br>
+							<label class="radio-inline">
+								<input type="radio" name="defaultItemStyle" id="HeadingParents" value="HeadingParents">Heading if parents item
+							</label>
+							<br>
 						</div>
 						<!-- text export -->
 						<div class="form-group"><!-- options -->
@@ -136,6 +160,7 @@
 								<input type="checkbox" id="insertLine"> <span class="" style="font-weight: normal;">Add line break</span>
 							</label>
 							<br>
+							<!--
 							<label class="radio-inline">
 								<input checked type="radio" name="titleOptions" id="titleParents" value="titleParents"> Use title for parents
 							</label>
@@ -146,6 +171,7 @@
 								<input  type="radio" name="titleOptions" id="alwaysTitle" value="alwaysTitle"> always use title
 							</label>
 							<br>
+							-->
 							<label class="checkbox-inline">
 								<input type="checkbox" id="escapeCharacter"> <span class="" style="font-weight: normal;">Escape Character Safe</span>
 							</label>

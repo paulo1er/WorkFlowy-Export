@@ -116,6 +116,9 @@ var exportLib = (function() {
 			if(this.color!=null) str += "color: "+COLORSHEET[this.color].toHTMLstr()+";  ";
 			if(this.background_color!=null) str += "background-color: "+COLORSHEET[this.background_color].toHTMLstr()+";  ";
 			return this.before+str+this.after;
+		},
+		this.toTextstr = function(){
+			return this.before+this.after;
 		}
 	};
 	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li","li","li","li","li","li"];
@@ -354,13 +357,13 @@ var exportLib = (function() {
 		var ignore_outline = false;
 		var output_children;
 
-		if(options.output_type=="list" && level>6) level=6;
+		if(options.defaultItemStyle=="Bullet" && level>6) level=6;
 		var nodesStyle;
 		var styleName;
 
-		if(((nodes[index].myType == "HEADING" && options.titleOptions == "titleParents") || options.titleOptions == "alwaysTitle") && (options.output_type!="list" || level==0) && level<6)
+		if(((nodes[index].myType == "HEADING" && options.defaultItemStyle == "HeadingParents") || options.defaultItemStyle == "Heading") && level<6)
 			styleName = "Heading"+(level+1)
-		else if((options.output_type=="list" && level!=0) && level<7)
+		else if((options.defaultItemStyle=="Bullet" && level!=0) && level<7)
 			styleName = "Item"+(level);
 		else
 			styleName = "Normal";
@@ -594,7 +597,7 @@ var exportLib = (function() {
 				// Update output
 				if(options.format == 'markdown'){
 
-					if(options.output_type=="list")
+					if(options.defaultItemStyle=="Bullet")
 						if(level==0) indent = "# ";
 						else indent = "\t".repeat(level-1) + "* ";
 					else if(styleName=="Heading"+level)
@@ -697,7 +700,7 @@ var exportLib = (function() {
 					//output = output + indent + text + nodes[index].myType;
 					var temp_level = level + 1;
 
-					if ((options.output_type=='list') || (nodes[index].myType == "HEADING"))
+					if ((options.defaultItemStyle=='Bullet') || (nodes[index].myType == "HEADING"))
 						output = output + indent + text + " #h" + temp_level.toString();
 					else // #todo implement ITEM
 						output = output + indent + text;
@@ -729,9 +732,13 @@ var exportLib = (function() {
 					output = output + "\n";
 				}
 				else {
-					output = output + indent + text;
-					//if (options.include_notes) output = output + " [" + note + "]";
-					//console.log(options);
+					if (styleName.includes("Item"))
+						output = output + indent + "• " + text;
+					else if (styleName.includes("Heading"))
+						output = output + indent + text + "\n" + indent + ("─".repeat(text.length));
+					else
+						output = output + indent + text
+
 					if ((note !== "") && (options.outputNotes))
 						output = output + "\n" + indent + "[" + note + "]";
 
