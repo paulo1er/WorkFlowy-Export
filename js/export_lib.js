@@ -8,7 +8,9 @@ var exportLib = (function() {
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var counter_item=[0,0,0,0,0,0];
+	var counter_enumeration=[0,0,0,0,0,0];
 	var indentEnum=1;
+	var previus_styleName=null;
 
 	var ALIAS=[
 		["#wfe-style:Heading1","#h1"],
@@ -121,7 +123,7 @@ var exportLib = (function() {
 			return this.before+this.after;
 		}
 	};
-	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li","li","li","li","li","li"];
+	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li","li","li","li","li","li","li","li","li","li","li","li"];
 	var STYLESHEET={
 		Normal : new Style(0,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",32,true,false,false,"Black","White"),
@@ -131,12 +133,18 @@ var exportLib = (function() {
 		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
 		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item1 : new Style(8,"left",-11,40,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item2 : new Style(9,"left",-11,60,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item3 : new Style(10,"left",-11,80,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item4 : new Style(11,"left",-11,100,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item5 : new Style(12,"left",-11,120,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item6 : new Style(13,"left",-11,140,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item1 : new Style(8,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item2 : new Style(9,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item3 : new Style(10,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item4 : new Style(11,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item5 : new Style(12,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Item6 : new Style(13,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Enumeration1 : new Style(14,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Enumeration2 : new Style(15,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Enumeration3 : new Style(16,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Enumeration4 : new Style(17,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Enumeration5 : new Style(18,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Enumeration6 : new Style(19,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
 		toRTFstr : function(){
 			var str = "{\\stylesheet";
 			for(var key in this){
@@ -339,7 +347,7 @@ var exportLib = (function() {
 		wfe_count={};
 		wfe_count_ID={};
 		indentEnum=1;
-		counter_item=[0,0,0,0,0,0];
+		counter_enumeration=[0,0,0,0,0,0];
 		return header + body + footer;
 	}
 
@@ -365,6 +373,8 @@ var exportLib = (function() {
 			styleName = "Heading"+(level+1)
 		else if((options.defaultItemStyle=="Bullet" && level!=0) && level<7)
 			styleName = "Item"+(level);
+		else if((options.defaultItemStyle=="Enumeration" && level!=0) && level<7)
+			styleName = "Enumeration"+(level);
 		else
 			styleName = "Normal";
 
@@ -496,6 +506,24 @@ var exportLib = (function() {
 				case "Item6" :
 					counter_item[5]++;
 				break;
+				case "Enumeration1" :
+					counter_enumeration[0]++;
+					break;
+				case "Enumeration2" :
+					counter_enumeration[1]++;
+					break;
+				case "Enumeration3" :
+					counter_enumeration[2]++;
+					break;
+				case "Enumeration4" :
+					counter_enumeration[3]++;
+					break;
+				case "Enumeration5" :
+					counter_enumeration[4]++;
+					break;
+				case "Enumeration6" :
+					counter_enumeration[5]++;
+				break;
 				case "Heading1" :
 					level=0;
 					break;
@@ -610,7 +638,6 @@ var exportLib = (function() {
 					output += indent + text + "\n\n";
 					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
 				}
-
 				else if (options.format == 'html') {
 					//output = output + indent + text + nodes[index].myType;
 					text = text.replace(/--/g, "&ndash;");
@@ -623,17 +650,37 @@ var exportLib = (function() {
 
 					var style = nodesStyle.toHTMLstr();
 					if(style!="")style = "style=\""+style+"\"";
+					if(previus_styleName!= null){
+						if(previus_styleName.includes("Item")) {
+						 if(!styleName.includes("Item"))
+							 output += indent + "</ul>";
+						 else if(styleName[4]<previus_styleName[4])
+							 output += indent + "</ul>".repeat(previus_styleName[4]-styleName[4]);
+					 }
+						else if(previus_styleName.includes("Enumeration")) {
+							if(!styleName.includes("Enumeration"))
+								output += indent + "</ol>";
+							else if(styleName[11]<previus_styleName[11])
+								output += indent + "</ol>".repeat(previus_styleName[11]-styleName[11]);
+						}
+					}
+
+					if (styleName.includes("Item") && counter_item[styleName[4]-1]==1){
+						output += indent + "<ul>";
+					}
+					else if (styleName.includes("Enumeration") && counter_enumeration[styleName[11]-1]==1){
+						output += indent + "<ol>";
+					}
+
 					output += indent + "<" + idStyleToHTMLBalise[nodesStyle.Id] + " class=\"" + styleName + "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[nodesStyle.Id] + ">";
 
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p>" + note + "</p>";
-
 
 					output = output + options.item_sep;
 					if (page_break)
 							output = output + "<div class=\"page-break\"></div>";
 				}
-				else if (options.format == 'beamer')
-				{
+				else if (options.format == 'beamer'){
 
 					// Create images
 					console.log('check for images ');
@@ -663,8 +710,7 @@ var exportLib = (function() {
 						output = output + indent + "\\item " + text;
 
 					// Add notes if required by option
-					if ((note !== "") && (options.outputNotes))
-					{
+					if ((note !== "") && (options.outputNotes)){
 						// Create images
 						console.log('check for images ');
 						// First replace with optional {: } syntax
@@ -696,7 +742,8 @@ var exportLib = (function() {
 					if (options.outputNotes) output = output + " _note=\"" + note + "\"";
 					output = output + ">\n";
 
-				} else if (options.format == 'WFE-TAGGED') {
+				}
+				else if (options.format == 'WFE-TAGGED') {
 					//output = output + indent + text + nodes[index].myType;
 					var temp_level = level + 1;
 
@@ -708,13 +755,12 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
 					output = output + options.item_sep;
 
-				} else if (options.format == 'rtf') {
+				}
+				else if (options.format == 'rtf') {
 
 					if(styleName.includes("Item")){
 						nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
-						//if(counter_item[level]==1){
 							nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
-						//}
 					}
 
 
@@ -736,6 +782,8 @@ var exportLib = (function() {
 						output = output + indent + "• " + text;
 					else if (styleName.includes("Heading"))
 						output = output + indent + text + "\n" + indent + ("─".repeat(text.length));
+					else if (styleName.includes("Enumeration"))
+						output = output + indent + counter_enumeration[styleName[11]-1]+ " " + text;
 					else
 						output = output + indent + text
 
@@ -745,10 +793,16 @@ var exportLib = (function() {
 					output = output + options.item_sep;
 				}
 
+				if(previus_styleName!= null){
+					if (previus_styleName.includes("Item") && (!styleName.includes("Item") || (styleName[4]<previus_styleName[4])) ){
+						for(var i=counter_item.length-1; i>=styleName[4]; i--){counter_item[i]=0;}
+					}
+					else if (previus_styleName.includes("Enumeration") && (!styleName.includes("Enumeration") || (styleName[11]<previus_styleName[11])) ){
+						for(var i=counter_enumeration.length-1; i>=styleName[11]; i--){counter_enumeration[i]=0;}
+					}
+				}
 			}
 		}
-
-			if(styleName!="Item"+level) counter_item[level]=0;
 			//console.log(nodes[index].note);
 			console.log("Output: ", output);
 			// Reset item-local rules
@@ -759,6 +813,8 @@ var exportLib = (function() {
 				// Recursion on children
 				if ((!ignore_item) && (nodes[index].title !== null)) children_level = level + 1;
 				else children_level = level;
+
+				previus_styleName = styleName;
 
 				console.log("Apply recursion to: ", nodes[index].children);
 				for (var i = 0; i < nodes[index].children.length; i++)
