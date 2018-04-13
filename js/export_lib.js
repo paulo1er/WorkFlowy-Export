@@ -652,24 +652,33 @@ var exportLib = (function() {
 					if(style!="")style = "style=\""+style+"\"";
 					if(previus_styleName!= null){
 						if(previus_styleName.includes("Item")) {
-						 if(!styleName.includes("Item"))
-							 output += indent + "</ul>";
-						 else if(styleName[4]<previus_styleName[4])
-							 output += indent + "</ul>".repeat(previus_styleName[4]-styleName[4]);
+							if(!styleName.includes("Item"))
+								output += indent + "</ul>".repeat(previus_styleName[4])+"\n";
+							else if(styleName[4]<previus_styleName[4])
+							 	output += indent + "</ul>".repeat(previus_styleName[4]-styleName[4]) + "\n";
 					 }
 						else if(previus_styleName.includes("Enumeration")) {
 							if(!styleName.includes("Enumeration"))
-								output += indent + "</ol>";
+								output += indent + "</ol>".repeat(previus_styleName[11])+"\n";
 							else if(styleName[11]<previus_styleName[11])
-								output += indent + "</ol>".repeat(previus_styleName[11]-styleName[11]);
+								output += indent + "</ol>".repeat(previus_styleName[11]-styleName[11])+"\n";
 						}
 					}
-
 					if (styleName.includes("Item") && counter_item[styleName[4]-1]==1){
-						output += indent + "<ul>";
+						if(previus_styleName!=null && previus_styleName.includes("Item")) {
+							if(!styleName.includes("Item"))
+								output += indent + "<ul>".repeat(styleName[4])+"\n";
+							else if(styleName[4]>previus_styleName[4])
+							 	output += indent + "<ul>".repeat(styleName[4]-previus_styleName[4]) + "\n";
+					 }
 					}
 					else if (styleName.includes("Enumeration") && counter_enumeration[styleName[11]-1]==1){
-						output += indent + "<ol>";
+						if(previus_styleName!=null && previus_styleName.includes("Enumeration")) {
+							if(!styleName.includes("Enumeration"))
+								output += indent + "<ol>".repeat(styleName[11])+"\n";
+							else if(styleName[11]>previus_styleName[11])
+							 	output += indent + "<ol>".repeat(styleName[11]-previus_styleName[11]) + "\n";
+					 }
 					}
 
 					output += indent + "<" + idStyleToHTMLBalise[nodesStyle.Id] + " class=\"" + styleName + "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[nodesStyle.Id] + ">";
@@ -795,10 +804,10 @@ var exportLib = (function() {
 
 				if(previus_styleName!= null){
 					if (previus_styleName.includes("Item") && (!styleName.includes("Item") || (styleName[4]<previus_styleName[4])) ){
-						for(var i=counter_item.length-1; i>=styleName[4]; i--){counter_item[i]=0;}
+						for(var i=previus_styleName[4]-1; i<counter_item.length; i++){counter_item[i]=0;}
 					}
 					else if (previus_styleName.includes("Enumeration") && (!styleName.includes("Enumeration") || (styleName[11]<previus_styleName[11])) ){
-						for(var i=counter_enumeration.length-1; i>=styleName[11]; i--){counter_enumeration[i]=0;}
+						for(var i=counter_enumeration.length-1; i>=previus_styleName[11]; i--){counter_enumeration[i-1]=0;}
 					}
 				}
 			}
