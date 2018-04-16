@@ -1,5 +1,6 @@
 (function() {
 	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
+	var start = Date.now();
 
 
 	chrome.storage.onChanged.addListener(function(changes, namespace) {
@@ -24,12 +25,11 @@
 		  return output;
 		}
 
-		function Profile(format, output_type, indent_chars, prefix_indent_chars, titleOptions, item_sep, applyWFERules, outputToc, outputNotes, ignore_tags, escapeCharacter, findReplace){
+		function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputToc, outputNotes, ignore_tags, escapeCharacter, findReplace){
 			this.format = format,
-			this.output_type = output_type,
+			this.defaultItemStyle = defaultItemStyle,
 			this.indent_chars = indent_chars,
 			this.prefix_indent_chars = prefix_indent_chars,
-			this.titleOptions = titleOptions,
 			this.item_sep = item_sep,
 			this.applyWFERules = applyWFERules,
 			this.outputToc = outputToc,
@@ -72,7 +72,7 @@
 			curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
 			document.getElementById(curent_profile.format).checked = true;
-			document.getElementById(curent_profile.output_type).checked = true;
+			document.getElementById(curent_profile.defaultItemStyle).checked = true;
 
 			document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
 			document.getElementById("outputToc").checked = curent_profile.outputToc;
@@ -80,20 +80,18 @@
 		  document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
 			document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
 			document.getElementById("insertLine").checked = (curent_profile.item_sep == "\n\n");
-
 			switch (curent_profile.prefix_indent_chars) {
 				case "\t":
-					document.getElementById('tab');
+					document.getElementById('tab').checked = true;
 					break;
-				case "    ":
-					document.getElementById('space');
+				case "  ":
+					document.getElementById('space').checked = true;
 					break;
 				case "":
-					document.getElementById('withoutIndent');
+					document.getElementById('withoutIndent').checked = true;
 					break;
 			}
 			document.getElementById("indentOther").value = curent_profile.indent_chars;
-			document.getElementById(curent_profile.titleOptions).checked = true;
 
 			document.getElementById('findReplace').getElementsByTagName('tbody')[0].innerHTML = "";
 			curent_profile.findReplace.forEach(function(e, id){
@@ -116,8 +114,9 @@
 				document.getElementById("profileSelect").hidden = false;
 				document.getElementById("profileEdit").hidden = true;
 				document.getElementById('profileList').value = profileName;
+				console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 				chrome.storage.sync.set({'profileList' : profileList}, function() {
-					console.log("profileList saved ");
+					console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 				});
 			}
 		}
@@ -233,18 +232,10 @@
 	    	}
 			}
 
-			var sourceOptions = document.getElementsByName('sourceOptions');
-			for ( var i = 0; i < sourceOptions.length; i++) {
-				if(sourceOptions[i].checked) {
-					curent_profile.output_type = sourceOptions[i].value;
-					break;
-				}
-			}
-
-			var titleOptions = document.getElementsByName('titleOptions');
-			for ( var i = 0; i < titleOptions.length; i++) {
-				if(titleOptions[i].checked) {
-					curent_profile.titleOptions = titleOptions[i].value;
+			var defaultItemStyle = document.getElementsByName('defaultItemStyle');
+			for ( var i = 0; i < defaultItemStyle.length; i++) {
+				if(defaultItemStyle[i].checked) {
+					curent_profile.defaultItemStyle = defaultItemStyle[i].value;
 					break;
 				}
 			}
@@ -257,7 +248,7 @@
 							curent_profile.prefix_indent_chars = "\t";
 							break;
 						case "space":
-							curent_profile.prefix_indent_chars = "    ";
+							curent_profile.prefix_indent_chars = "  ";
 							break;
 						case "withoutIndent":
 							curent_profile.prefix_indent_chars = "";
@@ -280,7 +271,6 @@
 			curent_profile.outputNotes = document.getElementById("outputNotes").checked;
 			curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 			curent_profile.escapeCharacter = document.getElementById("escapeCharacter").checked;
-
 		};
 
 		//export the nodes in the textArea in the popup
@@ -515,9 +505,9 @@
 		var profileList = result.profileList;
 		if(profileList == null){
 			profileList = {
-				default : new Profile("text", "list", "", "\t", "titleParents", "\n", true, false, false, true, false, []),
-				HTML : new Profile("html", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, []),
-				RTF : new Profile("rtf", "hierdoc", "", "\t", "titleParents", "\n", true, false, false, true, true, [])
+				default : new Profile("text", "None", "", "\t", "\n", true, false, false, true, false, []),
+				HTML : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
+				RTF : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, false, true, true, [])
 			};
 			chrome.storage.sync.set({'profileList' : profileList}, function() {
 				console.log("profileList init");
