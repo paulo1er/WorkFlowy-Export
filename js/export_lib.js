@@ -9,7 +9,6 @@ var exportLib = (function() {
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[0,0,0,0,0,0];
-	var indentEnum=1;
 	var previus_styleName=null;
 
 	var ALIAS=[
@@ -295,7 +294,7 @@ var exportLib = (function() {
 		return temp_regexFind;
 	}
 
-	exportNodesTree = function(nodes, index, level, options, indent_chars, prefix_indent_chars) {
+	exportNodesTree = function(nodes, index, level, options) {
 		var header = "";
 		var body = "";
 		var footer = "";
@@ -339,19 +338,18 @@ var exportLib = (function() {
 		console.log("header", header, nodes[index].type);
 		console.log("STYLESHEET",STYLESHEET.Normal);
 		// Create body text
-		body = exportNodesTreeBody(nodes, index, level, options, indent_chars, prefix_indent_chars);
+		body = exportNodesTreeBody(nodes, index, level, options);
 
 		// Create footer text
 		footer = FOOTER[options.format];
 
 		wfe_count={};
 		wfe_count_ID={};
-		indentEnum=1;
 		counter_enumeration=[0,0,0,0,0,0];
 		return header + body + footer;
 	}
 
-	exportNodesTreeBody = function(nodes, index, level, options, indent_chars, prefix_indent_chars) {
+	exportNodesTreeBody = function(nodes, index, level, options) {
 		var start = 0; //nodes[0].node_forest[0]; // EP
 		var indent = "";
 		var output = "";
@@ -547,11 +545,8 @@ var exportLib = (function() {
 			console.log('Finished processing rules:', text, options.ignore_item);
 
 
-			if(level>0) indent = Array(level+1).join(prefix_indent_chars);
-			if(options.format == 'text') indent = indent + indent_chars;
-			indent = indent.replace(/(enum)/g,indentEnum++);
-			indent = indent.replace(/(bull)/g,'•');
-			indent = indent.replace(/(\\t)/g,"\t");
+			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
+			if(options.format == 'text' && options.indent_chars!="" && level>0) indent = indent + options.indent_chars + " ";
 
 			// Only process item if no rule specifies ignoring it
 			if (!ignore_item && !ignore_outline) {
@@ -639,7 +634,7 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
 				}
 				else if (options.format == 'html') {
-					//output = output + indent + text + nodes[index].myType;
+
 					text = text.replace(/--/g, "&ndash;");
 					//Interpretation of `code`
 					text = text.replace(/`([^`]*)`/g, "<code style=\"background-color: #d3d3d3;\"> &nbsp;$1 </code>");
@@ -828,7 +823,7 @@ var exportLib = (function() {
 				console.log("Apply recursion to: ", nodes[index].children);
 				for (var i = 0; i < nodes[index].children.length; i++)
 				{
-					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], children_level, options, indent_chars, prefix_indent_chars);
+					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], children_level, options);
 				}
 
 			}
@@ -863,15 +858,10 @@ var exportLib = (function() {
 
 		toMyText: function(my_nodes, options) {
 			var text = "";
-			var indent_chars = options.indent_chars;
-			var prefix_indent_chars = options.prefix_indent_chars;
 
 			console.log("Options in toMyText:", options);
-			text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options, indent_chars, prefix_indent_chars); // EP
-/* 			for (var i = 0; i < nodes[0].node_forest.length; i++) {
-				text = text + nodesTreeToText(nodes, nodes[0].node_forest[i], 0, options, indent_chars, prefix_indent_chars);
-			}
- */			return text;
+			text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options);
+			return text;
 		},
 
 

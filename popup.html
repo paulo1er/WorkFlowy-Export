@@ -43,22 +43,7 @@
 						<input type="text" id="nameProfile">
 						<br>
 						<div class="form-group"><!-- WorkFlowy source -->
-							<!--
-							Output Type<br>
-							<label class="radio-inline">
-								<input type="radio" name="sourceOptions" id="hierdoc" value="hierdoc">Document
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="sourceOptions" id="present" value="hierdoc">Presentation
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input checked type="radio" name="sourceOptions" id="list" value="list">Outline
-							</label>
-							<br>
-						-->
-	Output Format<br>
+							Output Format<br>
 							<label class="radio-inline">
 								<input type="radio" name="formatOptions" id="markDown" value="markdown"> Markdown
 							</label>
@@ -129,11 +114,11 @@
 						<div class="form-group"><!-- options -->
 
 							<label class="checkbox-inline">
-								<input checked type="checkbox" id="wfeRules"> <span class="" style="font-weight: normal;">Apply WFE Rules</span>
+								<input type="checkbox" id="wfeRules"> <span class="" style="font-weight: normal;">Apply WFE Rules</span>
 							</label>
 							<br>
 							<label class="checkbox-inline">
-								<input checked type="checkbox" id="stripTags"> <span class="" style="font-weight: normal;">Strip Tags</span>
+								<input type="checkbox" id="stripTags"> <span class="" style="font-weight: normal;">Strip Tags</span>
 							</label>
 							<label class="checkbox-inline">
 								<input type="checkbox" id="outputNotes"> <span class="locale Outputnotes" style="font-weight: normal;">Include Notes</span>
@@ -145,7 +130,7 @@
 							<br>
 							<!--<div class="form-group">-->
 								<label class="radio-inline">
-									<input checked type="radio" name="indentOptions" id="tab" value="tab"> Tab
+									<input type="radio" name="indentOptions" id="tab" value="tab"> Tab
 								</label>
 								<label class="radio-inline">
 									<input type="radio" name="indentOptions" id="space" value="space"> Space
@@ -153,25 +138,13 @@
 								<label class="radio-inline">
 									<input type="radio" name="indentOptions" id="withoutIndent" value="withoutIndent"> Without Indentation
 								</label>
-								<br>Text after indentation : <input type="text" id="indentOther"><br>
+								<br>Bullet point : <input type="text" id="indentOther" maxlength="1"><br>
 							<!--</div>-->
 							<br>
 							<label class="checkbox-inline">
 								<input type="checkbox" id="insertLine"> <span class="" style="font-weight: normal;">Add line break</span>
 							</label>
 							<br>
-							<!--
-							<label class="radio-inline">
-								<input checked type="radio" name="titleOptions" id="titleParents" value="titleParents"> Use title for parents
-							</label>
-							<label class="radio-inline">
-								<input  type="radio" name="titleOptions" id="neverTitle" value="neverTitle"> Never use title
-							</label>
-							<label class="radio-inline">
-								<input  type="radio" name="titleOptions" id="alwaysTitle" value="alwaysTitle"> always use title
-							</label>
-							<br>
-							-->
 							<label class="checkbox-inline">
 								<input type="checkbox" id="escapeCharacter"> <span class="" style="font-weight: normal;">Escape Character Safe</span>
 							</label>

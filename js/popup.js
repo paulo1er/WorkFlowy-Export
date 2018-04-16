@@ -1,5 +1,6 @@
 (function() {
 	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
+	var start = Date.now();
 
 
 	chrome.storage.onChanged.addListener(function(changes, namespace) {
@@ -79,16 +80,15 @@
 		  document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
 			document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
 			document.getElementById("insertLine").checked = (curent_profile.item_sep == "\n\n");
-
 			switch (curent_profile.prefix_indent_chars) {
 				case "\t":
-					document.getElementById('tab');
+					document.getElementById('tab').checked = true;
 					break;
-				case "    ":
-					document.getElementById('space');
+				case "  ":
+					document.getElementById('space').checked = true;
 					break;
 				case "":
-					document.getElementById('withoutIndent');
+					document.getElementById('withoutIndent').checked = true;
 					break;
 			}
 			document.getElementById("indentOther").value = curent_profile.indent_chars;
@@ -114,8 +114,9 @@
 				document.getElementById("profileSelect").hidden = false;
 				document.getElementById("profileEdit").hidden = true;
 				document.getElementById('profileList').value = profileName;
+				console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 				chrome.storage.sync.set({'profileList' : profileList}, function() {
-					console.log("profileList saved ");
+					console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 				});
 			}
 		}
@@ -247,7 +248,7 @@
 							curent_profile.prefix_indent_chars = "\t";
 							break;
 						case "space":
-							curent_profile.prefix_indent_chars = "    ";
+							curent_profile.prefix_indent_chars = "  ";
 							break;
 						case "withoutIndent":
 							curent_profile.prefix_indent_chars = "";
@@ -270,7 +271,6 @@
 			curent_profile.outputNotes = document.getElementById("outputNotes").checked;
 			curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 			curent_profile.escapeCharacter = document.getElementById("escapeCharacter").checked;
-
 		};
 
 		//export the nodes in the textArea in the popup
