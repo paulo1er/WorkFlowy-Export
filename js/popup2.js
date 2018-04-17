@@ -11,7 +11,7 @@ var popup2 = (function() {
 	});
 
 
-	function load(tabsId) {
+	function load(tabsId, callback) {
 		chrome.tabs.sendMessage(tabsId, {
 			request: 'getTopic'
 		}, function(response) {
@@ -69,8 +69,8 @@ var popup2 = (function() {
 
 				//open a form to create or update a preset of options
 				function newProfile(){
-					document.getElementById("profileSelect").hidden = true;
-					document.getElementById("profileEdit").hidden = false;
+					$("#profileSelect").hide();
+					$("#profileEdit").slideToggle("slow");
 					document.getElementById("nameProfile").value = document.getElementById('profileList').value;
 					curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
@@ -114,8 +114,8 @@ var popup2 = (function() {
 						};
 						profileList[profileName] = copy(curent_profile);
 						updateProfileChoice();
-						document.getElementById("profileSelect").hidden = false;
-						document.getElementById("profileEdit").hidden = true;
+						$("#profileEdit").slideToggle("slow");
+						$("#profileSelect").show();
 						document.getElementById('profileList').value = profileName;
 						console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
@@ -136,7 +136,7 @@ var popup2 = (function() {
 				//delete a preset of option
 				function removeOption(){
 					var nameProfile = document.getElementById("profileList").value;
-					if(nameProfile!="default"){
+					if(nameProfile!="list"){
 						delete profileList[document.getElementById("profileList").value];
 						updateProfileChoice();
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
@@ -284,8 +284,6 @@ var popup2 = (function() {
 					text = exportLib.toMyText(g_my_nodes, curent_profile);
 					$textArea.val(text);
 					document.getElementById("popupTitle").innerHTML = makeTitleLabel(curent_profile.format, g_title, g_url);
-					//textArea.focus();
-					//textArea.select();
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
 					});
@@ -293,23 +291,29 @@ var popup2 = (function() {
 
 				//add event Listener for the button in the popup
 				function setEventListers() {
-					document.getElementById("RefreshImport").addEventListener("click", function() {
-						loading(function(){
-							chrome.tabs.sendMessage(tabsId, {
-								request: 'getTopic'
-							}, function(response) {
-								g_nodes = response.content;
-								g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
-								g_title = response.title;
-							 	g_url = response.url;
-								exportText();
-							});
-						});
-					}, false);
 
 					document.getElementById("refresh").addEventListener("click", function() {
-						changeFormat();
-						loading(exportText);
+						if(document.getElementById("profileSelect").style.display=="none"){
+							changeFormat();
+							loading(function(callback){
+								exportText();
+								callback();
+							});
+						}
+						else{
+							loading(function(callback){
+								chrome.tabs.sendMessage(tabsId, {
+									request: 'getTopic'
+								}, function(response) {
+										g_nodes = response.content;
+										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
+										g_title = response.title;
+									 	g_url = response.url;
+										exportText();
+										callback();
+								});
+						});
+						}
 					}, false);
 
 					document.getElementById("close").addEventListener("click", function() {
@@ -326,9 +330,10 @@ var popup2 = (function() {
 					}, false);
 
 					document.getElementById("saveProfile").addEventListener("click", function() {
-						loading(function(){
+						loading(function(callback){
 							saveProfile();
 							exportText();
+							callback();
 						});
 					}, false);
 
@@ -338,7 +343,10 @@ var popup2 = (function() {
 
 					document.getElementById("profileList").onchange=function(){
 						curent_profile = copy(profileList[document.getElementById('profileList').value]);
-						loading(exportText);
+						loading(function(callback){
+							exportText();
+							callback();
+						});
 					};
 
 					document.getElementById("nameProfile").onchange=function(){
@@ -522,9 +530,12 @@ var popup2 = (function() {
 				var profileList = result.profileList;
 				if(profileList == null){
 					profileList = {
-						default : new Profile("text", "None", "", "\t", "\n", true, false, false, true, false, []),
-						HTML : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
-						RTF : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, false, true, true, [])
+						"list" : new Profile("text", "None", "", "\t", "\n", true, false, false, true, false, []),
+						"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
+						"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
+						"LaTeX Article" : new Profile("article", "None", "", "\t", "\n", true, false, false, true, false, []),
+						"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
+						"Beamer Pres" : new Profile("beamer", "None", "", "\t", "\n", true, false, false, true, true, [])
 					};
 					chrome.storage.sync.set({'profileList' : profileList}, function() {
 						console.log("profileList init");
@@ -532,7 +543,7 @@ var popup2 = (function() {
 				};
 				var profileName_LastConnexion = result.profileName;
 				if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
-					profileName_LastConnexion="default";
+					profileName_LastConnexion="list";
 				};
 
 				updateProfileChoice();
@@ -543,6 +554,7 @@ var popup2 = (function() {
 				var g_url = response.url;
 				exportText();
 				setEventListers();
+				callback();
 			}
 				catch(err){
 					$("#loading").hide("fast");
@@ -560,17 +572,20 @@ var popup2 = (function() {
 	function loading(func){
 		var $loading = $("#loading");
 		var $content = $("#content");
-		$content.hide("fast", function(){
-			$loading.show("fast", function(){
-				func();
-				$content.show("fast");
-				$loading.hide("fast");
+		$content.hide();
+		$loading.show("fast",function(){
+			func(function(){
+				$loading.hide();
+				$content.show();
 			});
 		});
 	}
+
 	return{
 		main : function(tabsId) {
-			loading(function(){load(tabsId)});
+			loading(function(callback){
+				load(tabsId, callback);
+			});
 		}
 	}
 }());

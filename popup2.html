@@ -4,183 +4,247 @@
 		<meta charset="utf-8">
 		<title>WorkFlowy Export</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
-		<style>.panel-resizable {resize: vertical; overflow: auto;}</style>
 	</head>
 	<body>
-		<button id="RefreshImport" type="button"><span>Refresh import from Workflowy</span></button>
-		<div class="panel panel-info panel-resizable" style="min-width: 500px; margin-bottom:0; padding-bottom:0">
+		<div class="panel panel-info" style="min-width:100%; min-height:100%; margin:0;">
 			<div class="panel-heading">
 				<h3 class="panel-title" id="popupTitle">WorkFlowy Export</h3>
 			</div>
 			<div class="panel-body">
-				<form>
-					<div class="form-group" id="divTextArea" style="height:240px"><!-- text area for output -->
+				<div id="divTextArea" class="panel panel-info">
+					<div class="panel-body" style="height:250px">
 						<div id="content" hidden>
-							<textarea class="form-control" id="textArea" rows="10">
-							</textarea>
+							<textarea id="textArea" class="form-control" style="width: 100%;resize: none;" rows="10" readonly></textarea>
 						</div>
 						<div id="loading">
-							<img src="image/Loading_icon.gif" class="center-block" style="height:240px">
+							<img src="image/Loading_icon.gif" class="center-block" style="height: 220px;">
 						</div>
-						<div id="error" hidden>
-							<span class="" style="font-weight: bold;">An error append during the export</span><br>
-							<span style="color: red;" id="textError"></span>
+						<div id="error" class="alert alert-danger" hidden>
+							<span>An error append during the export</span><br>
+							<span id="textError"></span>
 						</div>
 					</div>
-					<div class="form-group">
-						<button id="refresh" type="button"><span>Refresh</span></button>
+					<div class="panel-footer">
+						<button id="refresh" type="button" class="btn btn-default center-block">Refresh</button>
 					</div>
+				</div>
 
-					<div id='profileSelect'>
-						<span class="" style="font-weight: bold;">Profile</span>
-						<select id="profileList"></select>
-						<button id="removeOption" type="button"><span>Delete</span></button>
-						<br>
-						<button id="newProfile" type="button"><span>Edit Profile</span></button>
+					<div id="profileSelect" class="input-group">
+						<span class="input-group-addon">Profile Name</span>
+						<select id="profileList" class="form-control"></select>
+						<div class="input-group-btn">
+							<button id="newProfile" type="button" class="btn btn-success">Edit Profile</button>
+							<button id="removeOption" type="button" class="btn btn-warning">Delete</button>
+						</div>
 					</div>
 
 					<div id='profileEdit' hidden>
-						<span class="" style="font-weight: bold;">Profile Name</span>
-						<input type="text" id="nameProfile">
-						<br>
-						<div class="form-group"><!-- WorkFlowy source -->
-							Output Format<br>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="markDown" value="markdown"> Markdown
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="html" value="html"> HTML
-							</label>
-							<br>
-
-
-							<label class="radio-inline">LaTeX</label>
-							<br>&nbsp;&nbsp;
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="beamer" value="beamer"> Beamer
-							</label>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="article" value="article"> Article
-							</label>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="report" value="report"> Report
-							</label>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="book" value="book"> Book
-							</label>
-							<!--</div>-->
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="opml" value="opml"> OPML
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="wfe" value="WFE-TAGGED"> WFE-Tagged Text
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="rtf" value="rtf"> Rich Text (RTF)
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="formatOptions" id="text" value="text">Text
-							</label>
-							<br>
-							<br>
-
-							Default Item Style<br>
-							<label class="radio-inline">
-								<input type="radio" name="defaultItemStyle" id="None" value="None">None
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="defaultItemStyle" id="Bullet" value="Bullet">Bullet
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="defaultItemStyle" id="Enumeration" value="Enumeration">Enumeration
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="defaultItemStyle" id="Heading" value="Heading">Heading
-							</label>
-							<br>
-							<label class="radio-inline">
-								<input type="radio" name="defaultItemStyle" id="HeadingParents" value="HeadingParents">Heading if parents item
-							</label>
-							<br>
+						<div class="input-group">
+							<span class="input-group-addon">Profile Name</span>
+							<input type="text" id="nameProfile" class="form-control">
 						</div>
-						<!-- text export -->
-						<div class="form-group"><!-- options -->
 
-							<label class="checkbox-inline">
-								<input type="checkbox" id="wfeRules"> <span class="" style="font-weight: normal;">Apply WFE Rules</span>
-							</label>
-							<br>
-							<label class="checkbox-inline">
-								<input type="checkbox" id="stripTags"> <span class="" style="font-weight: normal;">Strip Tags</span>
-							</label>
-							<label class="checkbox-inline">
-								<input type="checkbox" id="outputNotes"> <span class="locale Outputnotes" style="font-weight: normal;">Include Notes</span>
-							</label>
-							<label class="checkbox-inline">
-								<input type="checkbox" id="outputToc"> <span class="locale Outputtoc" style="font-weight: normal;">Include TOC</span>
-							</label>
-							<br>
-							<br>
-							<!--<div class="form-group">-->
-								<label class="radio-inline">
-									<input type="radio" name="indentOptions" id="tab" value="tab"> Tab
-								</label>
-								<label class="radio-inline">
-									<input type="radio" name="indentOptions" id="space" value="space"> Space
-								</label>
-								<label class="radio-inline">
-									<input type="radio" name="indentOptions" id="withoutIndent" value="withoutIndent"> Without Indentation
-								</label>
-								<br>Bullet point : <input type="text" id="indentOther" maxlength="1"><br>
-							<!--</div>-->
-							<br>
-							<label class="checkbox-inline">
-								<input type="checkbox" id="insertLine"> <span class="" style="font-weight: normal;">Add line break</span>
-							</label>
-							<br>
-							<label class="checkbox-inline">
-								<input type="checkbox" id="escapeCharacter"> <span class="" style="font-weight: normal;">Escape Character Safe</span>
-							</label>
-
-
+						<div class="well">
+							<h4>Output Format</h4>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="radio" id="markDown" name="formatOptions" class="form-check-input with-gap" value="markDown">
+								</span>
+							  <label class="form-control" for="markDown">Markdown</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+							  	<input type="radio" id="html" name="formatOptions" class="form-check-input with-gap" value="html">
+								</span>
+							  <label class="form-control" for="html">HTML</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+							  	<input type="radio" id="beamer" name="formatOptions" class="form-check-input with-gap" value="beamer">
+								</span>
+							  <label class="form-control" for="beamer">Beamer</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+								  <input type="radio" id="report" name="formatOptions" class="form-check-input with-gap" value="report">
+								</span>
+							  <label class="form-control" for="report">Report</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+								  <input type="radio" id="opml" name="formatOptions" class="form-check-input with-gap" value="opml">
+								</span>
+							  <label class="form-control" for="opml">OPML</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+								  <input type="radio" id="rtf" name="formatOptions" class="form-check-input with-gap" value="rtf">
+								</span>
+							  <label class="form-control" for="rtf">Rich Text (RTF)</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+								  <input type="radio" id="text" name="formatOptions" class="form-check-input with-gap" value="text">
+								</span>
+							  <label class="form-control" for="text">Text</label>
+							</div>
 						</div>
-						<div class="form-group"><!-- Find&Replace -->
-							Find : <input type="text" id="find"><br>
-							Replace : <input type="text" id="replace"><br>
-							<label class="checkbox-inline">
-								<input type="checkbox" id="regex"> <span>Regex</span>
-							</label>
-							<label class="checkbox-inline">
-								<input type="checkbox" id="matchCase"> <span>Match Case</span>
-							</label>
-							<button id="addFindReplace" type="button"><span>Add</span></button>
-							<table class="table" id="findReplace">
-								<thead>
-									<tr>
-										<th scope="col">#</th>
-										<th scope="col">Find</th>
-										<th scope="col">Replace</th>
-										<th scope="col">Regex</th>
-										<th scope="col">Match Case</th>
-										<th scope="col">Delete</th>
-									</tr>
-								</thead>
-								<tbody>
-								</tbody>
-							</table>
+
+						<div class="well">
+							<h4>Default Item Style</h4>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="radio" id="None" name="defaultItemStyle" class="form-check-input with-gap" value="None">
+								</span>
+							  <label class="form-control" for="None">None</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+							  	<input type="radio" id="Bullet" name="defaultItemStyle" class="form-check-input with-gap" value="Bullet">
+								</span>
+							  <label class="form-control" for="Bullet">Bullet</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+							  	<input type="radio" id="Enumeration" name="defaultItemStyle" class="form-check-input with-gap" value="Enumeration">
+								</span>
+							  <label class="form-control" for="Enumeration">Enumeration</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+								  <input type="radio" id="Heading" name="defaultItemStyle" class="form-check-input with-gap" value="Heading">
+								</span>
+							  <label class="form-control" for="Heading">Heading</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+								  <input type="radio" id="HeadingParents" name="defaultItemStyle" class="form-check-input with-gap" value="HeadingParents">
+								</span>
+							  <label class="form-control" for="HeadingParents">Heading if parents item</label>
+							</div>
 						</div>
-						<button id="saveProfile" type="button"><span>Update Profile</span></button>
+
+						<div class="well">
+							<h4>Options</h4>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="wfeRules" class="form-check-input">
+								</span>
+							  <label class="form-control" for="wfeRules">Apply WFE Rules</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="stripTags" class="form-check-input">
+								</span>
+							  <label class="form-control" for="stripTags">Strip Tags</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="outputNotes" class="form-check-input">
+								</span>
+							  <label class="form-control" for="outputNotes">Include Notes</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="outputToc" class="form-check-input">
+								</span>
+							  <label class="form-control" for="outputToc">Include TOC</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="insertLine" class="form-check-input">
+								</span>
+							  <label class="form-control" for="insertLine">Add line break</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="escapeCharacter" class="form-check-input">
+								</span>
+							  <label class="form-control" for="escapeCharacter">Escape Character Safe</label>
+							</div>
+						</div>
+
+						<div class="well">
+							<h4>indentation</h4>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="radio" id="tab" name="indentOptions" class="form-check-input with-gap" value="tab">
+								</span>
+							  <label class="form-control" for="tab">Tabulation</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="radio" id="space" name="indentOptions" class="form-check-input with-gap" value="space">
+								</span>
+							  <label class="form-control" for="space">Space</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="radio" id="withoutIndent" name="indentOptions" class="form-check-input with-gap" value="withoutIndent">
+								</span>
+							  <label class="form-control" for="withoutIndent">Without Indentation</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									Bullet point :
+								</span>
+								<input type="text" id="indentOther" maxlength="1" class="form-control">
+							</div>
+						</div>
+
+
+						<div class="well">
+							<h4>Find and Replace</h4>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									Find :
+								</span>
+								<input type="text" id="find" class="form-control">
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									Replace :
+								</span>
+								<input type="text" id="replace" class="form-control">
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="regex" class="form-check-input">
+								</span>
+							  <label class="form-control" for="regex">Regex</label>
+							</div>
+							<div class="input-group">
+							  <span class="input-group-addon">
+									<input type="checkbox" id="matchCase" class="form-check-input">
+								</span>
+							  <label class="form-control" for="matchCase">Match Case</label>
+							</div>
+							<button id="addFindReplace" type="button" class="btn btn-default center-block">Add</button>
+							<div class="input-group">
+								<table class="table" id="findReplace">
+									<thead>
+										<tr>
+											<th scope="col">#</th>
+											<th scope="col">Find</th>
+											<th scope="col">Replace</th>
+											<th scope="col">Regex</th>
+											<th scope="col">Match Case</th>
+											<th scope="col">Delete</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<button id="saveProfile" type="button"  class="btn btn-success center-block"><span>Update Profile</span></button>
 					</div>
-					<button id="close" type="button" class="btn btn-default pull-right"><span class="locale Close">Close</span></button>
-				</form>
+			</div>
+			<div class="panel-footer">
+				<div class="container">
+					<button id="close" type="button" class="btn btn-danger pull-right"><span class="locale Close">Close</span></button>
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="js/jquery-2.2.0.min.js"></script>
