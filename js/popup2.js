@@ -176,28 +176,45 @@ var popup2 = (function() {
 					var tableRef = document.getElementById('findReplace').getElementsByTagName('tbody')[0];
 					var newRow   = tableRef.insertRow(tableRef.rows.length);
 					newRow.setAttribute("id", "findReplace" + idFindReplace);
-					var newCell  = newRow.insertCell(0);
+
+					var newCell  = document.createElement('th');
+					newCell.setAttribute("scope","row");
 					var newText  = document.createTextNode(idFindReplace + 1);
 					newCell.appendChild(newText);
+					newRow.appendChild(newCell);
+
 					newCell  = newRow.insertCell(1);
 					newText  = document.createTextNode(txtFind);
 					newCell.appendChild(newText);
+
 					newCell  = newRow.insertCell(2);
 					newText  = document.createTextNode(txtReplace);
 					newCell.appendChild(newText);
+
 					newCell  = newRow.insertCell(3);
-					newText  = document.createTextNode(isRegex);
+					newText = document.createElement('i');
+					if(isMatchCase)
+						newText.setAttribute("class", "glyphicon glyphicon-ok");
+					else
+						newText.setAttribute("class", "glyphicon glyphicon-remove");
 					newCell.appendChild(newText);
+
 					newCell  = newRow.insertCell(4);
-					newText  = document.createTextNode(isMatchCase);
+					newText = document.createElement('i');
+					if(isMatchCase)
+						newText.setAttribute("class", "glyphicon glyphicon-ok");
+					else
+						newText.setAttribute("class", "glyphicon glyphicon-remove");
 					newCell.appendChild(newText);
 
 					newCell  = newRow.insertCell(5);
 					var but = document.createElement("button");
 					var span = document.createElement("span");
-					newText  = document.createTextNode("delete");
+					newText = document.createElement('i');
+					newText.setAttribute("class", "glyphicon glyphicon-trash");
 					but.setAttribute("type", "button");
 					but.setAttribute("id", "ButtonfindReplace" + (idFindReplace));
+					but.setAttribute("class", "btn btn-warning btn-rounded btn-sm");
 
 					newCell.appendChild(but);
 					but.appendChild(span);
@@ -283,7 +300,7 @@ var popup2 = (function() {
 					var $textArea = $('#textArea');
 					text = exportLib.toMyText(g_my_nodes, curent_profile);
 					$textArea.val(text);
-					document.getElementById("popupTitle").innerHTML = makeTitleLabel(curent_profile.format, g_title, g_url);
+					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
 					});
@@ -352,11 +369,6 @@ var popup2 = (function() {
 					document.getElementById("nameProfile").onchange=function(){
 						updateTextSaveUpdate();
 					};
-				}
-
-
-				function makeTitleLabel(format, title, url) {
-					return (format == "markdown") ? '[' + title + '](' + url + ')' : title + ' - ' + url;
 				}
 
 				/*
