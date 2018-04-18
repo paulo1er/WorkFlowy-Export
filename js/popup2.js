@@ -1,5 +1,5 @@
 var popup2 = (function() {
-	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
+	chrome.storage.sync.clear(function (){}); //For cleaning the storage
 	var start = Date.now();
 
 
@@ -306,6 +306,15 @@ var popup2 = (function() {
 					});
 				};
 
+				function copyToClipboard(){
+				  var $temp = $("<input>");
+				  $("body").append($temp);
+				  $temp.val($("#textArea").val()).select();
+					console.log($temp.text());
+				  document.execCommand("copy");
+				  $temp.remove();
+				}
+
 				//add event Listener for the button in the popup
 				function setEventListers() {
 
@@ -369,6 +378,10 @@ var popup2 = (function() {
 					document.getElementById("nameProfile").onchange=function(){
 						updateTextSaveUpdate();
 					};
+
+					document.getElementById("copy").addEventListener("click", function() {
+						copyToClipboard();
+					}, false);
 				}
 
 				/*
