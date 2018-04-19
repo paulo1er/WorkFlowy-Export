@@ -14,7 +14,7 @@
 				<div id="divTextArea" class="panel panel-primary">
 					<div class="panel-body" style="height:250px">
 						<div id="content" hidden>
-							<textarea id="textArea" class="form-control" style="width: 100%;resize: none;" rows="10" readonly></textarea>
+							<textarea id="textArea" class="form-control" style="resize: none;" rows="10" readonly></textarea>
 						</div>
 						<div id="loading">
 							<img src="image/Loading_icon.gif" class="center-block" style="height: 220px;">
@@ -54,15 +54,15 @@
 								<input type="text" id="nameProfile" class="form-control">
 							</div>
 						</div>
-						<div class="container">
-							<div class="row">
+						<div class="container-fluid">
+							<div class="row justify-content-around">
 								<div class="well col-xs-12 col-sm-6 col-md-3">
 									<p class="text-center">Output Format</p>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
-											<input type="radio" id="markDown" name="formatOptions" class="form-check-input with-gap" value="markDown">
+											<input type="radio" id="markdown" name="formatOptions" class="form-check-input with-gap" value="markdown">
 										</span>
-									  <label class="form-control" for="markDown">Markdown</label>
+									  <label class="form-control" for="markdown">Markdown</label>
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -78,9 +78,9 @@
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
-										  <input type="radio" id="report" name="formatOptions" class="form-check-input with-gap" value="report">
+										  <input type="radio" id="latex" name="formatOptions" class="form-check-input with-gap" value="latex">
 										</span>
-									  <label class="form-control" for="report">LaTeX Report</label>
+									  <label class="form-control" for="latex">LaTeX Report</label>
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -208,13 +208,13 @@
 
 								<div class="clearfix visible-sm-block"></div>
 								<div class="clearfix visible-md-block"></div>
+								<div class="visible-md-block col-md-3"></div>
 
-								<div class="well col-xs-12 col-sm-6 col-md-3">
+
+								<div class="well col-xs-12 col-sm-8 col-md-6">
 									<p class="text-center">Find and Replace</p>
 									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											Find :
-										</span>
+									  <span class="input-group-addon">Find :</span>
 										<input type="text" id="find" class="form-control">
 									</div>
 									<div class="input-group input-group-sm">

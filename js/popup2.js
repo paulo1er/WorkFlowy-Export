@@ -1,5 +1,5 @@
 var popup2 = (function() {
-	chrome.storage.sync.clear(function (){}); //For cleaning the storage
+	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
 	var start = Date.now();
 
 
@@ -300,6 +300,11 @@ var popup2 = (function() {
 					var $textArea = $('#textArea');
 					text = exportLib.toMyText(g_my_nodes, curent_profile);
 					$textArea.val(text);
+			    var comment_lines = text.split('\n');
+			    $("#line-numbers").html('');
+			    for(i = 0; i < comment_lines.length; i++) {
+			    	$("#line-numbers").html($("#line-numbers").html() + (i+1) + "\n");
+					}
 					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
@@ -555,12 +560,12 @@ var popup2 = (function() {
 				var profileList = result.profileList;
 				if(profileList == null){
 					profileList = {
-						"list" : new Profile("text", "None", "", "\t", "\n", true, false, false, true, false, []),
+						"list" : new Profile("text", "None", "", "\t", "\n", false, false, false, true, false, []),
 						"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
 						"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
-						"LaTeX Article" : new Profile("article", "None", "", "\t", "\n", true, false, false, true, false, []),
+						"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, false, true, true, []),
 						"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
-						"Beamer Pres" : new Profile("beamer", "None", "", "\t", "\n", true, false, false, true, true, [])
+						"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, false, true, true, [])
 					};
 					chrome.storage.sync.set({'profileList' : profileList}, function() {
 						console.log("profileList init");
@@ -579,6 +584,7 @@ var popup2 = (function() {
 				var g_url = response.url;
 				exportText();
 				setEventListers();
+
 				callback();
 			}
 				catch(err){
