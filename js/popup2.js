@@ -323,12 +323,8 @@ var popup2 = (function() {
 				};
 
 				function copyToClipboard(){
-				  var $temp = $("<input>");
-				  $("body").append($temp);
-				  $temp.val($("#textArea").val()).select();
-					console.log($temp.text());
+				  $("#textArea").select();
 				  document.execCommand("copy");
-				  $temp.remove();
 				}
 
 				//add event Listener for the button in the popup
