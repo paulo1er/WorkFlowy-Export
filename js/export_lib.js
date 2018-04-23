@@ -784,7 +784,7 @@ var exportLib = (function() {
 					if (styleName.includes("Item"))
 						output = output + indent + "• " + text;
 					else if (styleName.includes("Heading"))
-						output = output + indent + text + "\n" + indent + ("─".repeat(text.length));
+						output = output + indent + text + "\n";
 					else if (styleName.includes("Enumeration"))
 						output = output + indent + counter_enumeration[styleName[11]-1]+ " " + text;
 					else
