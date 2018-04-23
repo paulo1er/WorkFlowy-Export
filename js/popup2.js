@@ -11,7 +11,18 @@ var popup2 = (function() {
 	});
 
 
+
 	function load(tabsId, callback) {
+
+		chrome.tabs.onRemoved.addListener(
+			function(closedTabId, removeInfo) {
+			  console.log("Tab: " + closedTabId + " is closing");
+					if(closedTabId==tabsId) {
+						window.close();
+					}
+			});
+
+
 		chrome.tabs.sendMessage(tabsId, {
 			request: 'getTopic'
 		}, function(response) {
