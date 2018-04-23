@@ -547,7 +547,6 @@ var exportLib = (function() {
 
 
 			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
-			if(options.format == 'text' && options.indent_chars!="" && level>0) indent = indent + options.indent_chars + " ";
 
 			// Only process item if no rule specifies ignoring it
 			if (!ignore_item && !ignore_outline) {
@@ -782,7 +781,7 @@ var exportLib = (function() {
 				}
 				else {
 					if (styleName.includes("Item"))
-						output = output + indent + "• " + text;
+						output = output + indent + options.indent_chars + " " + text;
 					else if (styleName.includes("Heading"))
 						output = output + indent + text + "\n";
 					else if (styleName.includes("Enumeration"))

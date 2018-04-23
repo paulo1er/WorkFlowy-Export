@@ -60,27 +60,9 @@
 									<p class="text-center">Output Format</p>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
-											<input type="radio" id="markdown" name="formatOptions" class="form-check-input with-gap" value="markdown">
+										  <input type="radio" id="text" name="formatOptions" class="form-check-input with-gap" value="text">
 										</span>
-									  <label class="form-control" for="markdown">Markdown</label>
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-									  	<input type="radio" id="html" name="formatOptions" class="form-check-input with-gap" value="html">
-										</span>
-									  <label class="form-control" for="html">HTML</label>
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-									  	<input type="radio" id="beamer" name="formatOptions" class="form-check-input with-gap" value="beamer">
-										</span>
-									  <label class="form-control" for="beamer">LaTeX Beamer</label>
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-										  <input type="radio" id="latex" name="formatOptions" class="form-check-input with-gap" value="latex">
-										</span>
-									  <label class="form-control" for="latex">LaTeX Report</label>
+									  <label class="form-control" for="text">Text</label>
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -90,15 +72,33 @@
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
+									  	<input type="radio" id="html" name="formatOptions" class="form-check-input with-gap" value="html">
+										</span>
+									  <label class="form-control" for="html">HTML</label>
+									</div>
+									<div class="input-group input-group-sm">
+									  <span class="input-group-addon">
+											<input type="radio" id="markdown" name="formatOptions" class="form-check-input with-gap" value="markdown">
+										</span>
+									  <label class="form-control" for="markdown">Markdown</label>
+									</div>
+									<div class="input-group input-group-sm">
+									  <span class="input-group-addon">
 										  <input type="radio" id="rtf" name="formatOptions" class="form-check-input with-gap" value="rtf">
 										</span>
 									  <label class="form-control" for="rtf">Rich Text (RTF)</label>
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
-										  <input type="radio" id="text" name="formatOptions" class="form-check-input with-gap" value="text">
+										  <input type="radio" id="latex" name="formatOptions" class="form-check-input with-gap" value="latex">
 										</span>
-									  <label class="form-control" for="text">Text</label>
+									  <label class="form-control" for="latex">LaTeX Report</label>
+									</div>
+									<div class="input-group input-group-sm">
+									  <span class="input-group-addon">
+									  	<input type="radio" id="beamer" name="formatOptions" class="form-check-input with-gap" value="beamer">
+										</span>
+									  <label class="form-control" for="beamer">LaTeX Beamer</label>
 									</div>
 								</div>
 
@@ -115,6 +115,10 @@
 									  	<input type="radio" id="Bullet" name="defaultItemStyle" class="form-check-input with-gap" value="Bullet">
 										</span>
 									  <label class="form-control" for="Bullet">Bullet</label>
+									  <span class="input-group-addon">
+											Bullet Character :
+										</span>
+										<input type="text" id="indentOther" maxlength="1" class="form-control">
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -139,46 +143,6 @@
 								<div class="clearfix visible-sm-block"></div>
 
 								<div class="well col-xs-12 col-sm-6 col-md-3">
-									<p class="text-center">Options</p>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											<input type="checkbox" id="wfeRules" class="form-check-input">
-										</span>
-									  <label class="form-control" for="wfeRules">Apply WFE Rules</label>
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											<input type="checkbox" id="stripTags" class="form-check-input">
-										</span>
-									  <label class="form-control" for="stripTags">Strip Tags</label>
-									</div>
-									<div class="input-group input-group-sm" input-group-sm>
-									  <span class="input-group-addon">
-											<input type="checkbox" id="outputNotes" class="form-check-input">
-										</span>
-									  <label class="form-control" for="outputNotes">Include Notes</label>
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											<input type="checkbox" id="outputToc" class="form-check-input">
-										</span>
-									  <label class="form-control" for="outputToc">Include TOC</label>
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											<input type="checkbox" id="insertLine" class="form-check-input">
-										</span>
-									  <label class="form-control" for="insertLine">Add line break</label>
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											<input type="checkbox" id="escapeCharacter" class="form-check-input">
-										</span>
-									  <label class="form-control" for="escapeCharacter">Escape Character Safe</label>
-									</div>
-								</div>
-
-								<div class="well col-xs-12 col-sm-6 col-md-3">
 									<p class="text-center">Indentation</p>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -196,13 +160,47 @@
 									  <span class="input-group-addon">
 											<input type="radio" id="withoutIndent" name="indentOptions" class="form-check-input with-gap" value="withoutIndent">
 										</span>
-									  <label class="form-control" for="withoutIndent">Without Indentation</label>
+									  <label class="form-control" for="withoutIndent">None</label>
+									</div>
+								</div>
+
+								<div class="well col-xs-12 col-sm-6 col-md-3">
+									<p class="text-center">Options</p>
+									<div class="input-group input-group-sm">
+									  <span class="input-group-addon">
+											<input type="checkbox" id="stripTags" class="form-check-input">
+										</span>
+									  <label class="form-control" for="stripTags">Strip Tags</label>
+									</div>
+									<div class="input-group input-group-sm" input-group-sm>
+									  <span class="input-group-addon">
+											<input type="checkbox" id="outputNotes" class="form-check-input">
+										</span>
+									  <label class="form-control" for="outputNotes">Include Notes</label>
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
-											Bullet point :
+											<input type="checkbox" id="insertLine" class="form-check-input">
 										</span>
-										<input type="text" id="indentOther" maxlength="1" class="form-control">
+									  <label class="form-control" for="insertLine">Additional Line Break</label>
+									</div>
+									<div class="input-group input-group-sm">
+									  <span class="input-group-addon">
+											<input type="checkbox" id="escapeCharacter" class="form-check-input">
+										</span>
+									  <label class="form-control" for="escapeCharacter">Escape Character Safe</label>
+									</div>
+									<div class="input-group input-group-sm">
+									  <span class="input-group-addon">
+											<input type="checkbox" id="wfeRules" class="form-check-input">
+										</span>
+									  <label class="form-control" for="wfeRules">Apply WFE Tag Rules (expert mode)</label>
+									</div>
+									<div class="input-group input-group-sm">
+									  <span class="input-group-addon">
+											<input type="checkbox" id="outputToc" class="form-check-input">
+										</span>
+									  <label class="form-control" for="outputToc">Include TOC</label>
 									</div>
 								</div>
 
