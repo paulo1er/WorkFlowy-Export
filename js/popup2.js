@@ -551,7 +551,7 @@ var popup2 = (function() {
 							"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
 							"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
 							"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, []),
-							"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+							"OPML" : new Profile("opml", "None", "", "\t", "\n", true, false, true, true, []),
 							"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [])
 						};
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
