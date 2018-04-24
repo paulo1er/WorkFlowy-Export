@@ -1,5 +1,5 @@
 var popup2 = (function() {
-	chrome.storage.sync.clear(function (){}); //For cleaning the storage
+	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
 	var start = Date.now();
 
 
@@ -34,9 +34,10 @@ var popup2 = (function() {
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
-			chrome.storage.sync.get(['profileList', 'profileName'], function(result) {
+			chrome.storage.sync.get(['profileList', 'profileName'], function(storage) {
 				//return a copy of an object (recursif)
 				try{
+
 				function copy(o) {
 				  var output, v, key;
 				  output = Array.isArray(o) ? [] : {};
@@ -75,13 +76,9 @@ var popup2 = (function() {
 					for (var i=0; i<documentProfileChoice.options.length; i++){
 						var option = documentProfileChoice.options[i];
 						var name = option.value;
-						console.log("TEST",option, !profileList.hasOwnProperty(name) && document.getElementById("profileList"+name));
 			    	if (!profileList.hasOwnProperty(name) && document.getElementById("profileList"+name)) {
 							documentProfileChoice.removeChild(option);
 			    	}
-					}
-					if(document.getElementById("nameProfile").value == ""){
-						document.getElementById("profileList"+profileName_LastConnexion).setAttribute('selected', true);
 					}
 				}
 
@@ -150,6 +147,9 @@ var popup2 = (function() {
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
 							console.log("profileList saved ");
 						});
+						document.getElementById("nameProfile").value == "";
+						document.getElementById("profileList").value = "list";
+						curent_profile = copy(profileList["list"]);
 					}
 				}
 
@@ -245,8 +245,6 @@ var popup2 = (function() {
 					document.getElementById("findReplace" + index).remove();
 					console.log("After curent_profile.findReplace", curent_profile.findReplace);
 				}
-
-
 
 				// change curent_profile with the value enter in the form
 				function changeFormat() {
@@ -385,11 +383,17 @@ var popup2 = (function() {
 					document.getElementById("copy").addEventListener("click", function() {
 						copyToClipboard();
 					}, false);
+
+					document.getElementById("resetProfile").addEventListener("click", function() {
+						profileList = null;
+						profileName_LastConnexion = null;
+						curent_profile = null;
+						initProfileList();
+					}, false);
 				}
 
 				//import the WorkFlowy text in Nodes
 				function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
-
 					var start = 0; //nodes[0].node_forest[0]; EP
 					var text = nodes[start].title + "\n";
 					var indent = "";
@@ -540,31 +544,43 @@ var popup2 = (function() {
 					return [nodes, root];
 				}
 
-				var profileList = result.profileList;
-				if(profileList == null){
-					profileList = {
-						"list" : new Profile("text", "None", "", "\t", "\n", false, false, true, false, []),
-						"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
-						"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
-						"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, []),
-						"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
-						"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [])
+				function initProfileList(){
+					if(profileList == null){
+						profileList = {
+							"list" : new Profile("text", "None", "", "\t", "\n", false, false, true, false, []),
+							"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+							"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+							"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, []),
+							"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+							"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [])
+						};
+						chrome.storage.sync.set({'profileList' : profileList}, function() {
+							console.log("profileList init");
+						});
 					};
-					chrome.storage.sync.set({'profileList' : profileList}, function() {
-						console.log("profileList init");
-					});
-				};
-				var profileName_LastConnexion = result.profileName;
-				if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
-					profileName_LastConnexion="list";
-				};
+					if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
+						profileName_LastConnexion="list";
+						chrome.storage.sync.set({'profileName' : profileName_LastConnexion}, function() {
+							console.log("profileName init");
+						});
+					};
+					updateProfileChoice();
+					document.getElementById("nameProfile").value == "";
+					document.getElementById("profileList").value = profileName_LastConnexion;
+					curent_profile = copy(profileList[document.getElementById('profileList').value]);
+				}
 
-				updateProfileChoice();
-				curent_profile = copy(profileList[document.getElementById('profileList').value]);
+				var profileList = storage.profileList;
+				var profileName_LastConnexion = storage.profileName;
+				var curent_profile = null;
+
+				initProfileList();
+
 				var g_nodes = response.content;
 				var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 				var g_title = response.title;
 				var g_url = response.url;
+
 				exportText();
 				setEventListers();
 
