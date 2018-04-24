@@ -1,5 +1,5 @@
 var popup2 = (function() {
-	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
+	chrome.storage.sync.clear(function (){}); //For cleaning the storage
 	var start = Date.now();
 
 
@@ -47,14 +47,13 @@ var popup2 = (function() {
 				  return output;
 				}
 
-				function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputToc, outputNotes, ignore_tags, escapeCharacter, findReplace){
+				function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace){
 					this.format = format,
 					this.defaultItemStyle = defaultItemStyle,
 					this.indent_chars = indent_chars,
 					this.prefix_indent_chars = prefix_indent_chars,
 					this.item_sep = item_sep,
 					this.applyWFERules = applyWFERules,
-					this.outputToc = outputToc,
 					this.outputNotes = outputNotes,
 					this.ignore_tags = ignore_tags,
 					this.escapeCharacter = escapeCharacter,
@@ -97,7 +96,6 @@ var popup2 = (function() {
 					document.getElementById(curent_profile.defaultItemStyle).checked = true;
 
 					document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
-					document.getElementById("outputToc").checked = curent_profile.outputToc;
 					document.getElementById("outputNotes").checked = curent_profile.outputNotes;
 				  document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
 					document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
@@ -297,7 +295,6 @@ var popup2 = (function() {
 
 
 					curent_profile.applyWFERules = document.getElementById("wfeRules").checked;
-					curent_profile.outputToc = document.getElementById("outputToc").checked;
 					curent_profile.outputNotes = document.getElementById("outputNotes").checked;
 					curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 					curent_profile.escapeCharacter = document.getElementById("escapeCharacter").checked;
@@ -389,21 +386,6 @@ var popup2 = (function() {
 						copyToClipboard();
 					}, false);
 				}
-
-				/*
-				// not use
-				function preview() {
-					var img = '<img src="' + chrome.extension.getURL('image/space.gif') + '" width="800" height="1" alt="">';
-					var html = '<div id="content">' + img + exportLib.toHtml(g_output_toc) + '</div>';
-					//$('#contents').load(chrome.extension.getURL("css/theme/"+option.theme+".css");
-					$('body').html(html);
-
-					var link = document.createElement("link");
-					link.href = chrome.extension.getURL("css/preview/porter.css");
-					link.type = "text/css";
-					link.rel = "stylesheet";
-					document.getElementsByTagName("head")[0].appendChild(link);
-				}*/
 
 				//import the WorkFlowy text in Nodes
 				function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
@@ -561,12 +543,12 @@ var popup2 = (function() {
 				var profileList = result.profileList;
 				if(profileList == null){
 					profileList = {
-						"list" : new Profile("text", "None", "", "\t", "\n", false, false, false, true, false, []),
-						"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
-						"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
-						"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, false, true, true, []),
-						"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, false, true, true, []),
-						"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, false, true, true, [])
+						"list" : new Profile("text", "None", "", "\t", "\n", false, false, true, false, []),
+						"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+						"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+						"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, []),
+						"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+						"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [])
 					};
 					chrome.storage.sync.set({'profileList' : profileList}, function() {
 						console.log("profileList init");

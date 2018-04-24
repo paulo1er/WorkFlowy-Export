@@ -1,6 +1,6 @@
 var exportLib = (function() {
 	// private method
-	var hasChild, getElement, toc2, exportNodesTree, exportNodesTreeBody;
+	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
 	var wfe_count_ID={};
 	var TABLE_REGEXP = /^\s*\|/;
@@ -848,10 +848,6 @@ var exportLib = (function() {
 
 
 	return {
-		// public method
-		// options -> {outputNotes: outputToc: outputHeadingLink}
-
-
 
 
 		toMyText: function(my_nodes, options) {
