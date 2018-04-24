@@ -12,18 +12,26 @@ var popup2 = (function() {
 
 
 
-	function load(tabsId, callback) {
+	function load(currentTabId, callback) {
 
 		chrome.tabs.onRemoved.addListener(
-			function(closedTabId, removeInfo) {
-			  console.log("Tab: " + closedTabId + " is closing");
-					if(closedTabId==tabsId) {
+			function(tabId, removeInfo) {
+					if(tabId==currentTabId) {
 						window.close();
 					}
-			});
+			}
+		);
+
+    chrome.tabs.onUpdated.addListener(
+			function(tabId, changeInfo, tab){
+				if(tabId==currentTabId && tab.url.indexOf("https://workflowy.com")!=0) {
+					window.close();
+				}
+    	}
+		);
 
 
-		chrome.tabs.sendMessage(tabsId, {
+		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
 			chrome.storage.sync.get(['profileList', 'profileName'], function(result) {
@@ -133,15 +141,6 @@ var popup2 = (function() {
 							console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 						});
 					}
-				}
-
-				function updateTextSaveUpdate(){
-					var nameProfile =	document.getElementById("nameProfile").value;
-					if(nameProfile!=''){
-						if(profileList.hasOwnProperty(nameProfile))document.getElementById("saveProfile").innerHTML = "<span>Update Profile</span>";
-						else document.getElementById("saveProfile").innerHTML = "<span>New Profile</span>";
-					}
-					else document.getElementById("saveProfile").innerHTML = "<span></span>";
 				}
 
 				//delete a preset of option
@@ -340,7 +339,7 @@ var popup2 = (function() {
 						}
 						else{
 							loading(function(callback){
-								chrome.tabs.sendMessage(tabsId, {
+								chrome.tabs.sendMessage(currentTabId, {
 									request: 'getTopic'
 								}, function(response) {
 										g_nodes = response.content;
@@ -364,7 +363,6 @@ var popup2 = (function() {
 
 					document.getElementById("newProfile").addEventListener("click", function() {
 						newProfile();
-						updateTextSaveUpdate();
 					}, false);
 
 					document.getElementById("saveProfile").addEventListener("click", function() {
@@ -385,10 +383,6 @@ var popup2 = (function() {
 							exportText();
 							callback();
 						});
-					};
-
-					document.getElementById("nameProfile").onchange=function(){
-						updateTextSaveUpdate();
 					};
 
 					document.getElementById("copy").addEventListener("click", function() {
@@ -620,9 +614,9 @@ var popup2 = (function() {
 	}
 
 	return{
-		main : function(tabsId) {
+		main : function(currentTabId) {
 			loading(function(callback){
-				load(tabsId, callback);
+				load(currentTabId, callback);
 			});
 		}
 	}
