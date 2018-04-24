@@ -65,7 +65,7 @@ var exportLib = (function() {
 			return str;
 		}
 	};
-	function Style(Id, aligement=null, indentation_first_line=NaN, indentation_left=NaN, indentation_right=NaN, spacing_before=NaN, spacing_after=NaN, font=null, font_size=NaN, bold=NaN, italic=NaN, underline=NaN, color=null, background_color=null, before="", after="") {
+	function Style(Id, aligement=null, indentation_first_line=NaN, indentation_left=NaN, indentation_right=NaN, spacing_before=NaN, spacing_after=NaN, font=null, font_size=NaN, bold=NaN, italic=NaN, underline=NaN, color=null, background_color=null, level=-1, before="", after="") {
 		this.Id = Id;
 		this.aligement = aligement;
 		this.indentation_first_line = indentation_first_line;
@@ -82,6 +82,7 @@ var exportLib = (function() {
 		this.background_color = background_color;
 		this.before=before;
 		this.after=after;
+		this.level=level;
 		this.toRTFstr = function(){
 			var str = this.before+
 							"\\s"+this.Id+
@@ -124,26 +125,26 @@ var exportLib = (function() {
 	};
 	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li","li","li","li","li","li","li","li","li","li","li","li"];
 	var STYLESHEET={
-		Normal : new Style(0,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",32,true,false,false,"Black","White"),
-		Heading2 : new Style(2,"left",0,0,0,0,10,"Arial",28,true,false,false,"Black","White"),
-		Heading3 : new Style(3,"left",0,0,0,0,10,"Arial",24,true,false,false,"Black","White"),
-		Heading4 : new Style(4,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
-		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
-		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White"),
-		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item1 : new Style(8,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item2 : new Style(9,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item3 : new Style(10,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item4 : new Style(11,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item5 : new Style(12,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Item6 : new Style(13,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Enumeration1 : new Style(14,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Enumeration2 : new Style(15,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Enumeration3 : new Style(16,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Enumeration4 : new Style(17,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Enumeration5 : new Style(18,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
-		Enumeration6 : new Style(19,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White"),
+		Normal : new Style(0,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",-1),
+		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",32,true,false,false,"Black","White",1),
+		Heading2 : new Style(2,"left",0,0,0,0,10,"Arial",28,true,false,false,"Black","White",2),
+		Heading3 : new Style(3,"left",0,0,0,0,10,"Arial",24,true,false,false,"Black","White",3),
+		Heading4 : new Style(4,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White",4),
+		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White",5),
+		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White",6),
+		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",-1),
+		Item1 : new Style(8,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",1),
+		Item2 : new Style(9,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",2),
+		Item3 : new Style(10,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",3),
+		Item4 : new Style(11,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",4),
+		Item5 : new Style(12,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",5),
+		Item6 : new Style(13,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",6),
+		Enumeration1 : new Style(14,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",1),
+		Enumeration2 : new Style(15,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",2),
+		Enumeration3 : new Style(16,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",3),
+		Enumeration4 : new Style(17,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",4),
+		Enumeration5 : new Style(18,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",5),
+		Enumeration6 : new Style(19,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",6),
 		toRTFstr : function(){
 			var str = "{\\stylesheet";
 			for(var key in this){
@@ -175,9 +176,9 @@ var exportLib = (function() {
 
 	var ESCAPE_CHARACTER = {
 			text: [["",""]],
-			md: [["",""]],
+			markdown: [["\\","\\\\"],["`","\\`"],["*","\\*"],["_","\\_"],["{","\\{"],["}","\\}"],["[","\\["],["]","\\]"],["(","\\("],[")","\\)"],["#","\\#"],["+","\\+"],["-","\\-"],[".","\\."],["!","\\!"]],
 			html: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
-			LaTeX: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
+			latex: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			beamer: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			opml: [["",""]],
 			rtf: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
@@ -309,9 +310,9 @@ var exportLib = (function() {
 
 		var HEADER = {
 			text: "",
-			md: "",
+			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
-			LaTeX: "",
+			latex: "",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
@@ -321,9 +322,9 @@ var exportLib = (function() {
 		};
 		var FOOTER = {
 			text: "",
-			md: "",
+			markdown: "",
 			html: "  </body>\n</html>",
-			LaTeX: "",
+			latex: "",
 			beamer: "",
 			opml: "  </body>\n</opml>",
 			rtf: "}"
@@ -546,7 +547,6 @@ var exportLib = (function() {
 
 
 			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
-			if(options.format == 'text' && options.indent_chars!="" && level>0) indent = indent + options.indent_chars + " ";
 
 			// Only process item if no rule specifies ignoring it
 			if (!ignore_item && !ignore_outline) {
@@ -619,14 +619,12 @@ var exportLib = (function() {
 
 				// Update output
 				if(options.format == 'markdown'){
-
-					if(options.defaultItemStyle=="Bullet")
-						if(level==0) indent = "# ";
-						else indent = "\t".repeat(level-1) + "* ";
-					else if(styleName=="Heading"+level)
-						indent = "#".repeat(level+1) + " ";
-					else if(styleName=="Item1")
-						indent = "* ";
+					if(styleName.includes("Item"))
+						indent = "\t".repeat(nodesStyle["level"]-1) + "* ";
+					else if(styleName.includes("Enumeration"))
+						indent = "\t".repeat(nodesStyle["level"]-1) + counter_enumeration[nodesStyle["level"]-1]+". ";
+					else if(styleName.includes("Heading"))
+						indent = "#".repeat(nodesStyle["level"]) + " ";
 					else
 						indent = "";
 
@@ -783,9 +781,9 @@ var exportLib = (function() {
 				}
 				else {
 					if (styleName.includes("Item"))
-						output = output + indent + "• " + text;
+						output = output + indent + options.indent_chars + " " + text;
 					else if (styleName.includes("Heading"))
-						output = output + indent + text + "\n" + indent + ("─".repeat(text.length));
+						output = output + indent + text + "\n";
 					else if (styleName.includes("Enumeration"))
 						output = output + indent + counter_enumeration[styleName[11]-1]+ " " + text;
 					else
