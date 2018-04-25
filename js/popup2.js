@@ -90,7 +90,12 @@ var popup2 = (function() {
 					curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
 					document.getElementById(curent_profile.format).checked = true;
-					document.getElementById(curent_profile.defaultItemStyle).checked = true;
+					document.getElementById(curent_profile.defaultItemStyle).checked = true
+					if(curent_profile.defaultItemStyle == "Bullet")
+						$("#divBulletCaracter").show();
+					else
+						$("#divBulletCaracter").hide();
+
 
 					document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
 					document.getElementById("outputNotes").checked = curent_profile.outputNotes;
@@ -351,6 +356,13 @@ var popup2 = (function() {
 					document.getElementById("close").addEventListener("click", function() {
 						window.close();
 					}, false);
+
+					$('input[type=radio][name=defaultItemStyle]').change("change", function() {
+						if($("#Bullet").is(':checked'))
+							$("#divBulletCaracter").show();
+						else
+							$("#divBulletCaracter").hide();
+					});
 
 					document.getElementById("addFindReplace").addEventListener("click", function() {
 						addFindReplace();
