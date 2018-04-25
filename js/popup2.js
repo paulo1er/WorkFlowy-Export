@@ -90,7 +90,23 @@ var popup2 = (function() {
 					curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
 					document.getElementById(curent_profile.format).checked = true;
-					document.getElementById(curent_profile.defaultItemStyle).checked = true;
+					if($("#opml").is(':checked')){
+						$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+						$("#None").prop("checked", true);
+						$("#divBulletCaracter").hide();
+						$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+					}
+					else{
+						$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+						$("[name=TxtDefaultItemStyle]").css('color', '');
+					}
+
+					document.getElementById(curent_profile.defaultItemStyle).checked = true
+					if($("#Bullet").is(':checked'))
+						$("#divBulletCaracter").show();
+					else
+						$("#divBulletCaracter").hide();
+
 
 					document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
 					document.getElementById("outputNotes").checked = curent_profile.outputNotes;
@@ -305,14 +321,10 @@ var popup2 = (function() {
 					var $textArea = $('#textArea');
 					text = exportLib.toMyText(g_my_nodes, curent_profile);
 					$textArea.val(text);
-			    var comment_lines = text.split('\n');
-			    $("#line-numbers").html('');
-			    for(i = 0; i < comment_lines.length; i++) {
-			    	$("#line-numbers").html($("#line-numbers").html() + (i+1) + "\n");
-					}
 					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
+						$textArea.select();
 					});
 				};
 
@@ -351,6 +363,26 @@ var popup2 = (function() {
 					document.getElementById("close").addEventListener("click", function() {
 						window.close();
 					}, false);
+
+					$('input[type=radio][name=defaultItemStyle]').change("change", function() {
+						if($("#Bullet").is(':checked'))
+							$("#divBulletCaracter").show();
+						else
+							$("#divBulletCaracter").hide();
+					});
+
+					$('input[type=radio][name=formatOptions]').change("change", function() {
+						if($("#opml").is(':checked')){
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+							$("#None").prop("checked", true);
+							$("#divBulletCaracter").hide();
+							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+						}
+						else{
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+							$("[name=TxtDefaultItemStyle]").css('color', '');
+						}
+					});
 
 					document.getElementById("addFindReplace").addEventListener("click", function() {
 						addFindReplace();
@@ -551,7 +583,7 @@ var popup2 = (function() {
 							"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
 							"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
 							"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, []),
-							"OPML" : new Profile("opml", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
+							"OPML" : new Profile("opml", "None", "", "\t", "\n", true, false, true, true, []),
 							"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [])
 						};
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
