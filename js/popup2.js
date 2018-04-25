@@ -324,6 +324,7 @@ var popup2 = (function() {
 					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
+						$textArea.select();
 					});
 				};
 
