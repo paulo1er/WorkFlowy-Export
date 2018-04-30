@@ -319,7 +319,7 @@ var popup2 = (function() {
 
 					console.log("##################### Export the page with profile", curent_profile);
 					var $textArea = $('#textArea');
-					text = exportLib.toMyText(g_my_nodes, curent_profile);
+					text = exportLib(g_my_nodes, curent_profile);
 					$textArea.val(text);
 					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
