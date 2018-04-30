@@ -500,7 +500,7 @@ var exportLib = function(my_nodes, options, email) {
 		options.page_break = false;
 
 		// Create header text
-		header = HEADER[options.format];
+		if(is_document) header = HEADER[options.format];
 
 		console.log("header", header, nodes[index].type);
 		console.log("STYLESHEET",STYLESHEET.Normal);
@@ -508,7 +508,7 @@ var exportLib = function(my_nodes, options, email) {
 		body = exportNodesTreeBody(nodes, index, level, options);
 
 		// Create footer text
-		footer = FOOTER[options.format];
+		if(is_document) footer = FOOTER[options.format];
 
 		wfe_count={};
 		wfe_count_ID={};
