@@ -48,6 +48,31 @@ var popup2 = (function() {
 				  return output;
 				}
 
+				function download(filename, text) {
+				  var element = document.createElement('a');
+				  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+				  element.setAttribute('download', filename);
+
+				  element.style.display = 'none';
+				  document.body.appendChild(element);
+
+				  element.click();
+
+				  document.body.removeChild(element);
+				}
+
+				function extensionFileName(format){
+					switch(format){
+						case "html" : return ".html";
+						case "opml" : return ".opml";
+						case "markdown" : return ".md";
+						case "rtf" : return ".rtf";
+						case "latex" : return ".tex";
+						case "beamer" : return ".tex";
+						default : return ".txt";
+					}
+				}
+
 				function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace){
 					this.format = format,
 					this.defaultItemStyle = defaultItemStyle,
@@ -321,6 +346,7 @@ var popup2 = (function() {
 					var $textArea = $('#textArea');
 					text = exportLib(g_my_nodes, curent_profile, g_email);
 					$textArea.val(text);
+					$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
@@ -415,6 +441,13 @@ var popup2 = (function() {
 
 					document.getElementById("copy").addEventListener("click", function() {
 						copyToClipboard();
+					}, false);
+
+					document.getElementById("download").addEventListener("click", function() {
+						console.log("TTTTTT", $("#fileName").text());
+						if($("#fileName").text() != ""){
+							download($("#fileName").text(), $("#textArea").val());
+						}
 					}, false);
 
 					document.getElementById("resetProfile").addEventListener("click", function() {

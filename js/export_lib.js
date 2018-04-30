@@ -700,7 +700,6 @@ var exportLib = function(my_nodes, options, email) {
 			  			note = note.split(e[0]).join(e[1]);
 					});
 
-				console.log("TTTT", textList);
 				text = textListToText(textList);
 
 				// Update output
