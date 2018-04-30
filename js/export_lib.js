@@ -385,6 +385,81 @@ var exportLib = function(my_nodes, options, email) {
 		return temp_regexFind;
 	}
 
+	var regexCode=/`([^`]*)`/g;
+	function Code(text){
+		this.text=text;
+		this.toString = function(format = "text"){
+			switch(format){
+				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
+				case "rtf" : return "{\\f2\\cf4\\highlight5 "+this.text+"}"
+				default : return "`"+this.text+"`";
+			}
+		}
+	}
+
+	var regexImage = /!\[([^\]]*)\]\(([^\)]*)\)/g;
+	function Image(text, link){
+		this.link=link;
+		this.text=text;
+		this.toString = function(format = "text"){
+			switch(format){
+				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">"+this.text+"</span>";
+				case "text" : return this.text + " : " +  this.link;
+				case "rtf" : return this.toString("text"); //TODO
+				case "beamer" : return "\\begin{figure}[t]\\includegraphics["+this.text+"]{"+this.link+"}\\centering \\end{figure}";
+				default : return "!["+this.text+"]("+this.link+")";
+			}
+		}
+	}
+
+	var regexLink = /\[([^\]]*)\]\(([^\)]*)\)/g;
+	function Link(text, link){
+		this.link=link;
+		this.text=text;
+		this.toString = function(format = "text"){
+			switch(format){
+				case "html" : return "<a href=\""+this.link+"\" target=\"_blank\">"+this.text+"</a>";
+				case "text" : return this.text + " : " +  this.link;
+				case "rtf" : return "{\\field{\\*\\fldinst HYPERLINK "+this.link+" }{\\fldrslt\\cf3\\ul "+this.text+"}}";
+				case "beamer" : return "\\href{"+this.link+"}{"+this.text+"}";
+				default : return "["+this.text+"]("+this.link+")";
+			}
+		}
+	}
+
+	function insertObj(textList, regex, Obj){
+		var result = [];
+	  textList.forEach(function(text){
+	    	if(typeof text == "string"){
+	        var match = regex.exec(text);
+	        var i_prev = 0;
+	        while(match!=null){
+	          var i = match.index;
+	          if(i!=i_prev) result.push(text.slice(i_prev, i));
+	          i_prev= regex.lastIndex;
+	          result.push(new Obj(...match.slice(1)));
+	          match = regex.exec(text);
+	        }
+	        if(text.length!=i_prev) result.push(text.slice(i_prev, text.length));
+	      }
+	      else{
+	      	result.push(text);
+	      }
+	  	});
+		return result;
+	}
+
+	function textListToText(textList){
+		var result = "";
+		textList.forEach(function(text){
+	    if(typeof text == "string")
+				result += text;
+			else
+				result += text.toString(options.format);
+		});
+		return result;
+	}
+
 	exportNodesTree = function(nodes, index, level, options) {
 		var header = "";
 		var body = "";
@@ -448,9 +523,8 @@ var exportLib = function(my_nodes, options, email) {
 		var output_after_children = "";
 		var children_level;
 		var text = "";
+		var textList = [];
 		var note = "";
-		var textTag=[""];
-		var configTag=[""];
 		var output_children;
 
 		if(options.defaultItemStyle=="Bullet" && level>6) level=6;
@@ -490,14 +564,14 @@ var exportLib = function(my_nodes, options, email) {
 		if(nodes[index].title != null){
 			// Not a dummy node
 
-			text = nodes[index].title;
+			textList.push(nodes[index].title);
 			note = nodes[index].note;
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
 				console.log("#F&R",e);
 				if(e!=null){
-					text = text.replace(e.regexFind, e.txtReplace);
+					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(e.regexFind, e.txtReplace)});
 				}
 			});
 
@@ -506,42 +580,46 @@ var exportLib = function(my_nodes, options, email) {
 				// Assign new rules from WFE-tags in item
 
 				ALIAS.forEach(function(e) {
-						text = text.split(e[1]).join(e[0]);
+						textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[1]).join(e[0])});
 				});
 
-				text = text.replace(WFE_TAG_REGEXP, function(e,$1,$2){
-					var wfe = new WFE($1,$2);
-					return wfe.toString();
+				textList.forEach(function(subText, i){
+					if(typeof subText=="string"){
+						textList[i] = textList[i].replace(WFE_TAG_REGEXP, function(e,$1,$2){
+							var wfe = new WFE($1,$2);
+							return wfe.toString();
+						});
+					}
 				});
 
 				// bullets https://stackoverflow.com/questions/15367975/rtf-bullet-list-example
 				if (options.format == 'beamer'){
-		 			if (text.search(/#h4($|\s)/ig) != -1)
+		 			if (textList[0].search(/#h4($|\s)/ig) != -1)
 					{
 						console.log('#h4 found');
 						level = 1;
 					}
-					if (text.search(/#slide($|\s)/ig) != -1)
+					if (textList[0].search(/#slide($|\s)/ig) != -1)
 					{
 						console.log('#slide found');
 						level = frame_level;
 					}
-					if (text.search(/#section($|\s)/ig) != -1)
+					if (textList[0].search(/#section($|\s)/ig) != -1)
 					{
 						console.log('#section found');
 						level = section_level;
 					}
-					if (text.search(/#subsection($|\s)/ig) != -1)
+					if (textList[0].search(/#subsection($|\s)/ig) != -1)
 					{
 						console.log('#subsection found');
 						level = subsection_level;
 					}
 				}
 
-				//
-				// marks
-				//console.log('matching marks');
-				//text = text.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
+				textList=insertObj(textList, regexCode, Code);
+				textList=insertObj(textList, regexImage, Image);
+				textList=insertObj(textList, regexLink, Link);
+
 			}
 
 
@@ -602,7 +680,7 @@ var exportLib = function(my_nodes, options, email) {
 					break;
 			}
 
-			console.log('Finished processing rules:', text, options.ignore_item);
+			console.log('Finished processing rules:', textList, options.ignore_item);
 
 
 			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
@@ -610,22 +688,20 @@ var exportLib = function(my_nodes, options, email) {
 			// Only process item if no rule specifies ignoring it
 			if (!options.ignore_item && !options.ignore_outline) {
 
-				console.log('Process item:', text, options.ignore_item);
-
 				if (options.ignore_tags) {
 					// Strip off tags
-					text = text.replace(WF_TAG_REGEXP, "");
+					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(WF_TAG_REGEXP, "")});
 					note = note.replace(WF_TAG_REGEXP, "");
-					text = text.replace(/(^|\s|,|:|;|.)(#|@) /ig, "$1$2");
-					note = note.replace(/(^|\s|,|:|;|.)(#|@) /ig, "$1$2");
-					//console.log('regexp' + myArray, 'replced:', text);
 				}
 
 				if(options.escapeCharacter)
 					ESCAPE_CHARACTER[options.format].forEach(function(e) {
-	  					text = text.split(e[0]).join(e[1]);
+	  					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[0]).join(e[1])});
 			  			note = note.split(e[0]).join(e[1]);
 					});
+
+				console.log("TTTT", textList);
+				text = textListToText(textList);
 
 				// Update output
 				if(options.format == 'markdown'){
@@ -642,14 +718,7 @@ var exportLib = function(my_nodes, options, email) {
 					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
 				}
 				else if (options.format == 'html') {
-
 					text = text.replace(/--/g, "&ndash;");
-					//Interpretation of `code`
-					text = text.replace(/`([^`]*)`/g, "<code style=\"background-color: #d3d3d3;\"> &nbsp;$1 </code>");
-					//Insert Image
-					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g, "<img src=\"$2\"  title=\"$1\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">$1</span>");
-					//Create hyperlinks
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
 					var style = nodesStyle.toHTMLstr();
 					if(style!="")style = "style=\""+style+"\"";
@@ -693,23 +762,6 @@ var exportLib = function(my_nodes, options, email) {
 							output = output + "<div class=\"page-break\"></div>";
 				}
 				else if (options.format == 'beamer'){
-
-					// Create images
-					console.log('check for images ');
-					// First replace with optional {: } syntax
-					text = text.replace(/\!\[(.*)\]\((.*)\)\{:(.*)\}/g, "\\begin{figure}[t]\\includegraphics[$3]{$2}\\centering \\end{figure}");
-					console.log('item now', text);
-					// Replace if this is missing
-					text = text.replace(/\!\[(.*)\]\((.*)\)/g, "\\begin{figure}[t]\\includegraphics[]{$2}\\centering \\end{figure}");  // https://regex101.com/r/vOwmQX/1    https://regex101.com/r/vOwmQX/2
-					console.log('item now', text);
-
-					// Create hyperlinks
-					console.log('check for hyperlink');
-					text = text.replace(/\[(.*)\]\((.*)\)/g, "\\href{$2}{$1}");
-					console.log('item now', text);
-
-
-
 					if (level == title_level)
 						output = output + indent + "\\title{" + text + "}";
 					else if (level == section_level)
@@ -777,10 +829,6 @@ var exportLib = function(my_nodes, options, email) {
 
 
 					text = text.replace(/--/g, "\\endash ");
-					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf4\\highlight5 $1}");
-					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt\\cf3\\ul $1}}");
-					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt\\cf3\\ul $1}}");//URL in note
 
 					output = output + "{\\pard" + nodesStyle.toRTFstr() + "{" + text + "}\\par}";
 
