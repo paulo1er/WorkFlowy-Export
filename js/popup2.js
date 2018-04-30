@@ -30,10 +30,10 @@ var popup2 = (function() {
     	}
 		);
 
-
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
+			console.log("TTTT",response);
 			chrome.storage.sync.get(['profileList', 'profileName'], function(storage) {
 				//return a copy of an object (recursif)
 				try{
@@ -317,9 +317,9 @@ var popup2 = (function() {
 				//export the nodes in the textArea in the popup
 				function exportText(){
 
-					console.log("##################### Export the page with profile", curent_profile);
+					console.log("##################### Export the page with profile", curent_profile, g_email);
 					var $textArea = $('#textArea');
-					text = exportLib(g_my_nodes, curent_profile);
+					text = exportLib(g_my_nodes, curent_profile, g_email);
 					$textArea.val(text);
 					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
@@ -353,6 +353,7 @@ var popup2 = (function() {
 										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 										g_title = response.title;
 									 	g_url = response.url;
+										g_email= response.email;
 										exportText();
 										callback();
 								});
@@ -612,6 +613,7 @@ var popup2 = (function() {
 				var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 				var g_title = response.title;
 				var g_url = response.url;
+				var g_email= response.email;
 
 				exportText();
 				setEventListers();

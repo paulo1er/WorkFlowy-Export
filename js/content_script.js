@@ -10,7 +10,7 @@
 		var i,j;
 		var text;
 		//var e = [node];
-		
+
 		//var e = node.querySelectorAll('div.addedToSelection div.project div.name, div.addedToSelection div.project div.notes, div.addedToSelection div.children div.childrenEnd, div.addedToSelection+div.childrenEnd, div.addedToSelection div.name, div.addedToSelection div.notes');
 		// HTML of an item is as follows:
 		//
@@ -24,13 +24,13 @@
 		if (text.textContent.length > 1) {
 		  list.push({title: text.textContent.replace(/\n+$/g,''), type: 'note', children: []});
 		} */
-		
+
 		//var e = node.querySelectorAll('div.project div.name, div.project div.notes, div.children div.childrenEnd');
 		//var e = node.querySelectorAll('div.addedToSelection div.project div.name, div.addedToSelection div.project div.notes, div.addedToSelection div.children div.childrenEnd, div.addedToSelection+div.childrenEnd, div.addedToSelection div.name, div.addedToSelection div.notes');
 		console.log(e);
-		for (i = 0; i < e.length; i++) 
+		for (i = 0; i < e.length; i++)
 		{
-			
+
 			console.log('n loop', e[i], 'child 0');
 			console.log(e[i].children);
 			text = e[i].children[0].children[1];
@@ -49,14 +49,14 @@
 				children: []
 			});
 /* 			if (e[i].matches('div.childrenEnd')) {
-				
+
 				console.log(list[list.length - 1]);
 			} else {
 				text = e[i].getElementsByClassName("content")[0];
 				if (e[i].className.match('notes') && text.textContent.length > 1) {
 
 					console.log(list[list.length - 1]);
-				} else if 
+				} else if
 					console.log(list[list.length - 1]);
 				}
 			} */
@@ -98,7 +98,7 @@
 		//list.push("mono");
 		console.log(e[0].parentNode);
 		//return [];
-		
+
 		for (var i = 0; i < e.length; i++) {
 			if (e[i].matches('div.childrenEnd')) {
 				list.push({
@@ -128,7 +128,7 @@
 		return list; //arrayToTree(list, "    ", "    ");
 	}
 
-	
+
 	function setCSS(css) {
 		if (document.head) {
 			var style = document.createElement("style");
@@ -385,25 +385,26 @@
 	}
 
 	function setupTopicNavi() {
-		//$('#navigationBar').hover(function () { refreshTopicNavi();}, function() {}); EP -- this and the change in line 298 (main) seems to disable the navigation bar popping up 
+		//$('#navigationBar').hover(function () { refreshTopicNavi();}, function() {}); EP -- this and the change in line 298 (main) seems to disable the navigation bar popping up
 	}
 
 	function getContent(callback) {
 		var url = location.href;
 		var title = document.title;
-		
+
 		var nodeList = document.querySelectorAll('div.addedToSelection');
 		if (nodeList.length==0)
 		{
 			nodeList = [document.querySelector('div.selected')];
 		}
-		console.log('*******', nodeList);
-		
+		var email = document.getElementById("userEmail").innerText;
 		var content = elementsToArray(nodeList);
+		console.log('*******', nodeList, email);
 		callback({
 			content: content,
 			url: url,
-			title: title
+			title: title,
+			email: email
 		});
 	}
 

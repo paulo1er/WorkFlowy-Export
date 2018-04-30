@@ -1,4 +1,4 @@
-var exportLib = function(my_nodes, options) {
+var exportLib = function(my_nodes, options, email) {
 	// private method
 	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
@@ -6,7 +6,7 @@ var exportLib = function(my_nodes, options) {
 	var TABLE_REGEXP = /^\s*\|/;
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
-	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
+	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[0,0,0,0,0,0];
@@ -161,8 +161,11 @@ var exportLib = function(my_nodes, options) {
 			else if(value.toUpperCase()=="DARKGREY") nodesStyle[property] = "DarkGrey";
 			else if(value.toUpperCase()=="LIGHTGREY") nodesStyle[property] = "LightGrey";
 			return "";
-		}
+		},
 
+		"wfe-email": function(){
+			return email;
+		}
 	}
 
 	var ALIAS=[
