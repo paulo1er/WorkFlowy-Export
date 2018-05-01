@@ -30,10 +30,10 @@ var popup2 = (function() {
     	}
 		);
 
-
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
+			console.log("TTTT",response);
 			chrome.storage.sync.get(['profileList', 'profileName'], function(storage) {
 				//return a copy of an object (recursif)
 				try{
@@ -46,6 +46,31 @@ var popup2 = (function() {
 				    output[key] = (typeof v === "object" && v !== null) ? copy(v) : v;
 				  }
 				  return output;
+				}
+
+				function download(filename, text) {
+				  var element = document.createElement('a');
+				  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+				  element.setAttribute('download', filename);
+
+				  element.style.display = 'none';
+				  document.body.appendChild(element);
+
+				  element.click();
+
+				  document.body.removeChild(element);
+				}
+
+				function extensionFileName(format){
+					switch(format){
+						case "html" : return ".html";
+						case "opml" : return ".opml";
+						case "markdown" : return ".md";
+						case "rtf" : return ".rtf";
+						case "latex" : return ".tex";
+						case "beamer" : return ".tex";
+						default : return ".txt";
+					}
 				}
 
 				function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace){
@@ -317,10 +342,11 @@ var popup2 = (function() {
 				//export the nodes in the textArea in the popup
 				function exportText(){
 
-					console.log("##################### Export the page with profile", curent_profile);
+					console.log("##################### Export the page with profile", curent_profile, g_email);
 					var $textArea = $('#textArea');
-					text = exportLib.toMyText(g_my_nodes, curent_profile);
+					text = exportLib(g_my_nodes, curent_profile, g_email);
 					$textArea.val(text);
+					$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 					$("#popupTitle").text(g_title);
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
@@ -353,6 +379,7 @@ var popup2 = (function() {
 										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 										g_title = response.title;
 									 	g_url = response.url;
+										g_email= response.email;
 										exportText();
 										callback();
 								});
@@ -414,6 +441,13 @@ var popup2 = (function() {
 
 					document.getElementById("copy").addEventListener("click", function() {
 						copyToClipboard();
+					}, false);
+
+					document.getElementById("download").addEventListener("click", function() {
+						console.log("TTTTTT", $("#fileName").text());
+						if($("#fileName").text() != ""){
+							download($("#fileName").text(), $("#textArea").val());
+						}
 					}, false);
 
 					document.getElementById("resetProfile").addEventListener("click", function() {
@@ -612,6 +646,7 @@ var popup2 = (function() {
 				var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 				var g_title = response.title;
 				var g_url = response.url;
+				var g_email= response.email;
 
 				exportText();
 				setEventListers();

@@ -1,4 +1,4 @@
-var exportLib = (function() {
+var exportLib = function(my_nodes, options, email) {
 	// private method
 	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
@@ -6,10 +6,167 @@ var exportLib = (function() {
 	var TABLE_REGEXP = /^\s*\|/;
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
-	var WF_TAG_REGEXP = /((^|\s|,|:|;|.)(#|@)[a-z][a-z0-9\-_:]*)/ig;
+	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
+	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[0,0,0,0,0,0];
 	var previus_styleName=null;
+	var styleName="default";
+	var nodesStyle;
+
+
+	function WFE(name, parameter=null){
+		this.name = name;
+		this.parameter = (parameter==null) ? null : parameter.split(":");
+		this.toString = function(){
+			if(typeof WFE_FUNCTION["wfe-"+this.name] == "function"){
+				var args = this.parameter;
+				return WFE_FUNCTION["wfe-"+this.name].apply( this, args );
+			}
+			return "no function define for this tag";
+		}
+	}
+	var WFE_FUNCTION = {
+		"wfe-testLog": function(p1="A",p2="B",p3="C"){
+			return p1+p2+p3;
+		},
+		"wfe-count": function(name_counter="", name_item="", init=null){
+			if(init && !isNaN(init)) wfe_count[name_counter]=parseInt(init)-1;
+			if(!wfe_count[name_counter])
+				wfe_count[name_counter]=0;
+			  wfe_count[name_counter]++;
+			if(name_item)
+		 		wfe_count_ID[name_counter+":"+name_item]=wfe_count[name_counter];
+			return wfe_count[name_counter];
+		},
+		"wfe-refLast": function(name_counter=""){
+			if(wfe_count[name_counter])
+				return wfe_count[name_counter];
+			return "NaN";
+		},
+		"wfe-ref": function(name_counter="", name_item=""){
+			if(wfe_count_ID[name_counter+":"+name_item])
+				return wfe_count_ID[name_counter+":"+name_item];
+			return "NaN";
+		},
+		"wfe-ignore-tags": function(bool=true){
+			console.log('ignore-tags', bool);
+			options.ignore_tags = bool;
+			return "";
+		},
+		"wfe-ignore-item": function(bool=true){
+			console.log('ignore-item', bool);
+			options.ignore_item = bool;
+			return "";
+		},
+		"wfe-ignore-outline": function(bool=true){
+			console.log('ignore-outline', bool);
+			options.ignore_outline = bool;
+			return "";
+		},
+		"wfe-page-break": function(bool=true){
+			console.log('page break found');
+			options.page_break = bool;
+			return "";
+		},
+		"wfe-style":function(style="default"){
+			if(STYLESHEET.hasOwnProperty(style)) {
+				styleName=style;
+				if(options.format == 'html')
+					nodesStyle = new Style(STYLESHEET[styleName].Id);
+				else
+					nodesStyle = copy(STYLESHEET[styleName]);
+			}
+			return "";
+		},
+
+		"wfe-text-align":function(value=0){
+			var property ="aligement";
+			if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") nodesStyle[property] = "left";
+			else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") nodesStyle[property] = "right";
+			else if(value.toUpperCase()=="CENTER" || value.toUpperCase()=="C") nodesStyle[property] = "center";
+			else if(value.toUpperCase()=="JUSTIFIED" || value.toUpperCase()=="J") nodesStyle[property] = "justified";
+			return "";
+		},
+		"wfe-indent-first":function(value=0){
+			var property ="indentation_first_line";
+			if(!isNaN(value)) nodesStyle[property] = value;
+			return "";
+		},
+		"wfe-indent-left":function(value=0){
+			var property ="indentation_left";
+			if(!isNaN(value)) nodesStyle[property] = value;
+			return "";
+		},
+		"wfe-indent-right":function(value=0){
+			var property ="indentation_right";
+			if(!isNaN(value)) nodesStyle[property] = value;
+			return "";
+		},
+		"wfe-line-spacing-before":function(value=0){
+			var property ="spacing_before";
+			if(!isNaN(value)) nodesStyle[property] = value;
+			return "";
+		},
+		"wfe-line-spacing-after":function(value=0){
+			var property ="spacing_after";
+			if(!isNaN(value)) nodesStyle[property] = value;
+			return "";
+		},
+		"wfe-font-face":function(value="Arial"){
+			var property ="font";
+			if(value.toUpperCase()=="ARIAL") nodesStyle[property] = "Arial";
+			else if(value.toUpperCase()=="TIMES_NEW_ROMAN") nodesStyle[property] = "Times New Roman";
+			else if(value.toUpperCase()=="COURIER") nodesStyle[property] = "Courier";
+			else if(value.toUpperCase()=="SYMBOL") nodesStyle[property] = "Symbol";
+			return "";
+		},
+		"wfe-font-size":function(value=11){
+			var property ="font_size";
+			if(!isNaN(value)) nodesStyle[property] = value;
+			return "";
+		},
+		"wfe-font-weight":function(value="Normal"){
+			var property ="bold";
+			if(value.toUpperCase()=="BOLD") nodesStyle[property] = true;
+			else if(value.toUpperCase()=="NORMAL") nodesStyle[property] = false;
+			return "";
+		},
+		"wfe-font-style":function(value="Normal"){
+			var property ="italic";
+			if(value.toUpperCase()=="ITALIC") nodesStyle[property] = true;
+			else if(value.toUpperCase()=="NORMAL") nodesStyle[property] = false;
+			return "";
+		},
+		"wfe-text-decoration":function(value="Normal"){
+			var property ="underline";
+			if(value.toUpperCase()=="UNDERLINE") nodesStyle[property] = true;
+			else if(value.toUpperCase()=="NORMAL") nodesStyle[property] = false;
+			return "";
+		},
+		"wfe-font-color":function(value="Black"){
+			var property ="color";
+			if(value.toUpperCase()=="WHITE") nodesStyle[property] = "White";
+			else if(value.toUpperCase()=="BLACK") nodesStyle[property] = "Black";
+			else if(value.toUpperCase()=="BLUE") nodesStyle[property] = "Blue";
+			else if(value.toUpperCase()=="DARKGREY") nodesStyle[property] = "DarkGrey";
+			else if(value.toUpperCase()=="LIGHTGREY") nodesStyle[property] = "LightGrey";
+			return "";
+		},
+		"wfe-background":function(value="White"){
+			var property ="background_color";
+			if(value.toUpperCase()=="WHITE") nodesStyle[property] = "White";
+			else if(value.toUpperCase()=="BLACK") nodesStyle[property] = "Black";
+			else if(value.toUpperCase()=="BLUE") nodesStyle[property] = "Blue";
+			else if(value.toUpperCase()=="DARKGREY") nodesStyle[property] = "DarkGrey";
+			else if(value.toUpperCase()=="LIGHTGREY") nodesStyle[property] = "LightGrey";
+			return "";
+		},
+
+		"wfe-email": function(){
+			return email;
+		}
+	}
 
 	var ALIAS=[
 		["#wfe-style:Heading1","#h1"],
@@ -93,7 +250,7 @@ var exportLib = (function() {
 							"\\sb"+(20*Number(this.spacing_before))+
 							"\\sa"+(20*Number(this.spacing_after))+
 							"\\f"+FONTSHEET[this.font]+
-							"\\fs"+this.font_size;
+							"\\fs"+(2*this.font_size);
 			if(this.bold) str += "\\b";
 			if(this.italic) str +="\\i";
 			if(this.underline) str += "\\ul";
@@ -111,7 +268,7 @@ var exportLib = (function() {
 			if(!isNaN(this.spacing_before)) str += "margin-top: "+this.spacing_before+"px;  ";
 			if(!isNaN(this.spacing_after)) str += "margin-bottom: "+this.spacing_after+"px;  ";
 			if(this.font!=null) str += "font-family: "+this.font+";  ";
-			if(!isNaN(this.font_size)) str += "font-size: "+(this.font_size/2)+"px;  ";
+			if(!isNaN(this.font_size)) str += "font-size: "+(this.font_size)+"px;  ";
 			if(!isNaN(this.bold)){if(this.bold) str += "font-weight: bold;  "; else str += "font-weight: normal;";};
 			if(!isNaN(this.italic)){if(this.italic) str +="font-style: italic;  "; else str +="font-style: normal;  ";};
 			if(!isNaN(this.underline)){if(this.underline) str += "text-decoration: underline;  "; else str += "text-decoration: none;  ";};
@@ -125,26 +282,26 @@ var exportLib = (function() {
 	};
 	var idStyleToHTMLBalise=["p","h1","h2","h3","h4","h5","h6","p","li","li","li","li","li","li","li","li","li","li","li","li"];
 	var STYLESHEET={
-		Normal : new Style(0,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",-1),
-		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",32,true,false,false,"Black","White",1),
-		Heading2 : new Style(2,"left",0,0,0,0,10,"Arial",28,true,false,false,"Black","White",2),
-		Heading3 : new Style(3,"left",0,0,0,0,10,"Arial",24,true,false,false,"Black","White",3),
-		Heading4 : new Style(4,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White",4),
-		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White",5),
-		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",22,true,false,false,"Black","White",6),
-		Note : new Style(7,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",-1),
-		Item1 : new Style(8,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",1),
-		Item2 : new Style(9,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",2),
-		Item3 : new Style(10,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",3),
-		Item4 : new Style(11,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",4),
-		Item5 : new Style(12,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",5),
-		Item6 : new Style(13,"left",0,0,0,0,10,"Arial",22,false,false,false,"Black","White",6),
-		Enumeration1 : new Style(14,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",1),
-		Enumeration2 : new Style(15,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",2),
-		Enumeration3 : new Style(16,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",3),
-		Enumeration4 : new Style(17,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",4),
-		Enumeration5 : new Style(18,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",5),
-		Enumeration6 : new Style(19,"left", 0,0,0,0,10,"Arial",22,false,false,false,"Black","White",6),
+		Normal : new Style(0,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",-1),
+		Heading1 : new Style(1,"left",0,0,0,0,10,"Arial",16,true,false,false,"Black","White",1),
+		Heading2 : new Style(2,"left",0,0,0,0,10,"Arial",14,true,false,false,"Black","White",2),
+		Heading3 : new Style(3,"left",0,0,0,0,10,"Arial",12,true,false,false,"Black","White",3),
+		Heading4 : new Style(4,"left",0,0,0,0,10,"Arial",11,true,false,false,"Black","White",4),
+		Heading5 : new Style(5,"left",0,0,0,0,10,"Arial",11,true,false,false,"Black","White",5),
+		Heading6 : new Style(6,"left",0,0,0,0,10,"Arial",11,true,false,false,"Black","White",6),
+		Note : new Style(7,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",-1),
+		Item1 : new Style(8,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",1),
+		Item2 : new Style(9,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",2),
+		Item3 : new Style(10,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",3),
+		Item4 : new Style(11,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",4),
+		Item5 : new Style(12,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",5),
+		Item6 : new Style(13,"left",0,0,0,0,10,"Arial",11,false,false,false,"Black","White",6),
+		Enumeration1 : new Style(14,"left", 0,0,0,0,10,"Arial",11,false,false,false,"Black","White",1),
+		Enumeration2 : new Style(15,"left", 0,0,0,0,10,"Arial",11,false,false,false,"Black","White",2),
+		Enumeration3 : new Style(16,"left", 0,0,0,0,10,"Arial",11,false,false,false,"Black","White",3),
+		Enumeration4 : new Style(17,"left", 0,0,0,0,10,"Arial",11,false,false,false,"Black","White",4),
+		Enumeration5 : new Style(18,"left", 0,0,0,0,10,"Arial",11,false,false,false,"Black","White",5),
+		Enumeration6 : new Style(19,"left", 0,0,0,0,10,"Arial",11,false,false,false,"Black","White",6),
 		toRTFstr : function(){
 			var str = "{\\stylesheet";
 			for(var key in this){
@@ -210,73 +367,6 @@ var exportLib = (function() {
   	}
   	return objCopy;
 	}
-	function testProperty(property, value){
-		switch (property) {
-			case 'aligement':
-				if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") return "left";
-				else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") return "right";
-				else if(value.toUpperCase()=="CENTER" || value.toUpperCase()=="C") return "center";
-				else if(value.toUpperCase()=="JUSTIFIED" || value.toUpperCase()=="J") return "justified";
-			break;
-			case 'indentation_first_line':
-				if(!isNaN(value)) return value;
-			break;
-			case 'indentation_left':
-				if(!isNaN(value)) return value;
-			break;
-			case 'indentation_right':
-				if(!isNaN(value)) return value;
-			break;
-			case 'spacing_before':
-				if(!isNaN(value)) return value;
-			break;
-			case 'spacing_after':
-				if(!isNaN(value)) return value;
-			break;
-			case 'font':
-				if(value.toUpperCase()=="ARIAL") return "Arial";
-				else if(value.toUpperCase()=="TIMES_NEW_ROMAN") return "Times New Roman";
-				else if(value.toUpperCase()=="COURIER") return "Courier";
-				else if(value.toUpperCase()=="SYMBOL") return "Symbol";
-			break;
-			case 'font_size':
-				if(!isNaN(value)) return value;
-			break;
-			case 'bold':
-				if(value.toUpperCase()=="TRUE" || value.toUpperCase()=="Y"|| value.toUpperCase()=="YES") return true;
-				else if(value.toUpperCase()=="FALSE" || value.toUpperCase()=="N" || value.toUpperCase()=="NO") return false;
-			break;
-			case 'italic':
-				if(value.toUpperCase()=="TRUE" || value.toUpperCase()=="Y"|| value.toUpperCase()=="YES") return true;
-				else if(value.toUpperCase()=="FALSE" || value.toUpperCase()=="N" || value.toUpperCase()=="NO") return false;
-			break;
-			case 'underline':
-				if(value.toUpperCase()=="TRUE" || value.toUpperCase()=="Y"|| value.toUpperCase()=="YES") return true;
-				else if(value.toUpperCase()=="FALSE" || value.toUpperCase()=="N" || value.toUpperCase()=="NO") return false;
-			break;
-			case 'color':
-				if(value.toUpperCase()=="WHITE") return "White";
-				else if(value.toUpperCase()=="BLACK") return "Black";
-				else if(value.toUpperCase()=="BLUE") return "Blue";
-				else if(value.toUpperCase()=="DARKGREY") return "DarkGrey";
-				else if(value.toUpperCase()=="LIGHTGREY") return "LightGrey";
-			break;
-			case 'background_color':
-				if(value.toUpperCase()=="WHITE") return "White";
-				else if(value.toUpperCase()=="BLACK") return "Black";
-				else if(value.toUpperCase()=="BLUE") return "Blue";
-				else if(value.toUpperCase()=="DARKGREY") return "DarkGrey";
-				else if(value.toUpperCase()=="LIGHTGREY") return "LightGrey";
-			break;
-			case 'before':
-				return value;
-			break;
-			case 'after':
-				return value;
-			break;
-		}
-			return null;
-	}
 
 
 	//create a regular expression with txtFind isRegex and isMatchCase
@@ -293,6 +383,81 @@ var exportLib = (function() {
 		else
 			temp_regexFind = new RegExp(temp_find, "gi");
 		return temp_regexFind;
+	}
+
+	var regexCode=/`([^`]*)`/g;
+	function Code(text){
+		this.text=text;
+		this.toString = function(format = "text"){
+			switch(format){
+				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
+				case "rtf" : return "{\\f2\\cf4\\highlight5 "+this.text+"}"
+				default : return "`"+this.text+"`";
+			}
+		}
+	}
+
+	var regexImage = /!\[([^\]]*)\]\(([^\)]*)\)/g;
+	function Image(text, link){
+		this.link=link;
+		this.text=text;
+		this.toString = function(format = "text"){
+			switch(format){
+				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">"+this.text+"</span>";
+				case "text" : return this.text + " : " +  this.link;
+				case "rtf" : return this.toString("text"); //TODO
+				case "beamer" : return "\\begin{figure}[t]\\includegraphics["+this.text+"]{"+this.link+"}\\centering \\end{figure}";
+				default : return "!["+this.text+"]("+this.link+")";
+			}
+		}
+	}
+
+	var regexLink = /\[([^\]]*)\]\(([^\)]*)\)/g;
+	function Link(text, link){
+		this.link=link;
+		this.text=text;
+		this.toString = function(format = "text"){
+			switch(format){
+				case "html" : return "<a href=\""+this.link+"\" target=\"_blank\">"+this.text+"</a>";
+				case "text" : return this.text + " : " +  this.link;
+				case "rtf" : return "{\\field{\\*\\fldinst HYPERLINK "+this.link+" }{\\fldrslt\\cf3\\ul "+this.text+"}}";
+				case "beamer" : return "\\href{"+this.link+"}{"+this.text+"}";
+				default : return "["+this.text+"]("+this.link+")";
+			}
+		}
+	}
+
+	function insertObj(textList, regex, Obj){
+		var result = [];
+	  textList.forEach(function(text){
+	    	if(typeof text == "string"){
+	        var match = regex.exec(text);
+	        var i_prev = 0;
+	        while(match!=null){
+	          var i = match.index;
+	          if(i!=i_prev) result.push(text.slice(i_prev, i));
+	          i_prev= regex.lastIndex;
+	          result.push(new Obj(...match.slice(1)));
+	          match = regex.exec(text);
+	        }
+	        if(text.length!=i_prev) result.push(text.slice(i_prev, text.length));
+	      }
+	      else{
+	      	result.push(text);
+	      }
+	  	});
+		return result;
+	}
+
+	function textListToText(textList){
+		var result = "";
+		textList.forEach(function(text){
+	    if(typeof text == "string")
+				result += text;
+			else
+				result += text.toString(options.format);
+		});
+		return result;
 	}
 
 	exportNodesTree = function(nodes, index, level, options) {
@@ -314,7 +479,7 @@ var exportLib = (function() {
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			latex: "",
 			beamer: "",
-			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>user@gmail.com</ownerEmail>\n  </head>\n  <body>\n",
+			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEET.toRTFstr()+"\n"+
 			     COLORSHEET.toRTFstr()+"\n"+
@@ -332,9 +497,10 @@ var exportLib = (function() {
 		// Set default rules
 		options.ignore_item = false;
 		options.ignore_outline = false;
+		options.page_break = false;
 
 		// Create header text
-		header = HEADER[options.format];
+		if(is_document) header = HEADER[options.format];
 
 		console.log("header", header, nodes[index].type);
 		console.log("STYLESHEET",STYLESHEET.Normal);
@@ -342,7 +508,7 @@ var exportLib = (function() {
 		body = exportNodesTreeBody(nodes, index, level, options);
 
 		// Create footer text
-		footer = FOOTER[options.format];
+		if(is_document) footer = FOOTER[options.format];
 
 		wfe_count={};
 		wfe_count_ID={};
@@ -357,16 +523,11 @@ var exportLib = (function() {
 		var output_after_children = "";
 		var children_level;
 		var text = "";
+		var textList = [];
 		var note = "";
-		var textTag=[""];
-		var configTag=[""];
-		var ignore_item = false;
-		var ignore_outline = false;
 		var output_children;
 
 		if(options.defaultItemStyle=="Bullet" && level>6) level=6;
-		var nodesStyle;
-		var styleName;
 
 		if(((nodes[index].myType == "HEADING" && options.defaultItemStyle == "HeadingParents") || options.defaultItemStyle == "Heading") && level<6)
 			styleName = "Heading"+(level+1)
@@ -378,6 +539,10 @@ var exportLib = (function() {
 			styleName = "Normal";
 
 
+		if(options.format == 'html')
+			nodesStyle = new Style(STYLESHEET[styleName].Id);
+		else
+			nodesStyle = copy(STYLESHEET[styleName]);
 		// Create section heading LaTeX
 /* 					var title_level = 0;
 		var part_level = -1;
@@ -391,24 +556,22 @@ var exportLib = (function() {
 		var subsection_level = -1;
 		var frame_level = 1;
 		var heading = 0;
-		var page_break = false;
 
 		console.log("nodesTreeToText -- processing nodes["+index.toString()+"] = ", nodes[index].title, 'at level', level.toString());
 		console.log("options:", options);
 
-		//	if (!options.ignore_item && !options.ignore_outline) {
 
 		if(nodes[index].title != null){
 			// Not a dummy node
 
-			text = nodes[index].title;
+			textList.push(nodes[index].title);
 			note = nodes[index].note;
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
 				console.log("#F&R",e);
 				if(e!=null){
-					text = text.replace(e.regexFind, e.txtReplace);
+					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(e.regexFind, e.txtReplace)});
 				}
 			});
 
@@ -417,74 +580,48 @@ var exportLib = (function() {
 				// Assign new rules from WFE-tags in item
 
 				ALIAS.forEach(function(e) {
-						text = text.split(e[1]).join(e[0]);
+						textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[1]).join(e[0])});
 				});
 
-				if (text.search(/(^|\s)#wfe\-ignore\-tags($|\s)/ig) != -1)
-				{
-					console.log('ignore-tags found');
-					options.ignore_tags = true;
-				}
-				if (text.search(/(^|\s)#(note|wfe\-ignore\-item)($|\s)/ig) != -1)
-				{
-					console.log('ignore-item found');
-					//options.ignore_item = true;
-					ignore_item = true;
-				}
-				if (text.search(/(^|\s)#wfe\-ignore\-outline($|\s)/ig) != -1)
-				{
-					console.log('ignore-outline found');
-					ignore_outline = true; // todo: ! ? anywhere
-				}
-
-				// Match style tags
+				textList.forEach(function(subText, i){
+					if(typeof subText=="string"){
+						textList[i] = textList[i].replace(WFE_TAG_REGEXP, function(e,$1,$2){
+							var wfe = new WFE($1,$2);
+							return wfe.toString();
+						});
+					}
+				});
 
 				// bullets https://stackoverflow.com/questions/15367975/rtf-bullet-list-example
 				if (options.format == 'beamer'){
-		 			if (text.search(/#h4($|\s)/ig) != -1)
+		 			if (textList[0].search(/#h4($|\s)/ig) != -1)
 					{
 						console.log('#h4 found');
 						level = 1;
 					}
-					if (text.search(/#slide($|\s)/ig) != -1)
+					if (textList[0].search(/#slide($|\s)/ig) != -1)
 					{
 						console.log('#slide found');
 						level = frame_level;
 					}
-					if (text.search(/#section($|\s)/ig) != -1)
+					if (textList[0].search(/#section($|\s)/ig) != -1)
 					{
 						console.log('#section found');
 						level = section_level;
 					}
-					if (text.search(/#subsection($|\s)/ig) != -1)
+					if (textList[0].search(/#subsection($|\s)/ig) != -1)
 					{
 						console.log('#subsection found');
 						level = subsection_level;
 					}
 				}
 
-				if (text.search(/#wfe-page-break($|\s)/ig) != -1)
-				{
-					console.log('page break found');
-					page_break = true;
-				}
+				textList=insertObj(textList, regexCode, Code);
+				textList=insertObj(textList, regexImage, Image);
+				textList=insertObj(textList, regexLink, Link);
 
-				if (text.search(/#wfe-style:([a-zA-Z0-9]*)(?:\s|$)/ig) != -1)
-				{
-					if(STYLESHEET.hasOwnProperty(RegExp.$1)) {
-						styleName=RegExp.$1;
-					}
-				}
-				//
-				// marks
-				//console.log('matching marks');
-				//text = text.replace(/(.*\(\d\smarks\).*)/g, "$1 #bf #right"); // #todo
 			}
 
-			if(options.format == 'html')
-				nodesStyle = new Style(STYLESHEET[styleName].Id);
-			else
-				nodesStyle = copy(STYLESHEET[styleName]);
 
 			switch (styleName) {
 				case "Item1" :
@@ -543,79 +680,27 @@ var exportLib = (function() {
 					break;
 			}
 
-			console.log('Finished processing rules:', text, options.ignore_item);
+			console.log('Finished processing rules:', textList, options.ignore_item);
 
 
 			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
 
 			// Only process item if no rule specifies ignoring it
-			if (!ignore_item && !ignore_outline) {
-
-				console.log('Process item:', text, options.ignore_item);
-
-				textTag = text.match(WF_TAG_REGEXP);
-				if(textTag!=null && options.applyWFERules){
-					textTag.forEach(function(e) {
-						if(e.indexOf("#wfe-count")!=-1){
-							text = text.replace(/#wfe-count:([^|\s|,|:|;|.]*):?([^|\s|,|:|;|.]*)?:?([^|\s|,|:|;|.]*)?/g,function(){
-								if(RegExp.$3 && !isNaN(RegExp.$3)) wfe_count[RegExp.$1]=parseInt(RegExp.$3)-1;
-								if(!wfe_count[RegExp.$1])
-									wfe_count[RegExp.$1]=0;
-								  wfe_count[RegExp.$1]++;
-								if(RegExp.$2)
-							 		wfe_count_ID[RegExp.$1+":"+RegExp.$2]=wfe_count[RegExp.$1];
-								return wfe_count[RegExp.$1];
-							});
-						}
-						else if(e.indexOf("#wfe-refLast:")!=-1){
-							text = text.replace(/#wfe-refLast:([^|\s|,|:|;|.]*)/g,function(){
-								if(wfe_count[RegExp.$1])
-									return wfe_count[RegExp.$1];
-								return "NaN";
-							});
-						}
-						else if(e.indexOf("#wfe-ref:")!=-1){
-							text = text.replace(/#wfe-ref:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
-								if(wfe_count_ID[RegExp.$1+":"+RegExp.$2])
-									return wfe_count_ID[RegExp.$1+":"+RegExp.$2];
-								return "NaN";
-							});
-						}
-						else if(e.indexOf("#wfe-config:"!=-1)){
-							e = e.replace(/#wfe-config:([^|\s|,|:|;|.]*):([^|\s|,|:|;|.]*)/g,function(){
-								console.log("wfe-config : Try to change",RegExp.$1,"by the value", RegExp.$2);
-								if(nodesStyle.hasOwnProperty(RegExp.$1)){
-									var value = testProperty(RegExp.$1, RegExp.$2);
-									if(value == null){
-										console.log("wfe-config : The value",RegExp.$2,"isn't a good value for the property", RegExp.$1);
-									}
-									else{
-										nodesStyle[RegExp.$1]=value;
-										console.log("wfe-config : The property",RegExp.$1,"has now the value", value);
-									}
-								}
-								else
-									console.log("wfe-config :",RegExp.$1,"isn't a good property of a paragraph");
-								return "";
-							});
-						}
-					});
-				}
+			if (!options.ignore_item && !options.ignore_outline) {
 
 				if (options.ignore_tags) {
 					// Strip off tags
-					text = text.replace(WF_TAG_REGEXP, "");
+					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(WF_TAG_REGEXP, "")});
 					note = note.replace(WF_TAG_REGEXP, "");
-					text = text.replace(/(^|\s|,|:|;|.)(#|@) /ig, "$1$2");
-					note = note.replace(/(^|\s|,|:|;|.)(#|@) /ig, "$1$2");
-					//console.log('regexp' + myArray, 'replced:', text);
 				}
 
 				if(options.escapeCharacter)
 					ESCAPE_CHARACTER[options.format].forEach(function(e) {
-	  					text = text.split(e[0]).join(e[1]);
+	  					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[0]).join(e[1])});
 			  			note = note.split(e[0]).join(e[1]);
 					});
+
+				text = textListToText(textList);
 
 				// Update output
 				if(options.format == 'markdown'){
@@ -632,14 +717,7 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
 				}
 				else if (options.format == 'html') {
-
 					text = text.replace(/--/g, "&ndash;");
-					//Interpretation of `code`
-					text = text.replace(/`([^`]*)`/g, "<code style=\"background-color: #d3d3d3;\"> &nbsp;$1 </code>");
-					//Insert Image
-					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g, "<img src=\"$2\"  title=\"$1\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">$1</span>");
-					//Create hyperlinks
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, "<a href=\"$2\" target=\"_blank\">$1</a>");
 
 					var style = nodesStyle.toHTMLstr();
 					if(style!="")style = "style=\""+style+"\"";
@@ -679,27 +757,10 @@ var exportLib = (function() {
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p>" + note + "</p>";
 
 					output = output + options.item_sep;
-					if (page_break)
+					if (options.page_break)
 							output = output + "<div class=\"page-break\"></div>";
 				}
 				else if (options.format == 'beamer'){
-
-					// Create images
-					console.log('check for images ');
-					// First replace with optional {: } syntax
-					text = text.replace(/\!\[(.*)\]\((.*)\)\{:(.*)\}/g, "\\begin{figure}[t]\\includegraphics[$3]{$2}\\centering \\end{figure}");
-					console.log('item now', text);
-					// Replace if this is missing
-					text = text.replace(/\!\[(.*)\]\((.*)\)/g, "\\begin{figure}[t]\\includegraphics[]{$2}\\centering \\end{figure}");  // https://regex101.com/r/vOwmQX/1    https://regex101.com/r/vOwmQX/2
-					console.log('item now', text);
-
-					// Create hyperlinks
-					console.log('check for hyperlink');
-					text = text.replace(/\[(.*)\]\((.*)\)/g, "\\href{$2}{$1}");
-					console.log('item now', text);
-
-
-
 					if (level == title_level)
 						output = output + indent + "\\title{" + text + "}";
 					else if (level == section_level)
@@ -762,19 +823,15 @@ var exportLib = (function() {
 
 					if(styleName.includes("Item")){
 						nodesStyle.after="{\\pntext\\f3\\'B7\\tab}";
-							nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
+						nodesStyle.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
 					}
 
 
 					text = text.replace(/--/g, "\\endash ");
-					text = text.replace(/`([^`]*)`/g, "{\\f2\\cf4\\highlight5 $1}");
-					text = text.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g,"$2"); //TODO Insert img
-					text = text.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,"{\\field{\\*\\fldinst HYPERLINK $2 }{\\fldrslt\\cf3\\ul $1}}");
-					note = note.replace(/URL:[ ]+([^ |\n]*)/g,"{\\field{\\*\\fldinst HYPERLINK $1 }{\\fldrslt\\cf3\\ul $1}}");//URL in note
 
 					output = output + "{\\pard" + nodesStyle.toRTFstr() + "{" + text + "}\\par}";
 
-					if (page_break)
+					if (options.page_break)
 						output = output + "\\page";
 					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard" + STYLESHEET["Note"].toRTFstr() + "" + note + "\\par}";
 					output = output + "\n";
@@ -809,11 +866,12 @@ var exportLib = (function() {
 			console.log("Output: ", output);
 			// Reset item-local rules
 			options.ignore_item = false;
+			options.page_break = false;
 
 			output_children = '';
-			if (!ignore_outline) {
+			if (!options.ignore_outline) {
 				// Recursion on children
-				if ((!ignore_item) && (nodes[index].title !== null)) children_level = level + 1;
+				if ((!options.ignore_item) && (nodes[index].title !== null)) children_level = level + 1;
 				else children_level = level;
 
 				previus_styleName = styleName;
@@ -828,7 +886,7 @@ var exportLib = (function() {
 
 			output = output + output_children + output_after_children;
 
-			if (!ignore_item && !ignore_outline) {
+			if (!options.ignore_item && !options.ignore_outline) {
 				// Only finish item if no rule specifies ignoring it
 				if (options.format == 'opml')
 					output = output + indent + "</outline>\n"
@@ -842,22 +900,13 @@ var exportLib = (function() {
 				}
 			}
 			// Reset outline-local rules
-			ignore_outline = false;
+			options.ignore_outline = false;
 		return output;
 	};
 
 
-	return {
-
-
-		toMyText: function(my_nodes, options) {
-			var text = "";
-
-			console.log("Options in toMyText:", options);
-			text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options);
-			return text;
-		},
-
-
-	};
-})();
+	var text = "";
+	console.log("Options in toMyText:", options);
+	text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options);
+	return text;
+}
