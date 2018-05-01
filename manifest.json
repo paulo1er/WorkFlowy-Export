@@ -17,6 +17,15 @@
     ]
   },
 
+  "commands": {
+    "_execute_page_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      }
+    }
+  },
+
   "default_locale": "en",
 
   "content_scripts": [ {
