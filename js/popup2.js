@@ -61,6 +61,25 @@ var popup2 = (function() {
 				  document.body.removeChild(element);
 				}
 
+				function addProfileToProfileList(newProfileList){
+					var newkeys = Object.keys(newProfileList);
+					var keys = Object.keys(profileList);
+					newkeys.forEach(function(newkey){
+						if(keys.includes(newkey)){
+							var i=1;
+							while(keys.includes(newkey+" "+i)){
+								i++;
+							}
+							profileList[newkey+" "+i] = newProfileList[newkey];
+						}
+						else
+							profileList[newkey]=newProfileList[newkey];
+					});
+					updateProfileChoice();
+					chrome.storage.sync.set({'profileList' : profileList}, function() {
+					});
+				}
+
 				function extensionFileName(format){
 					switch(format){
 						case "html" : return ".html";
@@ -98,7 +117,7 @@ var popup2 = (function() {
 							documentProfileChoice.add(option);
 			    	}
 					}
-					for (var i=0; i<documentProfileChoice.options.length; i++){
+					for (var i=documentProfileChoice.options.length-1; i>=0; i--){
 						var option = documentProfileChoice.options[i];
 						var name = option.value;
 			    	if (!profileList.hasOwnProperty(name) && document.getElementById("profileList"+name)) {
@@ -444,11 +463,35 @@ var popup2 = (function() {
 					}, false);
 
 					document.getElementById("download").addEventListener("click", function() {
-						console.log("TTTTTT", $("#fileName").text());
 						if($("#fileName").text() != ""){
 							download($("#fileName").text(), $("#textArea").val());
 						}
 					}, false);
+
+					document.getElementById("downloadProfiles").addEventListener("click", function() {
+						download("profiles.json",JSON.stringify(profileList));
+					}, false);
+
+					$('#importProfile').click(function(){
+						$('#importFile').click();
+					});
+
+					$("#importFile").change(function(e) {
+						var file = document.getElementById('importFile').files[0];
+						console.log(file);
+
+						var fr = new FileReader();
+
+						fr.onload = function(e) {
+							console.log(e);
+							var result = JSON.parse(e.target.result);
+							addProfileToProfileList(result);
+							console.log(profileList);
+						}
+						fr.readAsText(file);
+						$("#importFile").val('');
+					});
+
 
 					document.getElementById("resetProfile").addEventListener("click", function() {
 						profileList = null;
@@ -470,7 +513,6 @@ var popup2 = (function() {
 					var doctype = "OUTLINE";
 					var l = nodes.length;
 					var oldestChild = start;
-
 					nodes[start].allSiblings = [start];
 					console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
 					console.log("Document type is OUTLINE");
