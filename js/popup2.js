@@ -61,13 +61,39 @@ var popup2 = (function() {
 				  document.body.removeChild(element);
 				}
 
-				var conflictProfileList=[];
-
 				function openSolverConflictProfile(newkey, newProfile){
 					console.log(newkey, newProfile);
 					$('#myModal').modal("show");
 					$("#renameNewProfile").val(newkey);
 					$("#newNameProfile").text(newkey);
+					$("#yourProfile-format").text(profileList[newkey].format);
+					$("#yourProfile-defaultItemStyle").text(profileList[newkey].defaultItemStyle);
+					if(profileList[newkey].indent_chars=="") $("#yourProfile-indent_chars").text("None");
+					else $("#yourProfile-indent_chars").text(profileList[newkey].indent_chars);
+					if(profileList[newkey].prefix_indent_chars=="\t")$("#yourProfile-prefix_indent_chars").text("tab");
+					else if(profileList[newkey].prefix_indent_chars=="  ")$("#yourProfile-prefix_indent_chars").text("space");
+					else $("#yourProfile-prefix_indent_chars").text("None");
+					$("#yourProfile-item_sep").text((profileList[newkey].item_sep.split("\n").length - 1)+" line(s) break");
+					$("#yourProfile-applyWFERules").text(profileList[newkey].applyWFERules);
+					$("#yourProfile-outputNotes").text(profileList[newkey].outputNotes);
+					$("#yourProfile-ignore_tags").text(profileList[newkey].ignore_tags);
+					$("#yourProfile-escapeCharacter").text(profileList[newkey].escapeCharacter);
+					$("#yourProfile-findReplace").text(profileList[newkey].findReplace.length!=0);
+					$("#newProfile-format").text(newProfile.format);
+					$("#newProfile-defaultItemStyle").text(newProfile.defaultItemStyle);
+					if(newProfile.indent_chars=="") $("#newProfile-indent_chars").text("None");
+					else $("#newProfile-indent_chars").text(newProfile.indent_chars);
+					if(newProfile.prefix_indent_chars=="\t")$("#newProfile-prefix_indent_chars").text("tab");
+					else if(newProfile.prefix_indent_chars=="  ")$("#newProfile-prefix_indent_chars").text("space");
+					else $("#newProfile-prefix_indent_chars").text("None");
+					$("#newProfile-item_sep").text((newProfile.item_sep.split("\n").length - 1)+" line(s) break");
+					$("#newProfile-applyWFERules").text(newProfile.applyWFERules);
+					$("#newProfile-outputNotes").text(newProfile.outputNotes);
+					$("#newProfile-ignore_tags").text(newProfile.ignore_tags);
+					$("#newProfile-escapeCharacter").text(newProfile.escapeCharacter);
+					$("#newProfile-findReplace").text(newProfile.findReplace.length!=0);
+					//$("#yourProfileTxt").html(profileToHTML(profileList[newkey]));
+					//$("#newProfileTxt").html(profileToHTML(newProfile));
 				}
 
 				function addProfileToProfileList(newProfileList){
@@ -96,6 +122,20 @@ var popup2 = (function() {
 						case "beamer" : return ".tex";
 						default : return ".txt";
 					}
+				}
+
+				function profileToHTML(profile){
+					var r = "format : "+profile.format+"<br>"+
+					"defaultItemStyle : "+profile.defaultItemStyle+"<br>"+
+					"indent_chars : "+profile.indent_chars+"<br>"+
+					"prefix_indent_chars : "+profile.prefix_indent_chars.split("\t").join("\\t")+"<br>"+
+					"item_sep : "+profile.item_sep.split("\n").join("\\n")+"<br>"+
+					"applyWFERules : "+profile.applyWFERules+"<br>"+
+					"outputNotes : "+profile.outputNotes+"<br>"+
+					"ignore_tags : "+profile.ignore_tags+"<br>"+
+					"escapeCharacter : "+profile.escapeCharacter+"<br>"+
+					"findReplace : "+profile.findReplace;
+					return r;
 				}
 
 				function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace){
@@ -736,6 +776,7 @@ var popup2 = (function() {
 				var profileList = storage.profileList;
 				var profileName_LastConnexion = storage.profileName;
 				var curent_profile = null;
+				var conflictProfileList=[];
 
 				initProfileList();
 
