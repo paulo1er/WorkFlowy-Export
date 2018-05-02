@@ -61,23 +61,29 @@ var popup2 = (function() {
 				  document.body.removeChild(element);
 				}
 
+				var conflictProfileList=[];
+
+				function openSolverConflictProfile(newkey, newProfile){
+					console.log(newkey, newProfile);
+					$('#myModal').modal("show");
+					$("#renameNewProfile").val(newkey);
+					$("#newNameProfile").text(newkey);
+				}
+
 				function addProfileToProfileList(newProfileList){
 					var newkeys = Object.keys(newProfileList);
 					var keys = Object.keys(profileList);
 					newkeys.forEach(function(newkey){
 						if(keys.includes(newkey)){
-							var i=1;
-							while(keys.includes(newkey+" "+i)){
-								i++;
-							}
-							profileList[newkey+" "+i] = newProfileList[newkey];
+							conflictProfileList.push([newkey, newProfileList[newkey]])
 						}
 						else
-							profileList[newkey]=newProfileList[newkey];
+							profileList[newkey]=copy(newProfileList[newkey]);
+							updateProfileChoice();
+								chrome.storage.sync.set({'profileList' : profileList}, function() {});
 					});
-					updateProfileChoice();
-					chrome.storage.sync.set({'profileList' : profileList}, function() {
-					});
+					if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+					console.log(conflictProfileList);
 				}
 
 				function extensionFileName(format){
@@ -394,6 +400,7 @@ var popup2 = (function() {
 								chrome.tabs.sendMessage(currentTabId, {
 									request: 'getTopic'
 								}, function(response) {
+										curent_profile = copy(profileList[document.getElementById('profileList').value]);
 										g_nodes = response.content;
 										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 										g_title = response.title;
@@ -476,6 +483,41 @@ var popup2 = (function() {
 						$('#importFile').click();
 					});
 
+
+					$('#newProfileReplace').click(function(){
+						profileList[$('#renameNewProfile').val()] = copy(conflictProfileList[0][1]);
+						updateProfileChoice();
+						chrome.storage.sync.set({'profileList' : profileList}, function() {});
+						conflictProfileList.shift();
+						if($('#applyForAllNewProfile').prop('checked')){
+							conflictProfileList.forEach(function(e){
+								profileList[e[0]] = copy(e[1]);
+							});
+							conflictProfileList = [];
+							$('#myModal').modal('hide');
+						}
+						else{
+							if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+							else $('#myModal').modal('hide');
+						}
+					});
+					$('#newProfileIgnore').click(function(){
+						conflictProfileList.shift();
+						if($('#applyForAllNewProfile').prop('checked')){
+							conflictProfileList = [];
+							$('#myModal').modal('hide');
+						}
+						else{
+							if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+							else $('#myModal').modal('hide');
+						}
+					});
+					$('#newProfileCancel').click(function(){
+						$('#myModal').modal('hide');
+						conflictProfileList = [];
+					});
+
+
 					$("#importFile").change(function(e) {
 						var file = document.getElementById('importFile').files[0];
 						console.log(file);
@@ -492,6 +534,19 @@ var popup2 = (function() {
 						$("#importFile").val('');
 					});
 
+					$("#renameNewProfile").change(function(e) {
+						if($("#renameNewProfile").val() != $("#newNameProfile").text()){
+							$("#applyForAllNewProfile").prop("checked", false);
+							$("#applyForAllNewProfile").prop("disabled", true);
+							$("#labelApplyForAllNewProfile").css('color', 'grey');
+							$("#newProfileReplace").text("Rename");
+						}
+						else{
+							$("#applyForAllNewProfile").prop("disabled", false);
+							$("#labelApplyForAllNewProfile").css('color', '');
+							$("#newProfileReplace").text("Replace");
+						}
+					});
 
 					document.getElementById("resetProfile").addEventListener("click", function() {
 						profileList = null;

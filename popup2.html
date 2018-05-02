@@ -266,6 +266,47 @@
 						<button id="saveProfile" type="button"  class="btn btn-success center-block"><span>Save</span></button>
 					</div>
 			</div>
+			<div id="myModal" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
+			    <!-- Modal content-->
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal">&times;</button>
+			        <h4 class="modal-title">Replace profile</h4>
+			      </div>
+			      <div class="modal-body">
+			        <p>One of your profile have the same name <span class="label label-primary" id="newNameProfile"></span></p>
+							<div class="container-fluid">
+								<div class="row">
+									<div class="well col-xs-12 col-sm-6 col-md-6">
+										<p>Your Profile</p>
+									</div>
+									<div class="well col-xs-12 col-sm-6 col-md-6">
+										<p>New Profile</p>
+									</div>
+								</div>
+							</div>
+							<div class="input-group">
+								<span class="input-group-addon">Rename the new profile</span>
+								<input type="text" id="renameNewProfile" class="form-control">
+							</div>
+							<div class="input-group">
+								<span class="input-group-addon">
+									<input type="checkbox" id="applyForAllNewProfile" class="form-check-input">
+								</span>
+								<label class="form-control" id="labelApplyForAllNewProfile" for="applyForAllNewProfile">Apply this action to all imported profile</label>
+							</div>
+			      </div>
+			      <div class="modal-footer">
+							<div class="btn-toolbar" role="toolbar">
+								<button id="newProfileReplace" class="btn btn-success">Replace</button>
+								<button id="newProfileIgnore" class="btn btn-warning">Ignore</button>
+								<button id="newProfileCancel" class="btn btn-danger pull-right">Cancel</button>
+							</div>
+			      </div>
+			    </div>
+			  </div>
+			</div>
 			<div class="panel-footer">
 				<div class="container">
 					<button id="close" type="button" class="btn btn-danger pull-right"><span class="locale Close">Close</span></button>
@@ -273,6 +314,7 @@
 			</div>
 		</div>
 		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="js/export_lib.js"></script>
 		<script type="text/javascript" src="js/popup2.js"></script>
 		<!--
