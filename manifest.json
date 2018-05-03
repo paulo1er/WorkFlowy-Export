@@ -23,6 +23,13 @@
         "default": "Ctrl+Shift+Y",
         "mac": "Command+Shift+Y"
       }
+    },
+    "open_workflowy": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U",
+        "mac": "Command+Shift+U"
+      },
+      "description": "Open Workflowy"
     }
   },
 

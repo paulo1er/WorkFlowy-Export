@@ -398,6 +398,7 @@
 			nodeList = [document.querySelector('div.selected')];
 		}
 		var email = document.getElementById("userEmail").innerText;
+		chrome.storage.sync.set({'lastURL' : url}, function() {});
 		var content = elementsToArray(nodeList);
 		console.log('*******', nodeList, email);
 		callback({
