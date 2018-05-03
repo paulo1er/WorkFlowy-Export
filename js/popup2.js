@@ -131,15 +131,15 @@ var popup2 = (function() {
 
 				function addProfileToProfileList(newProfileList){
 					var newkeys = Object.keys(newProfileList);
-					var keys = Object.keys(profileList);
 					newkeys.forEach(function(newkey){
+						var keys = Object.keys(profileList);
 						if(keys.includes(newkey)){
 							conflictProfileList.push([newkey, newProfileList[newkey]])
 						}
 						else
 							profileList[newkey]=copy(newProfileList[newkey]);
 							updateProfileChoice();
-								chrome.storage.sync.set({'profileList' : profileList}, function() {});
+							chrome.storage.sync.set({'profileList' : profileList}, function() {});
 					});
 					if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
 					console.log(conflictProfileList);
@@ -565,6 +565,8 @@ var popup2 = (function() {
 						if($('#applyForAllNewProfile').prop('checked')){
 							conflictProfileList.forEach(function(e){
 								profileList[e[0]] = copy(e[1]);
+								updateProfileChoice();
+								chrome.storage.sync.set({'profileList' : profileList}, function() {});
 							});
 							conflictProfileList = [];
 							$('#myModal').modal('hide');
@@ -574,6 +576,55 @@ var popup2 = (function() {
 							else $('#myModal').modal('hide');
 						}
 					});
+
+					$('#newProfileAutoRename').click(function(){
+						var i = 1;
+						var newkey = $('#renameNewProfile').val();
+						var keys = Object.keys(profileList);
+						if(keys.includes(newkey)){
+							while(keys.includes(newkey + " " + i)){
+								i++;
+							}
+							profileList[newkey + " " + i] = copy(conflictProfileList[0][1]);
+							updateProfileChoice();
+							chrome.storage.sync.set({'profileList' : profileList}, function() {});
+							conflictProfileList.shift();
+						}
+						else {
+							profileList[newkey] = copy(conflictProfileList[0][1]);
+							updateProfileChoice();
+							chrome.storage.sync.set({'profileList' : profileList}, function() {});
+							conflictProfileList.shift();
+						}
+						if($('#applyForAllNewProfile').prop('checked')){
+							conflictProfileList.forEach(function(e){
+								var i = 1;
+								var newkey = e[0];
+								var keys = Object.keys(profileList);
+								if(keys.includes(newkey)){
+									while(keys.includes(newkey + " " + i)){
+										i++;
+									}
+									profileList[newkey + " " + i] = copy(e[1]);
+									updateProfileChoice();
+									chrome.storage.sync.set({'profileList' : profileList}, function() {});
+								}
+								else {
+									profileList[newkey] = copy(e[1]);
+									updateProfileChoice();
+									chrome.storage.sync.set({'profileList' : profileList}, function() {});
+								}
+							});
+							conflictProfileList = [];
+							$('#myModal').modal('hide');
+						}
+						else{
+							if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+							else $('#myModal').modal('hide');
+						}
+
+					});
+
 					$('#newProfileIgnore').click(function(){
 						conflictProfileList.shift();
 						if($('#applyForAllNewProfile').prop('checked')){
