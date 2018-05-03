@@ -60,40 +60,73 @@ var popup2 = (function() {
 
 				  document.body.removeChild(element);
 				}
-
+				var HTML_true = '<small><i class="glyphicon glyphicon-ok"></i></small>';
+				var HTML_false = '<small><i class="glyphicon glyphicon-remove"></i></small>';
 				function openSolverConflictProfile(newkey, newProfile){
 					console.log(newkey, newProfile);
 					$('#myModal').modal("show");
 					$("#renameNewProfile").val(newkey);
 					$("#newNameProfile").text(newkey);
+
+
 					$("#yourProfile-format").text(profileList[newkey].format);
-					$("#yourProfile-defaultItemStyle").text(profileList[newkey].defaultItemStyle);
-					if(profileList[newkey].indent_chars=="") $("#yourProfile-indent_chars").text("None");
+
+					if(profileList[newkey].defaultItemStyle=="None") $("#yourProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
+					else $("#yourProfile-defaultItemStyle").text(profileList[newkey].defaultItemStyle);
+
+					if(profileList[newkey].indent_chars=="" || profileList[newkey].defaultItemStyle!="Bullet") $("#yourProfile-indent_chars").html('<span class="text-muted">None</span>');
 					else $("#yourProfile-indent_chars").text(profileList[newkey].indent_chars);
-					if(profileList[newkey].prefix_indent_chars=="\t")$("#yourProfile-prefix_indent_chars").text("tab");
-					else if(profileList[newkey].prefix_indent_chars=="  ")$("#yourProfile-prefix_indent_chars").text("space");
-					else $("#yourProfile-prefix_indent_chars").text("None");
-					$("#yourProfile-item_sep").text((profileList[newkey].item_sep.split("\n").length - 1)+" line(s) break");
-					$("#yourProfile-applyWFERules").text(profileList[newkey].applyWFERules);
-					$("#yourProfile-outputNotes").text(profileList[newkey].outputNotes);
-					$("#yourProfile-ignore_tags").text(profileList[newkey].ignore_tags);
-					$("#yourProfile-escapeCharacter").text(profileList[newkey].escapeCharacter);
-					$("#yourProfile-findReplace").text(profileList[newkey].findReplace.length!=0);
+
+					if(profileList[newkey].prefix_indent_chars=="\t")$("#yourProfile-prefix_indent_chars").text("Tab");
+					else if(profileList[newkey].prefix_indent_chars=="  ")$("#yourProfile-prefix_indent_chars").text("Space");
+					else $("#yourProfile-prefix_indent_chars").html('<span class="text-muted">None</span>');
+
+					if(profileList[newkey].item_sep == "\n\n") $("#yourProfile-item_sep").html(HTML_true);
+					else $("#yourProfile-item_sep").html(HTML_false);
+
+					if(profileList[newkey].applyWFERules) $("#yourProfile-applyWFERules").html(HTML_true);
+					else $("#yourProfile-applyWFERules").html(HTML_false);
+
+					if(profileList[newkey].outputNotes) $("#yourProfile-outputNotes").html(HTML_true);
+					else $("#yourProfile-outputNotes").html(HTML_false);
+
+					if(profileList[newkey].ignore_tags) $("#yourProfile-ignore_tags").html(HTML_true);
+					else $("#yourProfile-ignore_tags").html(HTML_false);
+
+					if(profileList[newkey].escapeCharacter) $("#yourProfile-escapeCharacter").html(HTML_true);
+					else $("#yourProfile-escapeCharacter").html(HTML_false);
+
+					$("#yourProfile-findReplace").text(profileList[newkey].findReplace.length);
+
+
 					$("#newProfile-format").text(newProfile.format);
-					$("#newProfile-defaultItemStyle").text(newProfile.defaultItemStyle);
-					if(newProfile.indent_chars=="") $("#newProfile-indent_chars").text("None");
+
+					if(newProfile.defaultItemStyle=="None") $("#newProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
+					else $("#newProfile-defaultItemStyle").text(newProfile.defaultItemStyle);
+
+					if(newProfile.indent_chars=="" || newProfile.defaultItemStyle!="Bullet") $("#newProfile-indent_chars").html('<span class="text-muted">None</span>');
 					else $("#newProfile-indent_chars").text(newProfile.indent_chars);
-					if(newProfile.prefix_indent_chars=="\t")$("#newProfile-prefix_indent_chars").text("tab");
-					else if(newProfile.prefix_indent_chars=="  ")$("#newProfile-prefix_indent_chars").text("space");
-					else $("#newProfile-prefix_indent_chars").text("None");
-					$("#newProfile-item_sep").text((newProfile.item_sep.split("\n").length - 1)+" line(s) break");
-					$("#newProfile-applyWFERules").text(newProfile.applyWFERules);
-					$("#newProfile-outputNotes").text(newProfile.outputNotes);
-					$("#newProfile-ignore_tags").text(newProfile.ignore_tags);
-					$("#newProfile-escapeCharacter").text(newProfile.escapeCharacter);
-					$("#newProfile-findReplace").text(newProfile.findReplace.length!=0);
-					//$("#yourProfileTxt").html(profileToHTML(profileList[newkey]));
-					//$("#newProfileTxt").html(profileToHTML(newProfile));
+
+					if(newProfile.prefix_indent_chars=="\t")$("#newProfile-prefix_indent_chars").text("Tab");
+					else if(newProfile.prefix_indent_chars=="  ")$("#newProfile-prefix_indent_chars").text("Space");
+					else $("#newProfile-prefix_indent_chars").html('<span class="text-muted">None</span>');
+
+					if(newProfile.item_sep == "\n\n") $("#newProfile-item_sep").html(HTML_true);
+					else $("#newProfile-item_sep").html(HTML_false);
+
+					if(newProfile.applyWFERules) $("#newProfile-applyWFERules").html(HTML_true);
+					else $("#newProfile-applyWFERules").html(HTML_false);
+
+					if(newProfile.outputNotes) $("#newProfile-outputNotes").html(HTML_true);
+					else $("#newProfile-outputNotes").html(HTML_false);
+
+					if(newProfile.ignore_tags) $("#newProfile-ignore_tags").html(HTML_true);
+					else $("#newProfile-ignore_tags").html(HTML_false);
+
+					if(newProfile.escapeCharacter) $("#newProfile-escapeCharacter").html(HTML_true);
+					else $("#newProfile-escapeCharacter").html(HTML_false);
+
+					$("#newProfile-findReplace").text(newProfile.findReplace.length);
 				}
 
 				function addProfileToProfileList(newProfileList){
@@ -554,6 +587,10 @@ var popup2 = (function() {
 					});
 					$('#newProfileCancel').click(function(){
 						$('#myModal').modal('hide');
+						conflictProfileList = [];
+
+					});
+					$("#closeModal").click(function(){
 						conflictProfileList = [];
 					});
 
