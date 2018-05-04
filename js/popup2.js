@@ -10,7 +10,20 @@ var popup2 = (function() {
 		}
 	});
 
+	window.onerror = function myErrorHandler(msg, url, lineNo) {
+	    error("Error occured: " + msg);//or any message
+			console.log(msg);
+	    return false;
+	}
 
+	function error(text){
+		var containerError = document.getElementById("messages");
+		var newError = document.createElement('div');
+		newError.setAttribute('class', "alert alert-danger");
+		newError.setAttribute('style', "margin:0;");
+		newError.innerHTML = '<button type="button" class="close" data-dismiss="alert">&times;</button>'+text;
+		containerError.appendChild(newError);
+	}
 
 	function load(currentTabId, callback) {
 
@@ -36,7 +49,6 @@ var popup2 = (function() {
 			console.log("TTTT",response);
 			chrome.storage.sync.get(['profileList', 'profileName'], function(storage) {
 				//return a copy of an object (recursif)
-				try{
 
 				function copy(o) {
 				  var output, v, key;
@@ -878,15 +890,6 @@ var popup2 = (function() {
 				setEventListers();
 
 				callback();
-			}
-				catch(err){
-					$("#loading").hide("fast");
-					$("#content").hide("fast");
-					$("#error").show("fast");
-					$("#textError").text(err.toString());
-
-					console.log("Error", err);
-				}
 
 			});
 		})
@@ -897,10 +900,19 @@ var popup2 = (function() {
 		var $content = $("#content");
 		$content.hide();
 		$loading.show("fast",function(){
-			func(function(){
-				$loading.hide();
-				$content.show();
-			});
+			try{
+				func(function(){
+					$loading.hide();
+					$content.show();
+				});
+			}
+			catch(err){
+				$("#loading").hide("fast");
+				$("#content").hide("fast");
+				$("#error").show("fast");
+				$("#textError").text(err.toString());
+				console.log("Error", err);
+			}
 		});
 	}
 

@@ -6,7 +6,9 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 	</head>
 	<body>
-		<div class="panel panel-info" style="min-width:100%; min-height:100%; margin:0;">
+		<div id="messages" class="container" style="min-width:100%; padding:0;">
+		</div>
+		<div class="panel panel-info position-absolute" style="min-width:100%; min-height:100%;">
 			<div class="panel-heading">
 				<h3 class="panel-title" id="popupTitle">WorkFlowy Export</h3>
 			</div>
@@ -47,7 +49,7 @@
 							<div class="input-group-btn">
 								<button id="newProfile" type="button" class="btn btn-success">Edit</button>
 								<button id="removeOption" type="button" class="btn btn-warning">Delete</button>
-								<button id="downloadProfiles" class="btn btn-default">Save <i class="glyphicon glyphicon-download"></i></button>
+								<button id="downloadProfiles" class="btn btn-default">Export <i class="glyphicon glyphicon-download"></i></button>
 								<button id="importProfile" class="btn btn-default">Import <i class="glyphicon glyphicon-upload"></i></button>
 							</div>
 							<input type="file" id="importFile" value="Import" style="display:none">
@@ -209,7 +211,7 @@
 									  <span class="input-group-addon">
 											<input type="checkbox" id="wfeRules" class="form-check-input">
 										</span>
-									  <label class="form-control" for="wfeRules">Apply #WFE</label>
+									  <label class="form-control" for="wfeRules">Expert Mode</label>
 									</div>
 								</div>
 
@@ -298,7 +300,7 @@
 	    							<div class="col-sm-4 bg-info text-center" id="newProfile-indent_chars"></div>
 								</div>
 								<div class="row">
-	    							<div class="col-sm-4 bg-primary">prefix indent chars</div>
+	    							<div class="col-sm-4 bg-primary">Indentation</div>
 	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-prefix_indent_chars"></div>
 	    							<div class="col-sm-4 bg-info text-center" id="newProfile-prefix_indent_chars"></div>
 								</div>
@@ -308,7 +310,7 @@
 	    							<div class="col-sm-4 bg-info text-center" id="newProfile-item_sep"></div>
 								</div>
 								<div class="row">
-	    							<div class="col-sm-4 bg-primary">applyWFERules</div>
+	    							<div class="col-sm-4 bg-primary">Export Mode</div>
 	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-applyWFERules"></div>
 	    							<div class="col-sm-4 bg-info text-center" id="newProfile-applyWFERules"></div>
 								</div>
