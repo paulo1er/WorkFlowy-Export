@@ -26,7 +26,8 @@ var exportLib = function(my_nodes, options, email) {
 				var args = this.parameter;
 				return WFE_FUNCTION["wfe-"+this.name].apply( this, args );
 			}
-			return "no function define for this tag";
+			console.log("no function define for", name);
+			return "";
 		}
 	}
 	var WFE_FUNCTION = {

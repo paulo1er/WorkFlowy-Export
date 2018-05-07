@@ -217,10 +217,18 @@ var popup2 = (function() {
 					}
 				}
 
-				//open a form to create or update a preset of options
-				function newProfile(){
-					$("#profileSelect").hide();
-					$("#profileEdit").slideToggle("slow");
+				function enableForm(){
+					$("#form input").prop("disabled", false);
+				}
+
+				function disableForm(){
+					$("#form input").prop("disabled", true);
+					$("#form input:checked").parent().parent().children("label").addClass("text-primary");
+				}
+
+
+
+				function updadeForm(){
 					document.getElementById("nameProfile").value = document.getElementById('profileList').value;
 					curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
@@ -230,10 +238,17 @@ var popup2 = (function() {
 						$("#None").prop("checked", true);
 						$("#divBulletCaracter").hide();
 						$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+
+						//$("input[type=radio][name=indentOptions]").prop("disabled", true);
+						//$("#withoutIndent").prop("checked", true);
+						//$("[name=TxtindentOptions]").css('color', 'grey');
 					}
 					else{
 						$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
 						$("[name=TxtDefaultItemStyle]").css('color', '');
+
+						//$("input[type=radio][name=indentOptions]").prop("disabled", false);
+						//$("[name=TxtindentOptions]").css('color', '');
 					}
 
 					document.getElementById(curent_profile.defaultItemStyle).checked = true
@@ -245,7 +260,7 @@ var popup2 = (function() {
 
 					document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
 					document.getElementById("outputNotes").checked = curent_profile.outputNotes;
-				  document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
+					document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
 					document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
 					document.getElementById("insertLine").checked = (curent_profile.item_sep == "\n\n");
 					switch (curent_profile.prefix_indent_chars) {
@@ -266,6 +281,13 @@ var popup2 = (function() {
 						addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 					});
 				}
+				//open a form to create or update a preset of options
+				function newProfile(){
+					$("#profileSelect").hide();
+					$("#profileEdit").slideToggle("slow");
+					enableForm();
+					updadeForm();
+				}
 
 				//save the form for create or update a preset of options
 				function saveProfile(){
@@ -281,6 +303,7 @@ var popup2 = (function() {
 						updateProfileChoice();
 						$("#profileEdit").slideToggle("slow");
 						$("#profileSelect").show();
+						disableForm();
 						document.getElementById('profileList').value = profileName;
 						console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
@@ -298,8 +321,8 @@ var popup2 = (function() {
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
 							console.log("profileList saved ");
 						});
-						document.getElementById("nameProfile").value == "";
 						document.getElementById("profileList").value = "list";
+						updadeForm();
 						curent_profile = copy(profileList["list"]);
 					}
 				}
@@ -515,10 +538,17 @@ var popup2 = (function() {
 							$("#None").prop("checked", true);
 							$("#divBulletCaracter").hide();
 							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+
+							//$("input[type=radio][name=indentOptions]").prop("disabled", true);
+							//$("#withoutIndent").prop("checked", true);
+							//$("[name=TxtindentOptions]").css('color', 'grey');
 						}
 						else{
 							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
 							$("[name=TxtDefaultItemStyle]").css('color', '');
+
+							//$("input[type=radio][name=indentOptions]").prop("disabled", false);
+							//$("[name=TxtindentOptions]").css('color', '');
 						}
 					});
 
@@ -548,6 +578,7 @@ var popup2 = (function() {
 							exportText();
 							callback();
 						});
+						updadeForm();
 					};
 
 					document.getElementById("copy").addEventListener("click", function() {
@@ -868,8 +899,9 @@ var popup2 = (function() {
 						});
 					};
 					updateProfileChoice();
-					document.getElementById("nameProfile").value == "";
 					document.getElementById("profileList").value = profileName_LastConnexion;
+					updadeForm();
+					disableForm();
 					curent_profile = copy(profileList[document.getElementById('profileList').value]);
 				}
 
