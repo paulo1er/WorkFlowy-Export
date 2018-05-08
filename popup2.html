@@ -14,13 +14,13 @@
 				<h6 id="title"></h6>
 			</div>
 			<div class="panel-body">
-				<div id="divTextArea" class="panel panel-primary">
-					<div class="panel-body">
-						<div id="content" hidden>
-							<textarea id="textArea" class="form-control" style="position:relative; z-index:1049; resize:vertical;" rows="10" readonly></textarea>
+				<div class="panel panel-primary">
+					<div id="divTextArea" class="panel-body" style="position:relative; min-height:220px;">
+						<div id="content">
+							<textarea id="textArea" class="form-control" style="position:relative; z-index:1049; resize:vertical; min-height:200px;" rows="10" readonly></textarea>
 						</div>
-						<div id="loading">
-							<img src="image/Loading_icon.gif" class="center-block" style="height: 220px;">
+						<div id="loading" style="position:absolute;	left:50%; top:50%;" hidden>
+							<img src="image/Loading_icon.gif" style="height: 220px;">
 						</div>
 						<div id="error" class="alert alert-danger" hidden>
 							<span>An error append during the export</span><br>

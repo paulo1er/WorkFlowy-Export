@@ -923,7 +923,6 @@ var popup2 = (function() {
 
 				exportText();
 				setEventListers();
-
 				callback();
 
 			});
@@ -933,12 +932,19 @@ var popup2 = (function() {
 	function loading(func){
 		var $loading = $("#loading");
 		var $content = $("#content");
+		var $divTextArea = $("#divTextArea");
+		$divTextArea.height($divTextArea.height());
 		$content.hide();
+    $loading.css({
+        'margin-left' : - $loading.width()/2 + "px",
+        'margin-top' : - $loading.height()/2 + "px"
+    });
 		$loading.show("fast",function(){
 			try{
 				func(function(){
 					$loading.hide();
 					$content.show();
+					$divTextArea.height("auto");
 				});
 			}
 			catch(err){
