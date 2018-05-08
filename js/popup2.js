@@ -219,10 +219,12 @@ var popup2 = (function() {
 
 				function enableForm(){
 					$("#form input").prop("disabled", false);
+					$("#formFindReplace").show();
 				}
 
 				function disableForm(){
 					$("#form input").prop("disabled", true);
+					$("#formFindReplace").hide();
 					$("#form input:checked").parent().parent().children("label").addClass("text-primary");
 				}
 
