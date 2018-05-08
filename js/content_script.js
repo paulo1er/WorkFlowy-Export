@@ -404,7 +404,7 @@
 		callback({
 			content: content,
 			url: url,
-			title: title,
+			title: title.replace(/ \- WorkFlowy$/, ''),
 			email: email
 		});
 	}
