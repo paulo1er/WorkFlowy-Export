@@ -722,6 +722,14 @@ var popup2 = (function() {
 						}
 					});
 
+					$("#fontFamily").change(function(e) {
+						$('#textArea').css("font-family", $("#fontFamily").val());
+					});
+
+					$("#fontSize").change(function(e) {
+						$('#textArea').css('font-size', $("#fontSize").val()+"px");
+					});
+
 					document.getElementById("resetProfile").addEventListener("click", function() {
 						profileList = null;
 						profileName_LastConnexion = null;
@@ -920,6 +928,9 @@ var popup2 = (function() {
 				var g_title = response.title;
 				var g_url = response.url;
 				var g_email= response.email;
+
+				$('#textArea').css("font-family", $("#fontFamily").val());
+				$('#textArea').css('font-size', $("#fontSize").val()+"px");
 
 				exportText();
 				setEventListers();

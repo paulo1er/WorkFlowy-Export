@@ -17,7 +17,7 @@
 				<div class="panel panel-primary">
 					<div id="divTextArea" class="panel-body" style="position:relative; min-height:220px;">
 						<div id="content">
-							<textarea id="textArea" class="form-control" style="position:relative; z-index:1049; resize:vertical; min-height:200px;" rows="10" readonly></textarea>
+							<textarea id="textArea" class="form-control" style="position:relative; z-index:1049; resize:vertical; min-height:200px;" readonly></textarea>
 						</div>
 						<div id="loading" style="position:absolute;	left:50%; top:50%;" hidden>
 							<img src="image/Loading_icon.gif" style="height: 220px;">
@@ -28,16 +28,39 @@
 						</div>
 					</div>
 					<div class="panel-footer">
-						<div class="btn-toolbar" role="toolbar">
-  						<div class="btn-group" role="group">
-								<button id="refresh" type="button" class="btn btn-primary center-block">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
-							</div>
-	  					<div class="btn-group" role="group">
-								<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
-							</div>
-	  					<div class="btn-group" role="group">
-								<div hidden id="fileName"></div>
-								<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<div class="input-group">
+										<span class="input-group-addon">Font</span>
+										<select id="fontFamily" class="form-control">
+										  <option value="Arial">Arial</option>
+										  <option value="Times New Roman">Times New Roman</option>
+										  <option value="Courier">Courier</option>
+										  <option value="Comic Sans MS">Comic Sans MS</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<div class="input-group">
+										<span class="input-group-addon">Font size</span>
+										<input id="fontSize" class="form-control" type="number" name="fontSize" min="10" max="30" value="14">
+									</div>
+								</div>
+								<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+									<div class="btn-toolbar" role="toolbar">
+			  						<div class="btn-group" role="group">
+											<button id="refresh" type="button" class="btn btn-primary center-block">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
+										</div>
+				  					<div class="btn-group" role="group">
+											<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
+										</div>
+				  					<div class="btn-group" role="group">
+											<div hidden id="fileName"></div>
+											<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
