@@ -47,7 +47,7 @@ var popup2 = (function() {
 			request: 'getTopic'
 		}, function(response) {
 			console.log("TTTT",response);
-			chrome.storage.sync.get(['profileList', 'profileName'], function(storage) {
+			chrome.storage.sync.get(['profileList', 'profileName', "textAreaStyle"], function(storage) {
 				//return a copy of an object (recursif)
 
 				function copy(o) {
@@ -723,11 +723,28 @@ var popup2 = (function() {
 					});
 
 					$("#fontFamily").change(function(e) {
-						$('#textArea').css("font-family", $("#fontFamily").val());
+						textAreaStyle["font-family"] = $("#fontFamily").val();
+						$('#textArea').css("font-family", textAreaStyle["font-family"]);
+						chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+							console.log("textAreaStyle save new fontFamily");
+						});
 					});
 
 					$("#fontSize").change(function(e) {
-						$('#textArea').css('font-size', $("#fontSize").val()+"px");
+						textAreaStyle["font-size"] = $("#fontSize").val();
+						$('#textArea').css('font-size', textAreaStyle["font-size"]+"px");
+						chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+							console.log("textAreaStyle save new font-size");
+						});
+					});
+
+					$("#textArea").mouseup(function(e){
+						if($("#textArea").height() != textAreaStyle["height"]){
+							textAreaStyle["height"] = $("#textArea").height();
+							chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+								console.log("textAreaStyle save new height");
+							});
+						}
 					});
 
 					document.getElementById("resetProfile").addEventListener("click", function() {
@@ -921,6 +938,27 @@ var popup2 = (function() {
 				var curent_profile = null;
 				var conflictProfileList=[];
 
+				var textAreaStyle;
+				if(storage.textAreaStyle){
+					textAreaStyle = storage.textAreaStyle;
+				}
+				else {
+					textAreaStyle={
+						"font-family" : "Arial",
+						"font-size" : 14,
+						"height": 200
+					};
+					chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+						console.log("textAreaStyle init");
+					});
+				}
+
+				$('#textArea').css("font-family", textAreaStyle["font-family"]);
+				$('#fontFamily').val(textAreaStyle["font-family"]);
+				$('#textArea').css('font-size', textAreaStyle["font-size"]+"px");
+				$('#fontSize').val(textAreaStyle["font-size"]);
+				$('#textArea').css('height', textAreaStyle["height"]+"px");
+
 				initProfileList();
 
 				var g_nodes = response.content;
@@ -929,8 +967,6 @@ var popup2 = (function() {
 				var g_url = response.url;
 				var g_email= response.email;
 
-				$('#textArea').css("font-family", $("#fontFamily").val());
-				$('#textArea').css('font-size', $("#fontSize").val()+"px");
 
 				exportText();
 				setEventListers();
