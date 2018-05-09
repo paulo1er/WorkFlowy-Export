@@ -17,12 +17,28 @@
     ]
   },
 
+  "commands": {
+    "_execute_page_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      }
+    },
+    "open_workflowy": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U",
+        "mac": "Command+Shift+U"
+      },
+      "description": "Open Workflowy"
+    }
+  },
+
   "default_locale": "en",
 
   "content_scripts": [ {
     "matches": ["https://workflowy.com/*"],
     "js": [
-      "js/jquery-2.2.0.min.js",
+      "js/jquery.min.js",
       "js/tree.jquery.js",
       "js/marked.min.js",
       "js/export_lib.js",

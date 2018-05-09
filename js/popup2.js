@@ -10,7 +10,36 @@ var popup2 = (function() {
 		}
 	});
 
+	var promisify = function (fn) {
+	  var args = Array.prototype.slice.call(arguments).slice(1);
+	  return new Promise(function(resolve, reject) {
+	    fn.apply(null, args.concat(function (res) {
+	      if (chrome.runtime.lastError) {
+	        return reject(chrome.runtime.lastError);
+	      }
+	      return resolve(res);
+	    }));
+	  });
+	};
 
+	function setStorageItems(items) {
+  	promisify(chrome.storage.sync.set, items).then(function() {
+			console.log('settings saved');
+		})
+		.catch(function (err) {
+			console.error(err);
+			error("Error when saving profile list");
+		});
+	}
+
+	function error(text){
+		var containerError = document.getElementById("messages");
+		var newError = document.createElement('div');
+		newError.setAttribute('class', "alert alert-danger");
+		newError.setAttribute('style', "margin:0;");
+		newError.innerHTML = '<button type="button" class="close" data-dismiss="alert">&times;</button>'+text;
+		containerError.appendChild(newError);
+	}
 
 	function load(currentTabId, callback) {
 
@@ -34,10 +63,8 @@ var popup2 = (function() {
 			request: 'getTopic'
 		}, function(response) {
 			console.log("TTTT",response);
-			chrome.storage.sync.get(['profileList', 'profileName'], function(storage) {
+			chrome.storage.sync.get(['profileList', 'profileName', "textAreaStyle", "refreshOptions"], function(storage) {
 				//return a copy of an object (recursif)
-				try{
-
 				function copy(o) {
 				  var output, v, key;
 				  output = Array.isArray(o) ? [] : {};
@@ -60,6 +87,91 @@ var popup2 = (function() {
 
 				  document.body.removeChild(element);
 				}
+				var HTML_true = '<small><i class="glyphicon glyphicon-ok"></i></small>';
+				var HTML_false = '<small><i class="glyphicon glyphicon-remove"></i></small>';
+				function openSolverConflictProfile(newkey, newProfile){
+					console.log(newkey, newProfile);
+					$('#myModal').modal("show");
+					$("#renameNewProfile").val(newkey);
+					$("#newNameProfile").text(newkey);
+
+
+					$("#yourProfile-format").text(profileList[newkey].format);
+
+					if(profileList[newkey].defaultItemStyle=="None") $("#yourProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
+					else $("#yourProfile-defaultItemStyle").text(profileList[newkey].defaultItemStyle);
+
+					if(profileList[newkey].indent_chars=="" || profileList[newkey].defaultItemStyle!="Bullet") $("#yourProfile-indent_chars").html('<span class="text-muted">None</span>');
+					else $("#yourProfile-indent_chars").text(profileList[newkey].indent_chars);
+
+					if(profileList[newkey].prefix_indent_chars=="\t")$("#yourProfile-prefix_indent_chars").text("Tab");
+					else if(profileList[newkey].prefix_indent_chars=="  ")$("#yourProfile-prefix_indent_chars").text("Space");
+					else $("#yourProfile-prefix_indent_chars").html('<span class="text-muted">None</span>');
+
+					if(profileList[newkey].item_sep == "\n\n") $("#yourProfile-item_sep").html(HTML_true);
+					else $("#yourProfile-item_sep").html(HTML_false);
+
+					if(profileList[newkey].applyWFERules) $("#yourProfile-applyWFERules").html(HTML_true);
+					else $("#yourProfile-applyWFERules").html(HTML_false);
+
+					if(profileList[newkey].outputNotes) $("#yourProfile-outputNotes").html(HTML_true);
+					else $("#yourProfile-outputNotes").html(HTML_false);
+
+					if(profileList[newkey].ignore_tags) $("#yourProfile-ignore_tags").html(HTML_true);
+					else $("#yourProfile-ignore_tags").html(HTML_false);
+
+					if(profileList[newkey].escapeCharacter) $("#yourProfile-escapeCharacter").html(HTML_true);
+					else $("#yourProfile-escapeCharacter").html(HTML_false);
+
+					$("#yourProfile-findReplace").text(profileList[newkey].findReplace.length);
+
+
+					$("#newProfile-format").text(newProfile.format);
+
+					if(newProfile.defaultItemStyle=="None") $("#newProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
+					else $("#newProfile-defaultItemStyle").text(newProfile.defaultItemStyle);
+
+					if(newProfile.indent_chars=="" || newProfile.defaultItemStyle!="Bullet") $("#newProfile-indent_chars").html('<span class="text-muted">None</span>');
+					else $("#newProfile-indent_chars").text(newProfile.indent_chars);
+
+					if(newProfile.prefix_indent_chars=="\t")$("#newProfile-prefix_indent_chars").text("Tab");
+					else if(newProfile.prefix_indent_chars=="  ")$("#newProfile-prefix_indent_chars").text("Space");
+					else $("#newProfile-prefix_indent_chars").html('<span class="text-muted">None</span>');
+
+					if(newProfile.item_sep == "\n\n") $("#newProfile-item_sep").html(HTML_true);
+					else $("#newProfile-item_sep").html(HTML_false);
+
+					if(newProfile.applyWFERules) $("#newProfile-applyWFERules").html(HTML_true);
+					else $("#newProfile-applyWFERules").html(HTML_false);
+
+					if(newProfile.outputNotes) $("#newProfile-outputNotes").html(HTML_true);
+					else $("#newProfile-outputNotes").html(HTML_false);
+
+					if(newProfile.ignore_tags) $("#newProfile-ignore_tags").html(HTML_true);
+					else $("#newProfile-ignore_tags").html(HTML_false);
+
+					if(newProfile.escapeCharacter) $("#newProfile-escapeCharacter").html(HTML_true);
+					else $("#newProfile-escapeCharacter").html(HTML_false);
+
+					$("#newProfile-findReplace").text(newProfile.findReplace.length);
+				}
+
+				function addProfileToProfileList(newProfileList){
+					var newkeys = Object.keys(newProfileList);
+					newkeys.forEach(function(newkey){
+						var keys = Object.keys(profileList);
+						if(keys.includes(newkey)){
+							conflictProfileList.push([newkey, newProfileList[newkey]])
+						}
+						else
+							profileList[newkey]=copy(newProfileList[newkey]);
+							updateProfileChoice();
+							//setStorageItems({'profileList' : profileList});
+							chrome.storage.sync.set({'profileList' : profileList}, function() {});
+					});
+					if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+					console.log(conflictProfileList);
+				}
 
 				function extensionFileName(format){
 					switch(format){
@@ -71,6 +183,20 @@ var popup2 = (function() {
 						case "beamer" : return ".tex";
 						default : return ".txt";
 					}
+				}
+
+				function profileToHTML(profile){
+					var r = "format : "+profile.format+"<br>"+
+					"defaultItemStyle : "+profile.defaultItemStyle+"<br>"+
+					"indent_chars : "+profile.indent_chars+"<br>"+
+					"prefix_indent_chars : "+profile.prefix_indent_chars.split("\t").join("\\t")+"<br>"+
+					"item_sep : "+profile.item_sep.split("\n").join("\\n")+"<br>"+
+					"applyWFERules : "+profile.applyWFERules+"<br>"+
+					"outputNotes : "+profile.outputNotes+"<br>"+
+					"ignore_tags : "+profile.ignore_tags+"<br>"+
+					"escapeCharacter : "+profile.escapeCharacter+"<br>"+
+					"findReplace : "+profile.findReplace;
+					return r;
 				}
 
 				function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace){
@@ -98,7 +224,7 @@ var popup2 = (function() {
 							documentProfileChoice.add(option);
 			    	}
 					}
-					for (var i=0; i<documentProfileChoice.options.length; i++){
+					for (var i=documentProfileChoice.options.length-1; i>=0; i--){
 						var option = documentProfileChoice.options[i];
 						var name = option.value;
 			    	if (!profileList.hasOwnProperty(name) && document.getElementById("profileList"+name)) {
@@ -107,23 +233,35 @@ var popup2 = (function() {
 					}
 				}
 
-				//open a form to create or update a preset of options
-				function newProfile(){
-					$("#profileSelect").hide();
-					$("#profileEdit").slideToggle("slow");
+				function enableForm(){
+					$("#form input").prop("disabled", false);
+					$("#formFindReplace").show();
+				}
+
+				function disableForm(){
+					$("#form input").prop("disabled", true);
+					$("#formFindReplace").hide();
+					$("#form input:checked").parent().parent().children("label").addClass("text-primary");
+				}
+
+
+
+				function updadeForm(){
 					document.getElementById("nameProfile").value = document.getElementById('profileList').value;
 					curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
 					document.getElementById(curent_profile.format).checked = true;
-					if($("#opml").is(':checked')){
-						$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-						$("#None").prop("checked", true);
-						$("#divBulletCaracter").hide();
-						$("[name=TxtDefaultItemStyle]").css('color', 'grey');
-					}
-					else{
-						$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
-						$("[name=TxtDefaultItemStyle]").css('color', '');
+					if($("#profileEdit").is(":visible")){
+						if($("#opml").is(':checked')){
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+							$("#None").prop("checked", true);
+							$("#divBulletCaracter").hide();
+							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+						}
+						else{
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+							$("[name=TxtDefaultItemStyle]").css('color', '');
+						}
 					}
 
 					document.getElementById(curent_profile.defaultItemStyle).checked = true
@@ -135,7 +273,7 @@ var popup2 = (function() {
 
 					document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
 					document.getElementById("outputNotes").checked = curent_profile.outputNotes;
-				  document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
+					document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
 					document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
 					document.getElementById("insertLine").checked = (curent_profile.item_sep == "\n\n");
 					switch (curent_profile.prefix_indent_chars) {
@@ -156,6 +294,18 @@ var popup2 = (function() {
 						addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 					});
 				}
+				//open a form to create or update a preset of options
+				function newProfile(){
+					$("#profileSelect").hide();
+					$("#profileEdit").show();
+
+					if(!$('#form').is(":visible")){
+						$('#form').slideToggle("slow");
+						$('#hideForm').html('<i class="glyphicon glyphicon-minus"></i');
+					}
+					enableForm();
+					updadeForm();
+				}
 
 				//save the form for create or update a preset of options
 				function saveProfile(){
@@ -169,8 +319,9 @@ var popup2 = (function() {
 						};
 						profileList[profileName] = copy(curent_profile);
 						updateProfileChoice();
-						$("#profileEdit").slideToggle("slow");
+						$("#profileEdit").hide();
 						$("#profileSelect").show();
+						disableForm();
 						document.getElementById('profileList').value = profileName;
 						console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
@@ -188,8 +339,8 @@ var popup2 = (function() {
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
 							console.log("profileList saved ");
 						});
-						document.getElementById("nameProfile").value == "";
 						document.getElementById("profileList").value = "list";
+						updadeForm();
 						curent_profile = copy(profileList["list"]);
 					}
 				}
@@ -344,19 +495,28 @@ var popup2 = (function() {
 
 					console.log("##################### Export the page with profile", curent_profile, g_email);
 					var $textArea = $('#textArea');
-					text = exportLib(g_my_nodes, curent_profile, g_email);
+					text = exportLib(g_my_nodes, curent_profile, g_email, !$("#fragment").prop('checked'));
 					$textArea.val(text);
 					$("#fileName").text(g_title+extensionFileName(curent_profile.format));
-					$("#popupTitle").text(g_title);
+					$("#title").remove();
+					$("#popupTitle").append($("<h5 id=\"title\"></h5>").text(g_title + " : ").append($("<a href=\""+g_url+"\" target=\"_blank\"></a>").text(g_url)));
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
-						$textArea.select();
 					});
+					if($("#autoCopy").prop('checked')){
+						copyToClipboard(text);
+					}
+					if($("#autoDownload").prop('checked')){
+						download($("#fileName").text(), $("#textArea").val());
+					}
 				};
 
-				function copyToClipboard(){
-				  $("#textArea").select();
-				  document.execCommand("copy");
+				function copyToClipboard(text){
+			    var $temp = $("<input>");
+			    $("body").append($temp);
+			    $temp.val(text).select();
+			    document.execCommand("copy");
+			    $temp.remove();
 				}
 
 				//add event Listener for the button in the popup
@@ -367,7 +527,7 @@ var popup2 = (function() {
 							changeFormat();
 							loading(function(callback){
 								exportText();
-								callback();
+								return callback();
 							});
 						}
 						else{
@@ -375,20 +535,17 @@ var popup2 = (function() {
 								chrome.tabs.sendMessage(currentTabId, {
 									request: 'getTopic'
 								}, function(response) {
+										curent_profile = copy(profileList[document.getElementById('profileList').value]);
 										g_nodes = response.content;
 										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 										g_title = response.title;
 									 	g_url = response.url;
 										g_email= response.email;
 										exportText();
-										callback();
+										return callback();
 								});
-						});
+							});
 						}
-					}, false);
-
-					document.getElementById("close").addEventListener("click", function() {
-						window.close();
 					}, false);
 
 					$('input[type=radio][name=defaultItemStyle]').change("change", function() {
@@ -399,15 +556,17 @@ var popup2 = (function() {
 					});
 
 					$('input[type=radio][name=formatOptions]').change("change", function() {
-						if($("#opml").is(':checked')){
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-							$("#None").prop("checked", true);
-							$("#divBulletCaracter").hide();
-							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
-						}
-						else{
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
-							$("[name=TxtDefaultItemStyle]").css('color', '');
+						if($("#profileEdit").is(":visible")){
+							if($("#opml").is(':checked')){
+								$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+								$("#None").prop("checked", true);
+								$("#divBulletCaracter").hide();
+								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+							}
+							else{
+								$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+								$("[name=TxtDefaultItemStyle]").css('color', '');
+							}
 						}
 					});
 
@@ -423,7 +582,7 @@ var popup2 = (function() {
 						loading(function(callback){
 							saveProfile();
 							exportText();
-							callback();
+							return callback();
 						});
 					}, false);
 
@@ -435,26 +594,218 @@ var popup2 = (function() {
 						curent_profile = copy(profileList[document.getElementById('profileList').value]);
 						loading(function(callback){
 							exportText();
-							callback();
+							return callback();
 						});
+						updadeForm();
 					};
 
 					document.getElementById("copy").addEventListener("click", function() {
-						copyToClipboard();
+						copyToClipboard($('#textArea'));
 					}, false);
 
 					document.getElementById("download").addEventListener("click", function() {
-						console.log("TTTTTT", $("#fileName").text());
 						if($("#fileName").text() != ""){
 							download($("#fileName").text(), $("#textArea").val());
 						}
 					}, false);
 
-					document.getElementById("resetProfile").addEventListener("click", function() {
-						profileList = null;
-						profileName_LastConnexion = null;
-						curent_profile = null;
-						initProfileList();
+					document.getElementById("downloadProfiles").addEventListener("click", function() {
+						download("profiles.json",JSON.stringify(profileList));
+					}, false);
+
+					$('#importProfile').click(function(){
+						$('#importFile').click();
+					});
+
+
+					$('#newProfileReplace').click(function(){
+						profileList[$('#renameNewProfile').val()] = copy(conflictProfileList[0][1]);
+						updateProfileChoice();
+						chrome.storage.sync.set({'profileList' : profileList}, function() {});
+						conflictProfileList.shift();
+						if($('#applyForAllNewProfile').prop('checked')){
+							conflictProfileList.forEach(function(e){
+								profileList[e[0]] = copy(e[1]);
+								updateProfileChoice();
+								chrome.storage.sync.set({'profileList' : profileList}, function() {});
+							});
+							conflictProfileList = [];
+							$('#myModal').modal('hide');
+						}
+						else{
+							if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+							else $('#myModal').modal('hide');
+						}
+					});
+
+					$('#newProfileAutoRename').click(function(){
+						var i = 1;
+						var newkey = $('#renameNewProfile').val();
+						var keys = Object.keys(profileList);
+						if(keys.includes(newkey)){
+							while(keys.includes(newkey + " " + i)){
+								i++;
+							}
+							profileList[newkey + " " + i] = copy(conflictProfileList[0][1]);
+							updateProfileChoice();
+							chrome.storage.sync.set({'profileList' : profileList}, function() {});
+							conflictProfileList.shift();
+						}
+						else {
+							profileList[newkey] = copy(conflictProfileList[0][1]);
+							updateProfileChoice();
+							chrome.storage.sync.set({'profileList' : profileList}, function() {});
+							conflictProfileList.shift();
+						}
+						if($('#applyForAllNewProfile').prop('checked')){
+							conflictProfileList.forEach(function(e){
+								var i = 1;
+								var newkey = e[0];
+								var keys = Object.keys(profileList);
+								if(keys.includes(newkey)){
+									while(keys.includes(newkey + " " + i)){
+										i++;
+									}
+									profileList[newkey + " " + i] = copy(e[1]);
+									updateProfileChoice();
+									chrome.storage.sync.set({'profileList' : profileList}, function() {});
+								}
+								else {
+									profileList[newkey] = copy(e[1]);
+									updateProfileChoice();
+									chrome.storage.sync.set({'profileList' : profileList}, function() {});
+								}
+							});
+							conflictProfileList = [];
+							$('#myModal').modal('hide');
+						}
+						else{
+							if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+							else $('#myModal').modal('hide');
+						}
+
+					});
+
+					$('#newProfileIgnore').click(function(){
+						conflictProfileList.shift();
+						if($('#applyForAllNewProfile').prop('checked')){
+							conflictProfileList = [];
+							$('#myModal').modal('hide');
+						}
+						else{
+							if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
+							else $('#myModal').modal('hide');
+						}
+					});
+					$('#newProfileCancel').click(function(){
+						$('#myModal').modal('hide');
+						conflictProfileList = [];
+
+					});
+					$("#closeModal").click(function(){
+						conflictProfileList = [];
+					});
+
+
+					$("#importFile").change(function(e) {
+						var file = document.getElementById('importFile').files[0];
+						console.log(file);
+
+						var fr = new FileReader();
+
+						fr.onload = function(e) {
+							console.log(e);
+							var result = JSON.parse(e.target.result);
+							addProfileToProfileList(result);
+							console.log(profileList);
+						}
+						fr.readAsText(file);
+						$("#importFile").val('');
+					});
+
+					$("#renameNewProfile").change(function(e) {
+						if($("#renameNewProfile").val() != $("#newNameProfile").text()){
+							$("#applyForAllNewProfile").prop("checked", false);
+							$("#applyForAllNewProfile").prop("disabled", true);
+							$("#labelApplyForAllNewProfile").css('color', 'grey');
+							$("#newProfileReplace").text("Rename");
+						}
+						else{
+							$("#applyForAllNewProfile").prop("disabled", false);
+							$("#labelApplyForAllNewProfile").css('color', '');
+							$("#newProfileReplace").text("Replace");
+						}
+					});
+
+					$("#fontFamily").change(function(e) {
+						textAreaStyle["font-family"] = $("#fontFamily").val();
+						$('#textArea').css("font-family", textAreaStyle["font-family"]);
+						chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+							console.log("textAreaStyle save new fontFamily");
+						});
+					});
+
+					$("#fontSize").change(function(e) {
+						textAreaStyle["font-size"] = $("#fontSize").val();
+						$('#textArea').css('font-size', textAreaStyle["font-size"]+"px");
+						chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+							console.log("textAreaStyle save new font-size");
+						});
+					});
+
+					$("#textArea").mouseup(function(e){
+						if($("#textArea").height() != textAreaStyle["height"]){
+							textAreaStyle["height"] = $("#textArea").height();
+							chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+								console.log("textAreaStyle save new height");
+							});
+						}
+					});
+
+					$('#autoCopy').change(function(){
+						refreshOptions["autoCopy"] = $("#autoCopy").prop('checked');
+						chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+							console.log("save autoCopy at", $("#autoCopy").prop('checked'));
+						});
+					});
+
+					$('#autoDownload').change(function(){
+						refreshOptions["autoDownload"] = $("#autoDownload").prop('checked');
+						chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+							console.log("save autoDownload at", $("#autoDownload").prop('checked'));
+						});
+					});
+
+					$('#fragment').change(function(){
+						refreshOptions["fragment"] = $("#fragment").prop('checked');
+						chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+							console.log("save fragment at", $("#fragment").prop('checked'));
+						});
+					});
+
+					$('#hideForm').click(function(){
+						$('#form').slideToggle("slow", function(){
+							if($('#form').is(":visible")){
+								$('#hideForm').html('<i class="glyphicon glyphicon-minus"></i');
+							}
+							else{
+								$('#hideForm').html('<i class="glyphicon glyphicon-plus"></i');
+							}
+						});
+					});
+
+					document.getElementById("reset").addEventListener("click", function() {
+						chrome.storage.sync.clear(function (){});
+						var width = Math.max(window.screen.availWidth*0.75, 500);
+						var height = Math.max(window.screen.availHeight*0.75, 600);
+						var top = Math.max((window.screen.availHeight-height)/2,50);
+						var left = Math.max((window.screen.availWidth-width)/2,50);
+						var a = window.open("popup2.html", "_blank", "left="+left+",top="+top+",status=1,scrollbars=1, width="+width+",height="+height);
+						a.focus();
+						a.addEventListener('load', function(){
+							a.popup2.main(currentTabId);
+						}, true);
+						window.close();
 					}, false);
 				}
 
@@ -470,7 +821,6 @@ var popup2 = (function() {
 					var doctype = "OUTLINE";
 					var l = nodes.length;
 					var oldestChild = start;
-
 					nodes[start].allSiblings = [start];
 					console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
 					console.log("Document type is OUTLINE");
@@ -631,14 +981,54 @@ var popup2 = (function() {
 						});
 					};
 					updateProfileChoice();
-					document.getElementById("nameProfile").value == "";
 					document.getElementById("profileList").value = profileName_LastConnexion;
+					updadeForm();
+					disableForm();
 					curent_profile = copy(profileList[document.getElementById('profileList').value]);
 				}
 
 				var profileList = storage.profileList;
 				var profileName_LastConnexion = storage.profileName;
 				var curent_profile = null;
+				var conflictProfileList=[];
+
+				var textAreaStyle;
+				if(storage.textAreaStyle){
+					textAreaStyle = storage.textAreaStyle;
+				}
+				else {
+					textAreaStyle={
+						"font-family" : "Arial",
+						"font-size" : 14,
+						"height": 200
+					};
+					chrome.storage.sync.set({'textAreaStyle' : textAreaStyle}, function() {
+						console.log("textAreaStyle init");
+					});
+				}
+				$('#textArea').css("font-family", textAreaStyle["font-family"]);
+				$('#fontFamily').val(textAreaStyle["font-family"]);
+				$('#textArea').css('font-size', textAreaStyle["font-size"]+"px");
+				$('#fontSize').val(textAreaStyle["font-size"]);
+				$('#textArea').css('height', textAreaStyle["height"]+"px");
+
+				var refreshOptions;
+				if(storage.refreshOptions){
+					refreshOptions = storage.refreshOptions;
+				}
+				else {
+					refreshOptions={
+						"autoCopy" : false,
+						"autoDownload" : false,
+						"fragment": false
+					};
+					chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+						console.log("refreshOptions init");
+					});
+				}
+				$("#autoCopy").prop("checked", refreshOptions["autoCopy"]);
+				$("#autoDownload").prop("checked", refreshOptions["autoDownload"]);
+				$("#fragment").prop("checked", refreshOptions["fragment"]);
 
 				initProfileList();
 
@@ -650,18 +1040,7 @@ var popup2 = (function() {
 
 				exportText();
 				setEventListers();
-
-				callback();
-			}
-				catch(err){
-					$("#loading").hide("fast");
-					$("#content").hide("fast");
-					$("#error").show("fast");
-					$("#textError").text(err.toString());
-
-					console.log("Error", err);
-				}
-
+				return callback();
 			});
 		})
 	}
@@ -669,11 +1048,19 @@ var popup2 = (function() {
 	function loading(func){
 		var $loading = $("#loading");
 		var $content = $("#content");
+		var $divTextArea = $("#divTextArea");
+		$divTextArea.height($divTextArea.height());
 		$content.hide();
+    $loading.css({
+        'margin-left' : - $loading.width()/2 + "px",
+        'margin-top' : - $loading.height()/2 + "px"
+    });
 		$loading.show("fast",function(){
 			func(function(){
 				$loading.hide();
 				$content.show();
+				$("#textArea").select();
+				$divTextArea.height("auto");
 			});
 		});
 	}
@@ -681,7 +1068,7 @@ var popup2 = (function() {
 	return{
 		main : function(currentTabId) {
 			loading(function(callback){
-				load(currentTabId, callback);
+				return load(currentTabId, callback);
 			});
 		}
 	}

@@ -1,4 +1,4 @@
-var exportLib = function(my_nodes, options, email) {
+var exportLib = function(my_nodes, options, email, is_document) {
 	// private method
 	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
@@ -13,6 +13,9 @@ var exportLib = function(my_nodes, options, email) {
 	var previus_styleName=null;
 	var styleName="default";
 	var nodesStyle;
+	var header = "";
+	var body = "";
+	var footer = "";
 
 
 	function WFE(name, parameter=null){
@@ -23,7 +26,8 @@ var exportLib = function(my_nodes, options, email) {
 				var args = this.parameter;
 				return WFE_FUNCTION["wfe-"+this.name].apply( this, args );
 			}
-			return "no function define for this tag";
+			console.log("no function define for", name);
+			return "";
 		}
 	}
 	var WFE_FUNCTION = {
@@ -461,11 +465,6 @@ var exportLib = function(my_nodes, options, email) {
 	}
 
 	exportNodesTree = function(nodes, index, level, options) {
-		var header = "";
-		var body = "";
-		var footer = "";
-		var is_document = nodes[index].is_title;
-
 		options.findReplace.forEach(function(e) {
 			console.log("#F&R",e);
 			if(e!=null){
@@ -477,7 +476,7 @@ var exportLib = function(my_nodes, options, email) {
 			text: "",
 			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
-			latex: "",
+			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n \\title{TEMP_TITLE}\n \\author{"+email+"}\n \\date{\\today}\n \\begin{document}\n \\maketitle",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
@@ -489,7 +488,7 @@ var exportLib = function(my_nodes, options, email) {
 			text: "",
 			markdown: "",
 			html: "  </body>\n</html>",
-			latex: "",
+			latex: "\\end{document}",
 			beamer: "",
 			opml: "  </body>\n</opml>",
 			rtf: "}"
@@ -759,6 +758,47 @@ var exportLib = function(my_nodes, options, email) {
 					output = output + options.item_sep;
 					if (options.page_break)
 							output = output + "<div class=\"page-break\"></div>";
+				}
+				else if (options.format == 'latex'){
+					if(level==0){
+						header = header.replace("TEMP_TITLE", text);
+					}
+					else if(styleName.includes("Heading")){
+						switch (level){
+							case 1 :
+								output += indent + "\\begin{section}{"+text+"}";
+								output_after_children = indent + "\\end{section}\n";
+								break;
+							case 2 :
+								output += indent + "\\begin{subsection}{"+text+"}";
+								output_after_children = indent + "\\end{subsection}\n";
+								break;
+							case 3 :
+								output += indent + "\\begin{subsubsection}{"+text+"}";
+								output_after_children = indent + "\\end{subsubsection}\n";
+								break;
+							default :
+								output += indent + text + "\\\\";
+								break;
+						}
+					}
+					else if (styleName.includes("Item")){
+						output += indent + "\\begin{itemize}\n"+indent+"\\item "+text;
+						output_after_children = indent + "\\end{itemize}\n";
+					}
+					else if (styleName.includes("Enumeration")){
+						output += indent + "\\begin{enumerate}\n"+indent+"\\item "+text;
+						output_after_children = indent + "\\end{enumerate}\n";
+					}
+					else output += indent + text + "\\\\";
+
+					if ((note !== "") && (options.outputNotes))
+						output += "\n" + indent + note;
+					if (options.page_break)
+						output += "\\pagebreak ";
+
+					output += options.item_sep;
+
 				}
 				else if (options.format == 'beamer'){
 					if (level == title_level)

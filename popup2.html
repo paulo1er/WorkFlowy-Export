@@ -6,18 +6,20 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 	</head>
 	<body>
-		<div class="panel panel-info" style="min-width:100%; min-height:100%; margin:0;">
-			<div class="panel-heading">
-				<h3 class="panel-title" id="popupTitle">WorkFlowy Export</h3>
+		<div id="messages" class="container" style="min-width:100%; padding:0;">
+		</div>
+		<div class="panel panel-info position-absolute" style="min-width:100%; min-height:100%;">
+			<div class="panel-heading" id="popupTitle">
+				<h4 id="title"></h4>
 			</div>
 			<div class="panel-body">
-				<div id="divTextArea" class="panel panel-primary">
-					<div class="panel-body" style="height:250px">
-						<div id="content" hidden>
-							<textarea id="textArea" class="form-control" style="resize: none;" rows="10" readonly></textarea>
+				<div class="panel panel-primary">
+					<div id="divTextArea" class="panel-body" style="position:relative; min-height:220px;">
+						<div id="content">
+							<textarea id="textArea" class="form-control" style="position:relative; resize:vertical; min-height:200px;" readonly></textarea>
 						</div>
-						<div id="loading">
-							<img src="image/Loading_icon.gif" class="center-block" style="height: 220px;">
+						<div id="loading" style="position:absolute;	left:50%; top:50%;" hidden>
+							<img src="image/Loading_icon.gif" style="height: 220px;">
 						</div>
 						<div id="error" class="alert alert-danger" hidden>
 							<span>An error append during the export</span><br>
@@ -25,48 +27,107 @@
 						</div>
 					</div>
 					<div class="panel-footer">
-						<div class="btn-toolbar" role="toolbar">
-  						<div class="btn-group" role="group">
-								<button id="refresh" type="button" class="btn btn-primary center-block">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<div class="input-group">
+										<span class="input-group-addon">Font</span>
+										<select id="fontFamily" class="form-control">
+										  <option value="Arial">Arial</option>
+										  <option value="Times New Roman">Times New Roman</option>
+										  <option value="Courier">Courier</option>
+										  <option value="Comic Sans MS">Comic Sans MS</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<div class="input-group">
+										<span class="input-group-addon">Font size</span>
+										<input id="fontSize" class="form-control" type="number" name="fontSize" min="10" max="30">
+									</div>
+								</div>
+								<div class="text-center col-xs-12 col-sm-6 col-md-6 col-lg-6">
+		  						<div class="btn-group" role="group">
+										<button id="refresh" type="button" class="btn btn-primary center-block">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
+									</div>
+			  					<div class="btn-group" role="group">
+										<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
+									</div>
+			  					<div class="btn-group" role="group">
+										<div hidden id="fileName"></div>
+										<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
+									</div>
+								</div>
 							</div>
-	  					<div class="btn-group" role="group">
-								<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
-							</div>
-	  					<div class="btn-group" role="group">
-								<div hidden id="fileName"></div>
-								<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
+							<div class="row">
+								<div class="display-xs-block visible-sm-block col-sm-3 visible-md-block col-md-3 visible-lg-block col-lg-3"></div>
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<div class="input-group input-group-sm">
+										<span class="input-group-addon">
+											<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
+										</span>
+										<label class="form-control" for="fragment">Fragment</label>
+									</div>
+								</div>
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<div class="input-group input-group-sm">
+										<span class="input-group-addon">
+											<input type="checkbox" id="autoCopy" name="autoCopy" class="form-check-input with-gap">
+										</span>
+										<label class="form-control" for="autoCopy">Auto-copy</label>
+									</div>
+								</div>
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<div class="input-group input-group-sm">
+										<span class="input-group-addon">
+											<input type="checkbox" id="autoDownload" name="autoDownload" class="form-check-input with-gap">
+										</span>
+										<label class="form-control" for="autoDownload">Auto-download</label>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 
-					<div id='profileSelect' class="well col-xs-12 col-sm-12 col-sd-12">
+
+	      <div class="panel panel-info" id='profileSelect'>
+					<input type="file" id="importFile" value="Import" style="display:none">
+	        <div class="panel-body">
 						<div class="input-group">
 							<span class="input-group-addon">Profile Name</span>
 							<select id="profileList" class="form-control"></select>
-							<div class="input-group-btn">
+							<span class="input-group-btn">
 								<button id="newProfile" type="button" class="btn btn-success">Edit</button>
 								<button id="removeOption" type="button" class="btn btn-warning">Delete</button>
-							</div>
+								<button id="downloadProfiles" type="button" class="btn btn-default">Export <i class="glyphicon glyphicon-download"></i></button>
+								<button id="importProfile" type="button" class="btn btn-default">Import <i class="glyphicon glyphicon-upload"></i></button>
+							</span>
 						</div>
-						<br>
+					</div>
+	      </div>
+
+				<div class="panel panel-info" id='profileEdit' hidden>
+					<div class="panel-body">
 						<div class="input-group">
-							<div class="input-group-btn center-block">
-								<button id="resetProfile" type="button" class="btn btn-danger">Reset all the profile by default</button>
+							<span class="input-group-addon">Profile Name</span>
+							<input type="text" id="nameProfile" class="form-control">
+							<div class="input-group-btn">
+								<button id="saveProfile" type="button"  class="btn btn-success center-block"><span>Save</span></button>
 							</div>
 						</div>
 					</div>
+				</div>
 
-					<div id='profileEdit' hidden>
-						<div class="well">
-							<div class="input-group">
-								<span class="input-group-addon">Profile Name</span>
-								<input type="text" id="nameProfile" class="form-control">
-							</div>
-						</div>
-						<div class="container-fluid">
+				<div class="panel panel-info">
+					<div class="panel-heading text-center">
+						<button id="hideForm" type="button" class="close"><i class="glyphicon glyphicon-minus"></i></button>
+						<h5 class="modal-title">Curent profile</h5>
+					</div>
+					<div class="panel-body">
+						<div class="container-fluid" id="form">
 							<div class="row justify-content-around">
-								<div class="well col-xs-12 col-sm-6 col-md-3">
+								<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
 									<p class="text-center">Output Format</p>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -112,7 +173,7 @@
 									</div>
 								</div>
 
-								<div class="well col-xs-12 col-sm-6 col-md-3">
+								<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
 									<p class="text-center" name="TxtDefaultItemStyle">Default Item Style</p>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -154,29 +215,29 @@
 
 								<div class="clearfix visible-sm-block"></div>
 
-								<div class="well col-xs-12 col-sm-6 col-md-3">
-									<p class="text-center">Indentation</p>
+								<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
+									<p class="text-center" name="TxtindentOptions">Indentation</p>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
 											<input type="radio" id="tab" name="indentOptions" class="form-check-input with-gap" value="tab">
 										</span>
-									  <label class="form-control" for="tab">Tabulation</label>
+									  <label class="form-control" for="tab" name="TxtindentOptions">Tabulation</label>
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
 											<input type="radio" id="space" name="indentOptions" class="form-check-input with-gap" value="space">
 										</span>
-									  <label class="form-control" for="space">Space</label>
+									  <label class="form-control" for="space" name="TxtindentOptions">Space</label>
 									</div>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
 											<input type="radio" id="withoutIndent" name="indentOptions" class="form-check-input with-gap" value="withoutIndent">
 										</span>
-									  <label class="form-control" for="withoutIndent">None</label>
+									  <label class="form-control" for="withoutIndent" name="TxtindentOptions">None</label>
 									</div>
 								</div>
 
-								<div class="well col-xs-12 col-sm-6 col-md-3">
+								<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
 									<p class="text-center">Options</p>
 									<div class="input-group input-group-sm">
 									  <span class="input-group-addon">
@@ -206,41 +267,42 @@
 									  <span class="input-group-addon">
 											<input type="checkbox" id="wfeRules" class="form-check-input">
 										</span>
-									  <label class="form-control" for="wfeRules">Apply #WFE</label>
+									  <label class="form-control" for="wfeRules">Expert Mode</label>
 									</div>
 								</div>
 
-								<div class="clearfix visible-sm-block"></div>
-								<div class="clearfix visible-md-block"></div>
-								<div class="visible-md-block col-md-3"></div>
+								<div class="clearfix display-xs-block visible-sm-block visible-md-block visible-lg-block"></div>
+								<div class="display-xs-block visible-sm-block col-sm-2 visible-md-block col-md-3 visible-lg-block col-lg-3"></div>
 
 
-								<div class="well col-xs-12 col-sm-8 col-md-6">
+								<div class="well col-xs-12 col-sm-8 col-md-6 col-lg-6">
 									<p class="text-center">Find and Replace</p>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">Find :</span>
-										<input type="text" id="find" class="form-control">
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											Replace :
-										</span>
-										<input type="text" id="replace" class="form-control">
-									</div>
-									<div class="input-group input-group-sm">
-									  <span class="input-group-addon">
-											<input type="checkbox" id="regex" class="form-check-input">
-										</span>
-									  <label class="form-control" for="regex">Regex</label>
-									  <span class="input-group-addon">
-											<input type="checkbox" id="matchCase" class="form-check-input">
-										</span>
-									  <label class="form-control" for="matchCase">Match Case</label>
-										<div class="input-group-btn">
-											<button id="addFindReplace" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
+									<div id="formFindReplace" style="display: none;">
+										<div class="input-group input-group-sm">
+										  <span class="input-group-addon">Find :</span>
+											<input type="text" id="find" class="form-control">
 										</div>
+										<div class="input-group input-group-sm">
+										  <span class="input-group-addon">
+												Replace :
+											</span>
+											<input type="text" id="replace" class="form-control">
+										</div>
+										<div class="input-group input-group-sm">
+										  <span class="input-group-addon">
+												<input type="checkbox" id="regex" class="form-check-input">
+											</span>
+										  <label class="form-control" for="regex">Regex</label>
+										  <span class="input-group-addon">
+												<input type="checkbox" id="matchCase" class="form-check-input">
+											</span>
+										  <label class="form-control" for="matchCase">Match Case</label>
+											<div class="input-group-btn">
+												<button id="addFindReplace" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
+											</div>
+										</div>
+										</br>
 									</div>
-									<br>
 									<div class="table-responsive text-center small">
 										<table id="findReplace" class="table table-sm table-bordered table-striped" style"width:100%;">
 											<thead>
@@ -260,16 +322,109 @@
 								</div>
 							</div>
 						</div>
-						<button id="saveProfile" type="button"  class="btn btn-success center-block"><span>Save</span></button>
 					</div>
+				</div>
+			</div>
+			<div id="myModal" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
+			    <!-- Modal content-->
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" id="closeModal">&times;</button>
+			        <h4 class="modal-title">Replace profile</h4>
+			      </div>
+			      <div class="modal-body">
+			        <p>One of your profile have the same name <span class="label label-primary" id="newNameProfile"></span></p>
+							<div class="container-fluid">
+								<div class="row">
+	    							<div class="col-sm-4"></div>
+	    							<div class="col-sm-4 bg-primary text-center">Your Profile</div>
+	    							<div class="col-sm-4 bg-primary text-center">New Profile</div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">format</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-format"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-format"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">defaultItemStyle</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-defaultItemStyle"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-defaultItemStyle"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">indent chars</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-indent_chars"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-indent_chars"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">Indentation</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-prefix_indent_chars"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-prefix_indent_chars"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">Add line break</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-item_sep"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-item_sep"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">Export Mode</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-applyWFERules"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-applyWFERules"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">output Notes</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-outputNotes"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-outputNotes"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">ignore tags</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-ignore_tags"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-ignore_tags"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">escape Character</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-escapeCharacter"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-escapeCharacter"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">Nb Find and Replace</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-findReplace"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-findReplace"></div>
+								</div>
+							</div>
+							<br>
+							<div class="input-group">
+								<span class="input-group-addon">Rename the new profile</span>
+								<input type="text" id="renameNewProfile" class="form-control">
+							</div>
+							<div class="input-group">
+								<span class="input-group-addon">
+									<input type="checkbox" id="applyForAllNewProfile" class="form-check-input">
+								</span>
+								<label class="form-control" id="labelApplyForAllNewProfile" for="applyForAllNewProfile">Apply this action to all imported profile</label>
+							</div>
+			      </div>
+			      <div class="modal-footer">
+							<div class="btn-toolbar" role="toolbar">
+								<button id="newProfileReplace" class="btn btn-success">Replace</button>
+								<button id="newProfileAutoRename" class="btn btn-success">Auto-Rename</button>
+								<button id="newProfileIgnore" class="btn btn-warning">Ignore</button>
+								<button id="newProfileCancel" class="btn btn-danger pull-right">Cancel</button>
+							</div>
+			      </div>
+			    </div>
+			  </div>
 			</div>
 			<div class="panel-footer">
-				<div class="container">
-					<button id="close" type="button" class="btn btn-danger pull-right"><span class="locale Close">Close</span></button>
+				<div class="input-group">
+					<div class="input-group-btn center-block">
+						<button id="reset" type="button" class="btn btn-danger">Reset the extention by default</button>
+					</div>
 				</div>
 			</div>
 		</div>
-		<script type="text/javascript" src="js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="js/export_lib.js"></script>
 		<script type="text/javascript" src="js/popup2.js"></script>
 		<!--
