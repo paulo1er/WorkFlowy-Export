@@ -532,10 +532,6 @@ var popup2 = (function() {
 						}
 					}, false);
 
-					document.getElementById("close").addEventListener("click", function() {
-						window.close();
-					}, false);
-
 					$('input[type=radio][name=defaultItemStyle]').change("change", function() {
 						if($("#Bullet").is(':checked'))
 							$("#divBulletCaracter").show();
@@ -782,11 +778,18 @@ var popup2 = (function() {
 						});
 					});
 
-					document.getElementById("resetProfile").addEventListener("click", function() {
-						profileList = null;
-						profileName_LastConnexion = null;
-						curent_profile = null;
-						initProfileList();
+					document.getElementById("reset").addEventListener("click", function() {
+						chrome.storage.sync.clear(function (){});
+						var width = Math.max(window.screen.availWidth*0.75, 500);
+						var height = Math.max(window.screen.availHeight*0.75, 600);
+						var top = Math.max((window.screen.availHeight-height)/2,50);
+						var left = Math.max((window.screen.availWidth-width)/2,50);
+						var a = window.open("popup2.html", "_blank", "left="+left+",top="+top+",status=1,scrollbars=1, width="+width+",height="+height);
+						a.focus();
+						a.addEventListener('load', function(){
+							a.popup2.main(currentTabId);
+						}, true);
+						window.close();
 					}, false);
 				}
 

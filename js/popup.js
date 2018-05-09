@@ -4,7 +4,6 @@
 		active: true,
 		currentWindow: true
 	}, function(tabs) {
-			console.log(tabs);
 			var width = Math.max(tabs[0].width*0.75, 500);
 			var height = Math.max(tabs[0].height*0.75, 600);
 			var top = Math.max((window.screen.availHeight-height)/2,50);
