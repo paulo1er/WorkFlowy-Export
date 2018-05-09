@@ -281,7 +281,12 @@ var popup2 = (function() {
 				//open a form to create or update a preset of options
 				function newProfile(){
 					$("#profileSelect").hide();
-					$("#profileEdit").slideToggle("slow");
+					$("#profileEdit").show();
+
+					if(!$('#form').is(":visible")){
+						$('#form').slideToggle("slow");
+						$('#hideForm').html('<i class="glyphicon glyphicon-minus"></i');
+					}
 					enableForm();
 					updadeForm();
 				}
@@ -298,7 +303,7 @@ var popup2 = (function() {
 						};
 						profileList[profileName] = copy(curent_profile);
 						updateProfileChoice();
-						$("#profileEdit").slideToggle("slow");
+						$("#profileEdit").hide();
 						$("#profileSelect").show();
 						disableForm();
 						document.getElementById('profileList').value = profileName;
@@ -763,6 +768,17 @@ var popup2 = (function() {
 						refreshOptions["fragment"] = $("#fragment").prop('checked');
 						chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
 							console.log("save fragment at", $("#fragment").prop('checked'));
+						});
+					});
+
+					$('#hideForm').click(function(){
+						$('#form').slideToggle("slow", function(){
+							if($('#form').is(":visible")){
+								$('#hideForm').html('<i class="glyphicon glyphicon-minus"></i');
+							}
+							else{
+								$('#hideForm').html('<i class="glyphicon glyphicon-plus"></i');
+							}
 						});
 					});
 

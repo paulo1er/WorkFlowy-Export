@@ -91,8 +91,10 @@
 					</div>
 				</div>
 
-					<div id='profileSelect' class="well col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+	      <div class="panel panel-info" id='profileSelect'>
 					<input type="file" id="importFile" value="Import" style="display:none">
+	        <div class="panel-body">
 						<div class="input-group">
 							<span class="input-group-addon">Profile Name</span>
 							<select id="profileList" class="form-control"></select>
@@ -103,27 +105,35 @@
 								<button id="importProfile" type="button" class="btn btn-default">Import <i class="glyphicon glyphicon-upload"></i></button>
 							</span>
 						</div>
-						<br>
+					</div>
+	        <div class="panel-footer">
 						<div class="input-group">
 							<div class="input-group-btn center-block">
 								<button id="resetProfile" type="button" class="btn btn-danger">Reset all the profile by default</button>
 							</div>
 						</div>
 					</div>
+	      </div>
 
-					<div id='profileEdit' hidden>
-						<div class="well">
-							<div class="input-group">
-								<span class="input-group-addon">Profile Name</span>
-								<input type="text" id="nameProfile" class="form-control">
-								<div class="input-group-btn">
-									<button id="saveProfile" type="button"  class="btn btn-success center-block"><span>Save</span></button>
-								</div>
+				<div class="panel panel-info" id='profileEdit' hidden>
+					<div class="panel-body">
+						<div class="input-group">
+							<span class="input-group-addon">Profile Name</span>
+							<input type="text" id="nameProfile" class="form-control">
+							<div class="input-group-btn">
+								<button id="saveProfile" type="button"  class="btn btn-success center-block"><span>Save</span></button>
 							</div>
 						</div>
 					</div>
-					<div id="form">
-						<div class="container-fluid">
+				</div>
+
+				<div class="panel panel-info">
+					<div class="panel-heading text-center">
+						<button id="hideForm" type="button" class="close"><i class="glyphicon glyphicon-minus"></i></button>
+						<h5 class="modal-title">Curent profile</h5>
+					</div>
+					<div class="panel-body">
+						<div class="container-fluid" id="form">
 							<div class="row justify-content-around">
 								<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
 									<p class="text-center">Output Format</p>
@@ -321,6 +331,7 @@
 							</div>
 						</div>
 					</div>
+				</div>
 			</div>
 			<div id="myModal" class="modal fade" role="dialog">
 			  <div class="modal-dialog">
