@@ -47,7 +47,7 @@ var popup2 = (function() {
 			request: 'getTopic'
 		}, function(response) {
 			console.log("TTTT",response);
-			chrome.storage.sync.get(['profileList', 'profileName', "textAreaStyle"], function(storage) {
+			chrome.storage.sync.get(['profileList', 'profileName', "textAreaStyle", "refreshOptions"], function(storage) {
 				//return a copy of an object (recursif)
 
 				function copy(o) {
@@ -479,20 +479,28 @@ var popup2 = (function() {
 
 					console.log("##################### Export the page with profile", curent_profile, g_email);
 					var $textArea = $('#textArea');
-					text = exportLib(g_my_nodes, curent_profile, g_email);
+					text = exportLib(g_my_nodes, curent_profile, g_email, !$("#fragment").prop('checked'));
 					$textArea.val(text);
 					$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 					$("#title").remove();
 					$("#popupTitle").append($("<h5 id=\"title\"></h5>").text(g_title + " : ").append($("<a href=\""+g_url+"\" target=\"_blank\"></a>").text(g_url)));
 					chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 						console.log("profileName init");
-						$textArea.select();
 					});
+					if($("#autoCopy").prop('checked')){
+						copyToClipboard(text);
+					}
+					if($("#autoDownload").prop('checked')){
+						download($("#fileName").text(), $("#textArea").val());
+					}
 				};
 
-				function copyToClipboard(){
-				  $("#textArea").select();
-				  document.execCommand("copy");
+				function copyToClipboard(text){
+			    var $temp = $("<input>");
+			    $("body").append($temp);
+			    $temp.val(text).select();
+			    document.execCommand("copy");
+			    $temp.remove();
 				}
 
 				//add event Listener for the button in the popup
@@ -585,7 +593,7 @@ var popup2 = (function() {
 					};
 
 					document.getElementById("copy").addEventListener("click", function() {
-						copyToClipboard();
+						copyToClipboard($('#textArea'));
 					}, false);
 
 					document.getElementById("download").addEventListener("click", function() {
@@ -745,6 +753,27 @@ var popup2 = (function() {
 								console.log("textAreaStyle save new height");
 							});
 						}
+					});
+
+					$('#autoCopy').change(function(){
+						refreshOptions["autoCopy"] = $("#autoCopy").prop('checked');
+						chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+							console.log("save autoCopy at", $("#autoCopy").prop('checked'));
+						});
+					});
+
+					$('#autoDownload').change(function(){
+						refreshOptions["autoDownload"] = $("#autoDownload").prop('checked');
+						chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+							console.log("save autoDownload at", $("#autoDownload").prop('checked'));
+						});
+					});
+
+					$('#fragment').change(function(){
+						refreshOptions["fragment"] = $("#fragment").prop('checked');
+						chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+							console.log("save fragment at", $("#fragment").prop('checked'));
+						});
 					});
 
 					document.getElementById("resetProfile").addEventListener("click", function() {
@@ -952,12 +981,29 @@ var popup2 = (function() {
 						console.log("textAreaStyle init");
 					});
 				}
-
 				$('#textArea').css("font-family", textAreaStyle["font-family"]);
 				$('#fontFamily').val(textAreaStyle["font-family"]);
 				$('#textArea').css('font-size', textAreaStyle["font-size"]+"px");
 				$('#fontSize').val(textAreaStyle["font-size"]);
 				$('#textArea').css('height', textAreaStyle["height"]+"px");
+
+				var refreshOptions;
+				if(storage.refreshOptions){
+					refreshOptions = storage.refreshOptions;
+				}
+				else {
+					refreshOptions={
+						"autoCopy" : false,
+						"autoDownload" : false,
+						"fragment": false
+					};
+					chrome.storage.sync.set({'refreshOptions' : refreshOptions}, function() {
+						console.log("refreshOptions init");
+					});
+				}
+				$("#autoCopy").prop("checked", refreshOptions["autoCopy"]);
+				$("#autoDownload").prop("checked", refreshOptions["autoDownload"]);
+				$("#fragment").prop("checked", refreshOptions["fragment"]);
 
 				initProfileList();
 
@@ -991,6 +1037,7 @@ var popup2 = (function() {
 				func(function(){
 					$loading.hide();
 					$content.show();
+					$("#textArea").select();
 					$divTextArea.height("auto");
 				});
 			}

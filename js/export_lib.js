@@ -1,4 +1,4 @@
-var exportLib = function(my_nodes, options, email) {
+var exportLib = function(my_nodes, options, email, is_document) {
 	// private method
 	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
@@ -465,8 +465,6 @@ var exportLib = function(my_nodes, options, email) {
 	}
 
 	exportNodesTree = function(nodes, index, level, options) {
-		var is_document = nodes[index].is_title;
-
 		options.findReplace.forEach(function(e) {
 			console.log("#F&R",e);
 			if(e!=null){
