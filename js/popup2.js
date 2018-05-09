@@ -235,22 +235,17 @@ var popup2 = (function() {
 					curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
 
 					document.getElementById(curent_profile.format).checked = true;
-					if($("#opml").is(':checked')){
-						$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-						$("#None").prop("checked", true);
-						$("#divBulletCaracter").hide();
-						$("[name=TxtDefaultItemStyle]").css('color', 'grey');
-
-						//$("input[type=radio][name=indentOptions]").prop("disabled", true);
-						//$("#withoutIndent").prop("checked", true);
-						//$("[name=TxtindentOptions]").css('color', 'grey');
-					}
-					else{
-						$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
-						$("[name=TxtDefaultItemStyle]").css('color', '');
-
-						//$("input[type=radio][name=indentOptions]").prop("disabled", false);
-						//$("[name=TxtindentOptions]").css('color', '');
+					if($("#profileEdit").is(":visible")){
+						if($("#opml").is(':checked')){
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+							$("#None").prop("checked", true);
+							$("#divBulletCaracter").hide();
+							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+						}
+						else{
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+							$("[name=TxtDefaultItemStyle]").css('color', '');
+						}
 					}
 
 					document.getElementById(curent_profile.defaultItemStyle).checked = true
@@ -544,22 +539,17 @@ var popup2 = (function() {
 					});
 
 					$('input[type=radio][name=formatOptions]').change("change", function() {
-						if($("#opml").is(':checked')){
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-							$("#None").prop("checked", true);
-							$("#divBulletCaracter").hide();
-							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
-
-							//$("input[type=radio][name=indentOptions]").prop("disabled", true);
-							//$("#withoutIndent").prop("checked", true);
-							//$("[name=TxtindentOptions]").css('color', 'grey');
-						}
-						else{
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
-							$("[name=TxtDefaultItemStyle]").css('color', '');
-
-							//$("input[type=radio][name=indentOptions]").prop("disabled", false);
-							//$("[name=TxtindentOptions]").css('color', '');
+						if($("#profileEdit").is(":visible")){
+							if($("#opml").is(':checked')){
+								$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+								$("#None").prop("checked", true);
+								$("#divBulletCaracter").hide();
+								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+							}
+							else{
+								$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+								$("[name=TxtDefaultItemStyle]").css('color', '');
+							}
 						}
 					});
 
