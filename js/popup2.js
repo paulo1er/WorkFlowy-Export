@@ -10,10 +10,26 @@ var popup2 = (function() {
 		}
 	});
 
-	window.onerror = function myErrorHandler(msg, url, lineNo) {
-	    error("Error occured: " + msg);//or any message
-			console.log(msg);
-	    return false;
+	var promisify = function (fn) {
+	  var args = Array.prototype.slice.call(arguments).slice(1);
+	  return new Promise(function(resolve, reject) {
+	    fn.apply(null, args.concat(function (res) {
+	      if (chrome.runtime.lastError) {
+	        return reject(chrome.runtime.lastError);
+	      }
+	      return resolve(res);
+	    }));
+	  });
+	};
+
+	function setStorageItems(items) {
+  	promisify(chrome.storage.sync.set, items).then(function() {
+			console.log('settings saved');
+		})
+		.catch(function (err) {
+			console.error(err);
+			error("Error when saving profile list");
+		});
 	}
 
 	function error(text){
@@ -49,7 +65,6 @@ var popup2 = (function() {
 			console.log("TTTT",response);
 			chrome.storage.sync.get(['profileList', 'profileName', "textAreaStyle", "refreshOptions"], function(storage) {
 				//return a copy of an object (recursif)
-
 				function copy(o) {
 				  var output, v, key;
 				  output = Array.isArray(o) ? [] : {};
@@ -151,6 +166,7 @@ var popup2 = (function() {
 						else
 							profileList[newkey]=copy(newProfileList[newkey]);
 							updateProfileChoice();
+							//setStorageItems({'profileList' : profileList});
 							chrome.storage.sync.set({'profileList' : profileList}, function() {});
 					});
 					if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
@@ -511,7 +527,7 @@ var popup2 = (function() {
 							changeFormat();
 							loading(function(callback){
 								exportText();
-								callback();
+								return callback();
 							});
 						}
 						else{
@@ -526,9 +542,9 @@ var popup2 = (function() {
 									 	g_url = response.url;
 										g_email= response.email;
 										exportText();
-										callback();
+										return callback();
 								});
-						});
+							});
 						}
 					}, false);
 
@@ -566,7 +582,7 @@ var popup2 = (function() {
 						loading(function(callback){
 							saveProfile();
 							exportText();
-							callback();
+							return callback();
 						});
 					}, false);
 
@@ -578,7 +594,7 @@ var popup2 = (function() {
 						curent_profile = copy(profileList[document.getElementById('profileList').value]);
 						loading(function(callback){
 							exportText();
-							callback();
+							return callback();
 						});
 						updadeForm();
 					};
@@ -1022,11 +1038,9 @@ var popup2 = (function() {
 				var g_url = response.url;
 				var g_email= response.email;
 
-
 				exportText();
 				setEventListers();
-				callback();
-
+				return callback();
 			});
 		})
 	}
@@ -1042,28 +1056,19 @@ var popup2 = (function() {
         'margin-top' : - $loading.height()/2 + "px"
     });
 		$loading.show("fast",function(){
-			try{
-				func(function(){
-					$loading.hide();
-					$content.show();
-					$("#textArea").select();
-					$divTextArea.height("auto");
-				});
-			}
-			catch(err){
-				$("#loading").hide("fast");
-				$("#content").hide("fast");
-				$("#error").show("fast");
-				$("#textError").text(err.toString());
-				console.log("Error", err);
-			}
+			func(function(){
+				$loading.hide();
+				$content.show();
+				$("#textArea").select();
+				$divTextArea.height("auto");
+			});
 		});
 	}
 
 	return{
 		main : function(currentTabId) {
 			loading(function(callback){
-				load(currentTabId, callback);
+				return load(currentTabId, callback);
 			});
 		}
 	}
