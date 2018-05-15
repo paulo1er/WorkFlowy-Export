@@ -4,11 +4,8 @@
 		var list = [];
 		var i,j;
 		var text;
-		for (i = 0; i < e.length; i++)
-		{
-
-			console.log('n loop', e[i], 'child 0');
-			console.log(e[i].children);
+		for (i = 0; i < e.length; i++){
+			console.log("element", e[i]);
 			text = e[i].children[0].children[1];
 			list.push({
 				title: text.textContent,
@@ -24,8 +21,7 @@
 				type: 'note',
 				children: []
 			});
-			for (j = 0; j < e[i].children[2].children.length-1; j++)
-			{
+			for (j = 0; j < e[i].children[2].children.length-1; j++){
 				list = list.concat(elementsToArray([e[i].children[2].children[j]]));
 			}
 			list.push({
@@ -33,7 +29,6 @@
 				type: 'eoc'
 			});
 		}
-		console.log("Processed", list, "nodes");
 		return list;
 	}
 
@@ -42,20 +37,20 @@
 		var title = document.title;
 
 		var nodeList = document.querySelectorAll('div.addedToSelection');
-		if (nodeList.length==0)
-		{
+		if (nodeList.length==0){
 			nodeList = [document.querySelector('div.selected')];
 		}
 		var email = document.getElementById("userEmail").innerText;
 		chrome.storage.sync.set({'lastURL' : url}, function() {});
 		var content = elementsToArray(nodeList);
-		console.log('*******', nodeList, email);
-		callback({
+		var result = {
 			content: content,
 			url: url,
 			title: title.replace(/ \- WorkFlowy$/, ''),
 			email: email
-		});
+		};
+		console.log("getContent", result);
+		callback(result);
 	}
 
 	function main() {

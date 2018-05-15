@@ -24,9 +24,10 @@ var exportLib = function(my_nodes, options, email, is_document) {
 		this.toString = function(){
 			if(typeof WFE_FUNCTION["wfe-"+this.name] == "function"){
 				var args = this.parameter;
+				console.log("WFE", this.name, args);
 				return WFE_FUNCTION["wfe-"+this.name].apply( this, args );
 			}
-			console.log("no function define for", name);
+			console.log("WFE no function ", name);
 			return "";
 		}
 	}
@@ -54,22 +55,18 @@ var exportLib = function(my_nodes, options, email, is_document) {
 			return "NaN";
 		},
 		"wfe-ignore-tags": function(bool=true){
-			console.log('ignore-tags', bool);
 			options.ignore_tags = bool;
 			return "";
 		},
 		"wfe-ignore-item": function(bool=true){
-			console.log('ignore-item', bool);
 			options.ignore_item = bool;
 			return "";
 		},
 		"wfe-ignore-outline": function(bool=true){
-			console.log('ignore-outline', bool);
 			options.ignore_outline = bool;
 			return "";
 		},
 		"wfe-page-break": function(bool=true){
-			console.log('page break found');
 			options.page_break = bool;
 			return "";
 		},
@@ -466,7 +463,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 
 	exportNodesTree = function(nodes, index, level, options) {
 		options.findReplace.forEach(function(e) {
-			console.log("#F&R",e);
 			if(e!=null){
 				e.regexFind = functionRegexFind(e.txtFind, e.isRegex, e.isMatchCase);
 			}
@@ -500,14 +496,14 @@ var exportLib = function(my_nodes, options, email, is_document) {
 
 		// Create header text
 		if(is_document) header = HEADER[options.format];
-
-		console.log("header", header, nodes[index].type);
-		console.log("STYLESHEET",STYLESHEET.Normal);
-		// Create body text
-		body = exportNodesTreeBody(nodes, index, level, options);
+		console.log("header", header);
 
 		// Create footer text
 		if(is_document) footer = FOOTER[options.format];
+		console.log("footer", footer);
+
+		// Create body text
+		body = exportNodesTreeBody(nodes, index, level, options);
 
 		wfe_count={};
 		wfe_count_ID={};
@@ -542,12 +538,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 			nodesStyle = new Style(STYLESHEET[styleName].Id);
 		else
 			nodesStyle = copy(STYLESHEET[styleName]);
-		// Create section heading LaTeX
-/* 					var title_level = 0;
-		var part_level = -1;
-		var section_level = 1;
-		var subsection_level = 2;
-		var frame_level = 3; */
 
 		var title_level = -1;
 		var part_level = -1;
@@ -568,7 +558,7 @@ var exportLib = function(my_nodes, options, email, is_document) {
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
-				console.log("#F&R",e);
+				//console.log("apply find and replace",e);
 				if(e!=null){
 					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(e.regexFind, e.txtReplace)});
 				}
@@ -579,6 +569,7 @@ var exportLib = function(my_nodes, options, email, is_document) {
 				// Assign new rules from WFE-tags in item
 
 				ALIAS.forEach(function(e) {
+					//console.log("Replace Alias",e);
 						textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[1]).join(e[0])});
 				});
 
@@ -679,7 +670,7 @@ var exportLib = function(my_nodes, options, email, is_document) {
 					break;
 			}
 
-			console.log('Finished processing rules:', textList, options.ignore_item);
+			console.log('Finished processing rules:', textList, options);
 
 
 			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
@@ -932,7 +923,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 					output = output + indent + "</outline>\n"
 				else if (options.format == 'beamer')
 				{
-					console.log("toto", level, nodes[index].children.length);
 					if ((level >= frame_level) && (output_children.length > 0))
 						output = output + indent + "\\end{itemize}\n";
 					if (level == frame_level)
@@ -946,7 +936,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 
 
 	var text = "";
-	console.log("Options in toMyText:", options);
 	text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options);
 	return text;
 }

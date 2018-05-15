@@ -62,7 +62,6 @@ var popup2 = (function() {
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
-			console.log("TTTT",response);
 			chrome.storage.sync.get(['profileList', 'profileName', "textAreaStyle", "refreshOptions"], function(storage) {
 				//return a copy of an object (recursif)
 				function copy(o) {
@@ -87,10 +86,12 @@ var popup2 = (function() {
 
 				  document.body.removeChild(element);
 				}
+
 				var HTML_true = '<small><i class="glyphicon glyphicon-ok"></i></small>';
 				var HTML_false = '<small><i class="glyphicon glyphicon-remove"></i></small>';
+
 				function openSolverConflictProfile(newkey, newProfile){
-					console.log(newkey, newProfile);
+					console.log("Conflic profile", newkey, newProfile);
 					$('#myModal').modal("show");
 					$("#renameNewProfile").val(newkey);
 					$("#newNameProfile").text(newkey);
@@ -170,7 +171,7 @@ var popup2 = (function() {
 							chrome.storage.sync.set({'profileList' : profileList}, function() {});
 					});
 					if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
-					console.log(conflictProfileList);
+					console.log("conflictProfileList", conflictProfileList);
 				}
 
 				function extensionFileName(format){
@@ -323,9 +324,8 @@ var popup2 = (function() {
 						$("#profileSelect").show();
 						disableForm();
 						document.getElementById('profileList').value = profileName;
-						console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
 						chrome.storage.sync.set({'profileList' : profileList}, function() {
-							console.log("profileList saved ",(Date.now()- start), profileList[profileName]);
+							console.log("profileList saved ");
 						});
 					}
 				}
@@ -432,10 +432,9 @@ var popup2 = (function() {
 
 				//delete a rule of find and replace
 				function deleteFindReplace(index){
-					console.log("Before curent_profile.findReplace", curent_profile.findReplace);
 					curent_profile.findReplace[index]=null;
 					document.getElementById("findReplace" + index).remove();
-					console.log("After curent_profile.findReplace", curent_profile.findReplace);
+					console.log("curent_profile.findReplace", curent_profile.findReplace);
 				}
 
 				// change curent_profile with the value enter in the form
@@ -493,7 +492,7 @@ var popup2 = (function() {
 				//export the nodes in the textArea in the popup
 				function exportText(){
 
-					console.log("##################### Export the page with profile", curent_profile, g_email);
+					console.log("##################### Export the page with profile", curent_profile);
 					var $textArea = $('#textArea');
 					text = exportLib(g_my_nodes, curent_profile, g_email, !$("#fragment").prop('checked'));
 					$textArea.val(text);
@@ -709,15 +708,12 @@ var popup2 = (function() {
 
 					$("#importFile").change(function(e) {
 						var file = document.getElementById('importFile').files[0];
-						console.log(file);
 
 						var fr = new FileReader();
 
 						fr.onload = function(e) {
-							console.log(e);
 							var result = JSON.parse(e.target.result);
 							addProfileToProfileList(result);
-							console.log(profileList);
 						}
 						fr.readAsText(file);
 						$("#importFile").val('');
@@ -823,7 +819,6 @@ var popup2 = (function() {
 					var oldestChild = start;
 					nodes[start].allSiblings = [start];
 					console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
-					console.log("Document type is OUTLINE");
 					if ((nodes[start].type == "node") || (nodes[start].type == "note")) console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type, ", text is:", nodes[start].title)
 					else console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type);
 
