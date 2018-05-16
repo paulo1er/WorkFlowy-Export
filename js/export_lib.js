@@ -1,4 +1,4 @@
-var exportLib = function(my_nodes, options, email, is_document) {
+var exportLib = function(my_nodes, options, email) {
 	// private method
 	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
@@ -495,11 +495,11 @@ var exportLib = function(my_nodes, options, email, is_document) {
 		options.page_break = false;
 
 		// Create header text
-		if(is_document) header = HEADER[options.format];
+		if(!options.fragment) header = HEADER[options.format];
 		console.log("header", header);
 
 		// Create footer text
-		if(is_document) footer = FOOTER[options.format];
+		if(!options.fragment) footer = FOOTER[options.format];
 		console.log("footer", footer);
 
 		// Create body text

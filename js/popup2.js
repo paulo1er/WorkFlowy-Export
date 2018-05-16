@@ -125,6 +125,9 @@ var popup2 = (function() {
 						if(profileList[newkey].escapeCharacter) $("#yourProfile-escapeCharacter").html(HTML_true);
 						else $("#yourProfile-escapeCharacter").html(HTML_false);
 
+						if(profileList[newkey].fragment) $("#yourProfile-fragment").html(HTML_true);
+						else $("#yourProfile-fragment").html(HTML_false);
+
 						$("#yourProfile-findReplace").text(profileList[newkey].findReplace.length);
 
 
@@ -154,6 +157,9 @@ var popup2 = (function() {
 
 						if(newProfile.escapeCharacter) $("#newProfile-escapeCharacter").html(HTML_true);
 						else $("#newProfile-escapeCharacter").html(HTML_false);
+
+						if(newProfile.fragment) $("#newProfile-fragment").html(HTML_true);
+						else $("#newProfile-fragment").html(HTML_false);
 
 						$("#newProfile-findReplace").text(newProfile.findReplace.length);
 					}
@@ -197,11 +203,12 @@ var popup2 = (function() {
 						"outputNotes : "+profile.outputNotes+"<br>"+
 						"ignore_tags : "+profile.ignore_tags+"<br>"+
 						"escapeCharacter : "+profile.escapeCharacter+"<br>"+
+						"fragment : "+profile.fragment+"<br>"+
 						"findReplace : "+profile.findReplace;
 						return r;
 					}
 
-					function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace){
+					function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace, fragment){
 						this.format = format,
 						this.defaultItemStyle = defaultItemStyle,
 						this.indent_chars = indent_chars,
@@ -211,7 +218,8 @@ var popup2 = (function() {
 						this.outputNotes = outputNotes,
 						this.ignore_tags = ignore_tags,
 						this.escapeCharacter = escapeCharacter,
-						this.findReplace = copy(findReplace)
+						this.findReplace = copy(findReplace),
+						this.fragment = fragment
 					};
 
 					//update the list in the popup with the different preset of options
@@ -277,6 +285,7 @@ var popup2 = (function() {
 						document.getElementById("outputNotes").checked = curent_profile.outputNotes;
 						document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
 						document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
+						document.getElementById("fragment").checked = curent_profile.fragment;
 						document.getElementById("insertLine").checked = (curent_profile.item_sep == "\n\n");
 						switch (curent_profile.prefix_indent_chars) {
 							case "\t":
@@ -488,6 +497,7 @@ var popup2 = (function() {
 						curent_profile.outputNotes = document.getElementById("outputNotes").checked;
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 						curent_profile.escapeCharacter = document.getElementById("escapeCharacter").checked;
+						curent_profile.fragment = document.getElementById("fragment").checked;
 					};
 
 					//export the nodes in the textArea in the popup
@@ -495,7 +505,7 @@ var popup2 = (function() {
 
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $('#textArea');
-						text = exportLib(g_my_nodes, curent_profile, g_email, !$("#fragment").prop('checked'));
+						text = exportLib(g_my_nodes, curent_profile, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").remove();
@@ -734,13 +744,6 @@ var popup2 = (function() {
 							}
 						});
 
-						$('#fragment').change(function(){
-							refreshOptions["fragment"] = $("#fragment").prop('checked');
-							chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
-								console.log("save fragment at", $("#fragment").prop('checked'));
-							});
-						});
-
 						$('#hideForm').click(function(){
 							$('#form').slideToggle("slow", function(){
 								if($('#form').is(":visible")){
@@ -750,6 +753,15 @@ var popup2 = (function() {
 									$('#hideForm').html('<i class="glyphicon glyphicon-plus"></i');
 								}
 							});
+						});
+
+						$( window ).resize(function() {
+							if(window.innerWidth>=992){
+								//$('#textArea').css("resize", "vertical");
+							}
+							else{
+								//$('#textArea').css("resize", "none");
+							}
 						});
 
 						document.getElementById("reset").addEventListener("click", function() {
@@ -913,12 +925,12 @@ var popup2 = (function() {
 					function initProfileList(){
 						if(profileList == null){
 							profileList = {
-								"list" : new Profile("text", "None", "", "\t", "\n", false, false, true, false, []),
-								"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
-								"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, []),
-								"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, []),
-								"OPML" : new Profile("opml", "None", "", "\t", "\n", true, false, true, true, []),
-								"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [])
+								"list" : new Profile("text", "None", "", "\t", "\n", false, false, true, false, [], false),
+								"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
+								"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
+								"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, [], false),
+								"OPML" : new Profile("opml", "None", "", "\t", "\n", true, false, true, true, [], false),
+								"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [], false)
 							};
 							chrome.storage.sync.set({'profileList' : profileList}, function() {
 								console.log("profileList init");
@@ -965,8 +977,7 @@ var popup2 = (function() {
 					else {
 						refreshOptions={
 							"autoCopy" : false,
-							"autoDownload" : false,
-							"fragment": false
+							"autoDownload" : false
 						};
 						chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
 							console.log("refreshOptions init");
