@@ -29,23 +29,6 @@
 					<div class="panel-footer">
 						<div class="container-fluid">
 							<div class="row">
-								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-									<div class="input-group">
-										<span class="input-group-addon">Font</span>
-										<select id="fontFamily" class="form-control">
-										  <option value="Arial">Arial</option>
-										  <option value="Times New Roman">Times New Roman</option>
-										  <option value="Courier">Courier</option>
-										  <option value="Comic Sans MS">Comic Sans MS</option>
-										</select>
-									</div>
-								</div>
-								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-									<div class="input-group">
-										<span class="input-group-addon">Font size</span>
-										<input id="fontSize" class="form-control" type="number" name="fontSize" min="10" max="30">
-									</div>
-								</div>
 								<div class="text-center col-xs-12 col-sm-6 col-md-6 col-lg-6">
 		  						<div class="btn-group" role="group">
 										<button id="refresh" type="button" class="btn btn-primary center-block">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
@@ -56,33 +39,6 @@
 			  					<div class="btn-group" role="group">
 										<div hidden id="fileName"></div>
 										<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="display-xs-block visible-sm-block col-sm-3 visible-md-block col-md-3 visible-lg-block col-lg-3"></div>
-								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-									<div class="input-group input-group-sm">
-										<span class="input-group-addon">
-											<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
-										</span>
-										<label class="form-control" for="fragment">Fragment</label>
-									</div>
-								</div>
-								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-									<div class="input-group input-group-sm">
-										<span class="input-group-addon">
-											<input type="checkbox" id="autoCopy" name="autoCopy" class="form-check-input with-gap">
-										</span>
-										<label class="form-control" for="autoCopy">Auto-copy</label>
-									</div>
-								</div>
-								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-									<div class="input-group input-group-sm">
-										<span class="input-group-addon">
-											<input type="checkbox" id="autoDownload" name="autoDownload" class="form-check-input with-gap">
-										</span>
-										<label class="form-control" for="autoDownload">Auto-download</label>
 									</div>
 								</div>
 							</div>
@@ -269,6 +225,12 @@
 										</span>
 									  <label class="form-control" for="wfeRules">Expert Mode</label>
 									</div>
+									<div class="input-group input-group-sm">
+										<span class="input-group-addon">
+											<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
+										</span>
+										<label class="form-control" for="fragment">Fragment</label>
+									</div>
 								</div>
 
 								<div class="clearfix display-xs-block visible-sm-block visible-md-block visible-lg-block"></div>
@@ -418,7 +380,7 @@
 			<div class="panel-footer">
 				<div class="input-group">
 					<div class="input-group-btn center-block">
-						<button id="reset" type="button" class="btn btn-danger">Reset the extention by default</button>
+						<button id="reset" type="button" class="btn btn-danger">Reset profiles by default</button>
 					</div>
 				</div>
 			</div>
