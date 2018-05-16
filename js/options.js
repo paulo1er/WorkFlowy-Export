@@ -1,115 +1,89 @@
 (function() {
-  var g_editor;
-  var g_current_theme;
 
-  var themes = [
-    {'label': 'Porter theme for WorkFlowy by \htakeuchi',
-      'filename': 'porter'
-    },
-    {'label': 'Work a Simpler Flowy v2.0 by 72dpi',
-      'filename': 'WorkaSimplerFlowyv2.0'
-    },
-    {'label': 'workflowy.com - clean and bright by hodanli',
-      'filename': 'cleanandbright'
-    },
-    {'label': 'Workflowy for Writers by isaribi',
-      'filename': 'workflowyforwriters'
-    },
-    {'label': 'Workflowy Monokai by F0rnit1',
-      'filename': 'WorkflowyMonokai'
-    },
-    {'label': 'Workflowy Itemized by Dan Fessler',
-      'filename': 'workflowy-itemized'
-    },
-    {'label': 'WorkFlowyGiffmex by giffmex',
-      'filename': 'workflowygiffmex'
-    },
-    {'label': 'Big Black Workflowy by rsynnest',
-      'filename': 'big-black-workflowy'
-    },
-    {'label': 'Suikou by akio6o6',
-      'filename': 'suikou'
-    },
-    {'label': 'Custom CSS Only (unused built-in theme)',
-      'filename': 'CUSTOM'
-    },
-  ];
+  var refreshOptions;
+  var textAreaStyle;
 
-  function save() {
-    $('#alert').css('display','block');
-    setTimeout(function() {$('#alert').fadeOut();}, 6000);
-
-    chrome.storage.sync.set({
-      'custom_css': g_editor.getValue(),
-      'theme': g_current_theme,
-      'theme_enable': document.getElementById('themeEnable').checked,
+  function setEventListers(){
+    $("#fontFamily").change(function(e) {
+      textAreaStyle["font-family"] = $("#fontFamily").val();
+      chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
+        console.log("textAreaStyle save new fontFamily");
+      });
     });
-  };
 
-  function load() {
-    chrome.storage.sync.get([
-      "theme_enable", "theme", "custom_css",
-      ],
-      function (option) {
-        // Enable Theme
-        document.getElementById('themeEnable').checked = option.theme_enable;
-        if (option.theme_enable) {toggle_theme_enable();}
+    $("#fontSize").change(function(e) {
+      textAreaStyle["font-size"] = $("#fontSize").val();
+      chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
+        console.log("textAreaStyle save new font-size");
+      });
+    });
 
-        // Theme
-        g_current_theme = option.theme;
-        setThemeList();
-        change_theme();
+    $('#autoCopy').change(function(){
+      refreshOptions["autoCopy"] = $("#autoCopy").prop('checked');
+      chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
+        console.log("save autoCopy at", $("#autoCopy").prop('checked'));
+      });
+    });
 
-        // Aditional CSS
-        g_editor.setValue(option.custom_css);
-      }
-    );
+    $('#autoDownload').change(function(){
+      refreshOptions["autoDownload"] = $("#autoDownload").prop('checked');
+      chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
+        console.log("save autoDownload at", $("#autoDownload").prop('checked'));
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", function() {
+      chrome.storage.local.clear(function (){});
+      refreshOptions = null;
+      textAreaStyle = null;
+      initTextAreaStyle();
+      initRefreshOptions();
+    }, false);
   }
 
-  function setThemeList()
-  {
-    var select = document.getElementById('themeSelect');
-
-    for (var i=0; i<themes.length; i++) {
-      var option = document.createElement('option');
-      option.setAttribute('value', themes[i].filename);
-      option.innerHTML = themes[i].label;
-      if (g_current_theme == themes[i].filename) {option.selected = true;}
-      select.appendChild(option);
+  function initTextAreaStyle(storageTextAreaStyle){
+    if(storageTextAreaStyle){
+      textAreaStyle = storageTextAreaStyle;
     }
+    else {
+      textAreaStyle={
+        "font-family" : "Arial",
+        "font-size" : 14
+      };
+      chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
+        console.log("textAreaStyle init");
+      });
+    }
+    $('#fontFamily').val(textAreaStyle["font-family"]);
+    $('#fontSize').val(textAreaStyle["font-size"]);
   }
 
-  function toggle_theme_enable() {
-    change_theme();
-  }
-
-  function change_theme() {
-    var select = document.getElementById('themeSelect');
-    g_current_theme = select.value;
+  function initRefreshOptions(storageRefreshOptions){
+    if(storageRefreshOptions){
+      refreshOptions = storageRefreshOptions;
+    }
+    else {
+      refreshOptions={
+        "autoCopy" : false,
+        "autoDownload" : false,
+        "fragment": false
+      };
+      chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
+        console.log("refreshOptions init");
+      });
+    }
+    $("#autoCopy").prop("checked", refreshOptions["autoCopy"]);
+    $("#autoDownload").prop("checked", refreshOptions["autoDownload"]);
+    $("#fragment").prop("checked", refreshOptions["fragment"]);
   }
 
   function main() {
-    document.getElementById("apply").addEventListener("click",  function() { save(); }, false);
-    document.getElementById("themeEnable").addEventListener("click",  function() { toggle_theme_enable(); }, false);
-    document.getElementById("themeSelect").addEventListener("change",  function() { change_theme(); }, false);
-    document.getElementById("showThemeEditor").addEventListener("click",  function() {
-      $('#editorArea').css('display', 'block');
-      $('#showThemeEditor').css('display', 'none');
-      g_editor.refresh();
-      $('#textArea').focus();
-    }, false);
-
-    var textArea = document.getElementById("textArea");
-    g_editor = CodeMirror.fromTextArea(textArea, {
-      mode: "css",
-      value: "",
-      lineNumbers: true,
-      extraKeys: {"Ctrl-Space": "autocomplete"},
-      tabSize: 2
+    chrome.storage.local.get(["textAreaStyle", "refreshOptions"], function(storage) {
+      setEventListers();
+  		initTextAreaStyle(storage.textAreaStyle);
+  		initRefreshOptions(storage.refreshOptions);
     });
-
-    load();
-  };
+  }
 
   main();
 }());

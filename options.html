@@ -2,59 +2,90 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WorkFlowy Export</title>
+    <title>WorkFlowy Export Option</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/codemirror.css" rel="stylesheet">
   </head>
   <body>
-    <div class="container">
-      <div class="col-md-2"></div>
-      <div class="col-md-8">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <img alt="Porter for WorkFlowy" src="image/icon48.png" style="float: left;">
-            <h3 style="margin-top:10px">WorkFlowy Export</h3>
-          </div>
+  	<div class="panel panel-info position-absolute" style="min-width:100%; min-height:100%;">
+  		<div class="panel-heading">
+  			<h4>WorkFlowy Export Option</h4>
+  		</div>
+			<div class="panel-body">
 
-          <div class="panel-body">
-            <div class="panel panel-default">
-              <div class="panel-heading"><h4 style="margin:0; padding:0" class="locale Theme">Theme</h5></div>
-              <div class="panel-body">
-                <form>
-                  <div class="form-group">
-                    <input type="checkbox" id="themeEnable"> <label class="locale Enabletheme">Enable Theme</label>
-                  </div>
-                  <div class="form-group">
-                    <label for="themeSelect" class="locale Basetheme">Base Theme</label>
-                    <select class="form-control" id="themeSelect"></select>
-                  </div>
-                  <label for="editorArea" class="locale Customcss">Addtional CSS</label>
-                  <a href="#" id="showThemeEditor" class="locale Editor"> (Show Editor)</a>
-                  <div class="form-group" id="editorArea" style=" border: 1px solid #ccc; display:none;">
-                    <textarea class="form-control" id="textArea" rows="7" ></textarea>
-                  </div>
-                </form>
-              </div>
+        <div class="container-fluid">
+  				<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
+  					<p class="text-center">Export window Size settings</p>
+  					<div class="input-group input-group-sm">
+  					  <span class="input-group-addon">
+  							<input type="radio" id="relativeBrowser" name="windowSize" class="form-check-input">
+  						</span>
+  					  <label class="form-control" for="relativeBrowser">Relative to browser</label>
+  					</div>
+  					<div class="input-group input-group-sm" input-group-sm>
+  					  <span class="input-group-addon">
+  							<input type="radio" id="maximised" name="windowSize" class="form-check-input">
+  						</span>
+  					  <label class="form-control" for="maximised">Maximised</label>
+  					</div>
+  					<div class="input-group input-group-sm">
+  					  <span class="input-group-addon">
+  							<input type="radio" id="remeberSize" name="windowSize" class="form-check-input">
+  						</span>
+  					  <label class="form-control" for="remeberSize">Remeber Size</label>
+  					</div>
+  					<div class="input-group input-group-sm">
+  					  <span class="input-group-addon">
+  							<input type="radio" id="noWindow" name="windowSize" class="form-check-input">
+  						</span>
+  					  <label class="form-control" for="noWindow">None (Quick Mode)</label>
+  					</div>
+  				</div>
+          <div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
+            <p class="text-center">Action after refresh</p>
+            <div class="input-group input-group-sm">
+              <span class="input-group-addon">
+                <input type="checkbox" id="autoCopy" name="autoCopy" class="form-check-input with-gap">
+              </span>
+              <label class="form-control" for="autoCopy">Auto-copy</label>
+            </div>
+            <div class="input-group input-group-sm">
+              <span class="input-group-addon">
+                <input type="checkbox" id="autoDownload" name="autoDownload" class="form-check-input with-gap">
+              </span>
+              <label class="form-control" for="autoDownload">Auto-download</label>
             </div>
           </div>
-
-          <div class="form-group">
-            <div class="alert alert-info" role="alert" id="alert" style="display:none;"><span class="locale ApplyMessage">Applied! ***Please reload*** the tab of WorkFlowy.</strong></span></div>
-            <button type="button" id="apply" class="btn btn-primary center-block applyButton" ><span class="locale Apply">Apply</span></button>
+          <div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
+            <p class="text-center">Text Area settings</p>
+            <div class="input-group">
+              <span class="input-group-addon">Font</span>
+              <select id="fontFamily" class="form-control">
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier">Courier</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Font size</span>
+              <input id="fontSize" class="form-control" type="number" name="fontSize" min="10" max="30">
+            </div>
           </div>
         </div>
+
+				<div class="input-group">
+					<div class="input-group-btn center-block">
+						<button id="reset" type="button" class="btn btn-danger">Reset option by default</button>
+					</div>
+				</div>
+
       </div>
-
-      <div class="col-md-2"></div>
+			<div class="panel-footer">
+        <p class="text-muted">More information : <a href="https://github.com/paulo1er/WorkFlowy-Export">github.com</a></p>
+			</div>
     </div>
-
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/codemirror.js"></script>
-    <script type="text/javascript" src="js/css.js"></script>
-    <script type="text/javascript" src="js/locale.js"></script>
     <script type="text/javascript" src="js/options.js"></script>
   </body>
 </html>
