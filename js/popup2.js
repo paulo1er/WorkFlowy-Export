@@ -243,35 +243,19 @@ var popup2 = (function() {
 						}
 					}
 
-					function enableForm(){
-						$("#form input").prop("disabled", false);
-						$("#formFindReplace").show();
-					}
-
-					function disableForm(){
-						$("#form input").prop("disabled", true);
-						$("#formFindReplace").hide();
-						$("#form input:checked").parent().parent().children("label").addClass("text-primary");
-					}
-
-
-
 					function updadeForm(){
-						document.getElementById("nameProfile").value = document.getElementById('profileList').value;
-						curent_profile = copy(profileList[document.getElementById("nameProfile").value]);
+						curent_profile = copy(profileList[document.getElementById('profileList').value]);
 
 						document.getElementById(curent_profile.format).checked = true;
-						if($("#profileEdit").is(":visible")){
-							if($("#opml").is(':checked')){
-								$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-								$("#None").prop("checked", true);
-								$("#divBulletCaracter").hide();
-								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
-							}
-							else{
-								$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
-								$("[name=TxtDefaultItemStyle]").css('color', '');
-							}
+						if($("#opml").is(':checked')){
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+							$("#None").prop("checked", true);
+							$("#divBulletCaracter").hide();
+							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+						}
+						else{
+							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+							$("[name=TxtDefaultItemStyle]").css('color', '');
 						}
 
 						document.getElementById(curent_profile.defaultItemStyle).checked = true
@@ -307,20 +291,11 @@ var popup2 = (function() {
 					}
 					//open a form to create or update a preset of options
 					function newProfile(){
-						$("#profileSelect").hide();
-						$("#profileEdit").show();
-
-						if(!$('#form').is(":visible")){
-							$('#form').slideToggle("slow");
-							$('#hideForm').html('<i class="glyphicon glyphicon-minus"></i');
-						}
-						enableForm();
-						updadeForm();
+						$('#modalNewProfile').modal("show");
 					}
 
 					//save the form for create or update a preset of options
-					function saveProfile(){
-						var profileName = document.getElementById("nameProfile").value;
+					function saveProfile(profileName){
 						if(profileName != ""){
 							changeFormat();
 							var idnull=curent_profile.findReplace.indexOf(null);
@@ -330,9 +305,6 @@ var popup2 = (function() {
 							};
 							profileList[profileName] = copy(curent_profile);
 							updateProfileChoice();
-							$("#profileEdit").hide();
-							$("#profileSelect").show();
-							disableForm();
 							document.getElementById('profileList').value = profileName;
 							chrome.storage.sync.set({'profileList' : profileList}, function() {
 								console.log("profileList saved ");
@@ -403,7 +375,7 @@ var popup2 = (function() {
 
 						newCell  = newRow.insertCell(3);
 						newText = document.createElement('i');
-						if(isMatchCase)
+						if(isRegex)
 							newText.setAttribute("class", "glyphicon glyphicon-ok");
 						else
 							newText.setAttribute("class", "glyphicon glyphicon-remove");
@@ -533,29 +505,27 @@ var popup2 = (function() {
 					function setEventListers() {
 
 						document.getElementById("refresh").addEventListener("click", function() {
-							if(document.getElementById("profileSelect").style.display=="none"){
-								changeFormat();
-								loading(function(callback){
-									exportText();
-									return callback();
+							changeFormat();
+							loading(function(callback){
+								exportText();
+								return callback();
+							});
+							/*
+							loading(function(callback){
+								chrome.tabs.sendMessage(currentTabId, {
+									request: 'getTopic'
+								}, function(response) {
+										curent_profile = copy(profileList[document.getElementById('profileList').value]);
+										g_nodes = response.content;
+										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
+										g_title = response.title;
+									 	g_url = response.url;
+										g_email= response.email;
+										exportText();
+										return callback();
 								});
-							}
-							else{
-								loading(function(callback){
-									chrome.tabs.sendMessage(currentTabId, {
-										request: 'getTopic'
-									}, function(response) {
-											curent_profile = copy(profileList[document.getElementById('profileList').value]);
-											g_nodes = response.content;
-											g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
-											g_title = response.title;
-										 	g_url = response.url;
-											g_email= response.email;
-											exportText();
-											return callback();
-									});
-								});
-							}
+							});
+							*/
 						}, false);
 
 						$('input[type=radio][name=defaultItemStyle]').change("change", function() {
@@ -566,17 +536,15 @@ var popup2 = (function() {
 						});
 
 						$('input[type=radio][name=formatOptions]').change("change", function() {
-							if($("#profileEdit").is(":visible")){
-								if($("#opml").is(':checked')){
-									$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-									$("#None").prop("checked", true);
-									$("#divBulletCaracter").hide();
-									$("[name=TxtDefaultItemStyle]").css('color', 'grey');
-								}
-								else{
-									$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
-									$("[name=TxtDefaultItemStyle]").css('color', '');
-								}
+							if($("#opml").is(':checked')){
+								$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
+								$("#None").prop("checked", true);
+								$("#divBulletCaracter").hide();
+								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
+							}
+							else{
+								$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+								$("[name=TxtDefaultItemStyle]").css('color', '');
 							}
 						});
 
@@ -590,10 +558,21 @@ var popup2 = (function() {
 
 						document.getElementById("saveProfile").addEventListener("click", function() {
 							loading(function(callback){
-								saveProfile();
+								saveProfile(document.getElementById('profileList').value);
 								exportText();
 								return callback();
 							});
+						}, false);
+
+						document.getElementById("saveNewProfile").addEventListener("click", function() {
+							if(document.getElementById('inputNewProfile').value != ""){
+								$('#modalNewProfile').modal('hide');
+								loading(function(callback){
+									saveProfile(document.getElementById('inputNewProfile').value);
+									exportText();
+									return callback();
+								});
+							}
 						}, false);
 
 						document.getElementById("removeOption").addEventListener("click", function() {
@@ -755,13 +734,15 @@ var popup2 = (function() {
 							});
 						});
 
-						$( window ).resize(function() {
-							if(window.innerWidth>=992){
-								//$('#textArea').css("resize", "vertical");
-							}
-							else{
-								//$('#textArea').css("resize", "none");
-							}
+						$('#hideProfileList').click(function(){
+							$('#divProfileList').slideToggle("slow", function(){
+								if($('#divProfileList').is(":visible")){
+									$('#hideProfileList').html('<i class="glyphicon glyphicon-minus"></i');
+								}
+								else{
+									$('#hideProfileList').html('<i class="glyphicon glyphicon-plus"></i');
+								}
+							});
 						});
 
 						document.getElementById("reset").addEventListener("click", function() {
@@ -945,7 +926,6 @@ var popup2 = (function() {
 						updateProfileChoice();
 						document.getElementById("profileList").value = profileName_LastConnexion;
 						updadeForm();
-						disableForm();
 						curent_profile = copy(profileList[document.getElementById('profileList').value]);
 					}
 

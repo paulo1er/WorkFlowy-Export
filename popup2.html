@@ -19,7 +19,7 @@
 
 
 	    			<div class="col-md-6 col-md-push-6">
-							<div class="panel panel-primary">
+							<div id="panelTextArea" class="panel panel-primary">
 								<div id="divTextArea" class="panel-body" style="position:relative; min-height:220px;">
 									<div id="content">
 										<textarea id="textArea" class="form-control" style="position:relative; resize:vertical; min-height:200px;" readonly></textarea>
@@ -52,42 +52,10 @@
 						</div>
 	    			<div class="col-md-6 col-md-pull-6">
 
-				      <div class="panel panel-info" id='profileSelect'>
-								<input type="file" id="importFile" value="Import" style="display:none">
-				        <div class="panel-body">
-									<div class="input-group">
-										<span class="input-group-addon">Profile Name</span>
-										<select id="profileList" class="form-control"></select>
-										<span class="input-group-btn">
-											<button id="newProfile" type="button" class="btn btn-success">Edit</button>
-											<button id="removeOption" type="button" class="btn btn-warning">Delete</button>
-											<button id="downloadProfiles" type="button" class="btn btn-default">Export <i class="glyphicon glyphicon-download"></i></button>
-											<button id="importProfile" type="button" class="btn btn-default">Import <i class="glyphicon glyphicon-upload"></i></button>
-										</span>
-									</div>
-								</div>
-				      </div>
-
-							<div class="panel panel-info" id='profileEdit' hidden>
-								<div class="panel-body">
-									<div class="input-group">
-										<span class="input-group-addon">Profile Name</span>
-										<input type="text" id="nameProfile" class="form-control">
-										<div class="input-group-btn">
-											<button id="saveProfile" type="button"  class="btn btn-success center-block"><span>Save</span></button>
-										</div>
-									</div>
-								</div>
-							</div>
-
-
-						</div>
-	    			<div class="col-md-6 col-md-pull-6">
-
 							<div class="panel panel-info">
 								<div class="panel-heading text-center">
 									<button id="hideForm" type="button" class="close"><i class="glyphicon glyphicon-minus"></i></button>
-									<h5 class="modal-title">Curent profile</h5>
+									<h5>Curent profile</h5>
 								</div>
 								<div class="panel-body">
 									<div class="container-fluid" id="form">
@@ -244,32 +212,30 @@
 
 											<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12">
 												<p class="text-center">Find and Replace</p>
-												<div id="formFindReplace" style="display: none;">
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">Find :</span>
-														<input type="text" id="find" class="form-control">
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-															Replace :
-														</span>
-														<input type="text" id="replace" class="form-control">
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-															<input type="checkbox" id="regex" class="form-check-input">
-														</span>
-													  <label class="form-control" for="regex">Regex</label>
-													  <span class="input-group-addon">
-															<input type="checkbox" id="matchCase" class="form-check-input">
-														</span>
-													  <label class="form-control" for="matchCase">Match Case</label>
-														<div class="input-group-btn">
-															<button id="addFindReplace" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
-														</div>
-													</div>
-													</br>
+												<div class="input-group input-group-sm">
+												  <span class="input-group-addon">Find :</span>
+													<input type="text" id="find" class="form-control">
 												</div>
+												<div class="input-group input-group-sm">
+												  <span class="input-group-addon">
+														Replace :
+													</span>
+													<input type="text" id="replace" class="form-control">
+												</div>
+												<div class="input-group input-group-sm">
+												  <span class="input-group-addon">
+														<input type="checkbox" id="regex" class="form-check-input">
+													</span>
+												  <label class="form-control" for="regex">Regex</label>
+												  <span class="input-group-addon">
+														<input type="checkbox" id="matchCase" class="form-check-input">
+													</span>
+												  <label class="form-control" for="matchCase">Match Case</label>
+													<div class="input-group-btn">
+														<button id="addFindReplace" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
+													</div>
+												</div>
+												</br>
 												<div class="table-responsive text-center small">
 													<table id="findReplace" class="table table-sm table-bordered table-striped" style"width:100%;">
 														<thead>
@@ -290,6 +256,59 @@
 										</div>
 									</div>
 								</div>
+							</div>
+
+				      <div class="panel panel-info" id='profileSelect'>
+								<input type="file" id="importFile" value="Import" style="display:none">
+				        <div class="panel-heading text-center">
+									<button id="hideProfileList" type="button" class="close"><i class="glyphicon glyphicon-minus"></i></button>
+									<h5>Profiles List</h5>
+				        </div>
+				        <div class="panel-body">
+									<div class="container-fluid" id="divProfileList">
+										<div class="input-group">
+											<span class="input-group-addon">Profile Name</span>
+											<select id="profileList" class="form-control"></select>
+											<span class="input-group-btn">
+												<button id="newProfile" type="button" class="btn btn-success">New</button>
+												<button id="saveProfile" type="button"  class="btn btn-success">Save</button>
+												<button id="removeOption" type="button" class="btn btn-warning">Delete</button>
+											</span>
+										</div>
+										<div class="input-group">
+											<span class="input-group-btn">
+												<button id="downloadProfiles" type="button" class="btn btn-default">Export <i class="glyphicon glyphicon-download"></i></button>
+												<button id="importProfile" type="button" class="btn btn-default">Import <i class="glyphicon glyphicon-upload"></i></button>
+											</span>
+										</div>
+										<div class="input-group">
+											<span class="input-group-btn">
+												<button id="reset" type="button" class="btn btn-danger">Reset profiles to default</button>
+											</span>
+										</div>
+									</div>
+								</div>
+				      </div>
+
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="modalNewProfile" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
+					<div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" id="cancelNewProfile">&times;</button>
+			        <h4 class="modal-title">New profile</h4>
+			      </div>
+			      <div class="modal-body">
+							<div class="input-group">
+								<span class="input-group-addon">Profile Name</span>
+								<input type="text" id="inputNewProfile" class="form-control">
+								<span class="input-group-btn">
+									<button id="saveNewProfile" type="button"  class="btn btn-success">Save</button>
+								</span>
 							</div>
 						</div>
 					</div>
@@ -391,11 +410,6 @@
 			  </div>
 			</div>
 			<div class="panel-footer">
-				<div class="input-group">
-					<div class="input-group-btn center-block">
-						<button id="reset" type="button" class="btn btn-danger">Reset profiles by default</button>
-					</div>
-				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="js/jquery.min.js"></script>
