@@ -501,6 +501,22 @@ var popup2 = (function() {
 				    $temp.remove();
 					}
 
+					function sizeOfExportArea(){
+						if(window.innerWidth >= 992){
+
+							var textAreaSize = $("#panelForm").height() - $("#panelTextArea").outerHeight(true) + $("#panelTextArea").height() - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
+							if(textAreaSize > 200)
+								$("#textArea").height(textAreaSize);
+							else
+								$("#textArea").height(200);
+
+							$("#textArea").css("resize", "none");
+						}
+						else{
+							$("#textArea").height(200);
+							$("#textArea").css("resize", "vertical");
+						}
+					}
 					//add event Listener for the button in the popup
 					function setEventListers() {
 
@@ -731,6 +747,7 @@ var popup2 = (function() {
 								else{
 									$('#hideForm').html('<i class="glyphicon glyphicon-plus"></i');
 								}
+								sizeOfExportArea();
 							});
 						});
 
@@ -742,7 +759,16 @@ var popup2 = (function() {
 								else{
 									$('#hideProfileList').html('<i class="glyphicon glyphicon-plus"></i');
 								}
+								sizeOfExportArea();
 							});
+						});
+
+						$( window ).resize(function() {
+							if(window.innerWidth>=992 && previusWindowWidth<992)
+  							sizeOfExportArea();
+							else if (window.innerWidth<992 && previusWindowWidth>=992)
+  							sizeOfExportArea();
+							previusWindowWidth=window.innerWidth;
 						});
 
 						document.getElementById("reset").addEventListener("click", function() {
@@ -974,6 +1000,8 @@ var popup2 = (function() {
 
 					exportText();
 					setEventListers();
+					sizeOfExportArea();
+					var previusWindowWidth = window.innerWidth;
 					return callback();
 				});
 			});
