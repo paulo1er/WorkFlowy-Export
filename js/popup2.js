@@ -591,9 +591,18 @@ var popup2 = (function() {
 							}
 						}, false);
 
-						document.getElementById("removeOption").addEventListener("click", function() {
+						$("#deleteProfile").click(function(){
+							var nameProfile = document.getElementById("profileList").value;
+							if(nameProfile!="list"){
+								$("#nameDeleteProfile").text(nameProfile);
+								$("#modalDeleteProfile").modal("show");
+							}
+						});
+
+						$("#yesDeleteProfile").click(function(){
 							removeOption();
-						}, false);
+							$("#modalDeleteProfile").modal("hide");
+						});
 
 						document.getElementById("profileList").onchange=function(){
 							curent_profile = copy(profileList[document.getElementById('profileList').value]);
@@ -771,12 +780,17 @@ var popup2 = (function() {
 							previusWindowWidth=window.innerWidth;
 						});
 
-						document.getElementById("reset").addEventListener("click", function() {
+						$("#reset").click(function() {
+							$("#modalReset").modal("show");
+						})
+
+						$("#yesReset").click(function() {
 							chrome.storage.sync.clear(function (){});
 							profileList=null;
 							profileName_LastConnexion = null;
 							initProfileList();
-						}, false);
+							$("#modalReset").modal("hide");
+						});
 					}
 
 					//import the WorkFlowy text in Nodes

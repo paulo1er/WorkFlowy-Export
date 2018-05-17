@@ -272,7 +272,7 @@
 											<span class="input-group-btn">
 												<button id="newProfile" type="button" class="btn btn-success">New</button>
 												<button id="saveProfile" type="button"  class="btn btn-success">Save</button>
-												<button id="removeOption" type="button" class="btn btn-warning">Delete</button>
+												<button id="deleteProfile" type="button" class="btn btn-warning">Delete</button>
 											</span>
 										</div>
 										<div class="input-group">
@@ -310,6 +310,48 @@
 									<button id="saveNewProfile" type="button"  class="btn btn-success">Save</button>
 								</span>
 							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="modalDeleteProfile" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
+					<div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal">&times;</button>
+			        <h4 class="modal-title">Delete Profile : <span id="nameDeleteProfile"></span></h4>
+			      </div>
+			      <div class="modal-body">
+							<p>Are you sure you want to delete this profile ?</p>
+								<div class="text-center">
+									<div class="btn-group" role="group">
+										<button id="yesDeleteProfile" type="button" class="btn btn-danger">Yes delete it</button>
+									</div>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-default" data-dismiss="modal">No Cancel</button>
+									</div>
+								</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="modalReset" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
+					<div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal">&times;</button>
+			        <h4 class="modal-title">Reset the profile list</h4>
+			      </div>
+			      <div class="modal-body">
+							<p>Are you sure you want to reset your profile list ?</p>
+								<div class="text-center">
+									<div class="btn-group" role="group">
+										<button id="yesReset" type="button" class="btn btn-danger">Yes reset it</button>
+									</div>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-default" data-dismiss="modal">No Cancel</button>
+									</div>
+								</div>
 						</div>
 					</div>
 				</div>
