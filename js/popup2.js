@@ -494,7 +494,7 @@ var popup2 = (function() {
 					};
 
 					function copyToClipboard(text){
-				    var $temp = $("<input>");
+				    var $temp = $("<textarea>");
 				    $("body").append($temp);
 				    $temp.val(text).select();
 				    document.execCommand("copy");
@@ -613,9 +613,10 @@ var popup2 = (function() {
 							updadeForm();
 						};
 
-						document.getElementById("copy").addEventListener("click", function() {
-							copyToClipboard($('#textArea'));
-						}, false);
+						$("#copy").click(function() {
+							copyToClipboard($('#textArea').val());
+							$("#textArea").select();
+						});
 
 						document.getElementById("download").addEventListener("click", function() {
 							if($("#fileName").text() != ""){
