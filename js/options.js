@@ -2,8 +2,17 @@
 
   var refreshOptions;
   var textAreaStyle;
+  var windowSize;
 
   function setEventListers(){
+
+    $('input[type=radio][name=windowSize]').change(function(e) {
+      windowSize.option = $(this).val();
+      chrome.storage.local.set({'windowSize' : windowSize}, function() {
+        console.log("save new windowSize");
+      });
+    });
+
     $("#fontFamily").change(function(e) {
       textAreaStyle["font-family"] = $("#fontFamily").val();
       chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
@@ -36,8 +45,10 @@
       chrome.storage.local.clear(function (){});
       refreshOptions = null;
       textAreaStyle = null;
+      windowSize = null;
       initTextAreaStyle();
       initRefreshOptions();
+      initWindowSize();
     }, false);
   }
 
@@ -77,11 +88,31 @@
     $("#fragment").prop("checked", refreshOptions["fragment"]);
   }
 
+  function initWindowSize(storageWindowSize){
+    if(storageWindowSize){
+      windowSize = storageWindowSize;
+    }
+    else {
+      var tmp_width = Math.max(window.screen.availWidth*0.75, 500);
+      var tmp_height = Math.max(window.screen.availHeight*0.75, 600);
+      windowSize={
+        option : "relativeBrowser",
+        width : tmp_width,
+        height : tmp_height
+      };
+      chrome.storage.local.set({'windowSize' : windowSize}, function() {
+        console.log("windowSize init");
+      });
+    }
+    $("#"+windowSize.option).prop("checked", true);
+  }
+
   function main() {
-    chrome.storage.local.get(["textAreaStyle", "refreshOptions"], function(storage) {
+    chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize"], function(storage) {
       setEventListers();
   		initTextAreaStyle(storage.textAreaStyle);
   		initRefreshOptions(storage.refreshOptions);
+      initWindowSize(storage.windowSize)
     });
   }
 

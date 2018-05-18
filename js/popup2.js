@@ -62,7 +62,7 @@ var popup2 = (function() {
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
-			chrome.storage.local.get(["textAreaStyle", "refreshOptions"], function(storageL) {
+			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize"], function(storageL) {
 				chrome.storage.sync.get(['profileList', 'profileName'], function(storageS) {
 					//return a copy of an object (recursif)
 					function copy(o) {
@@ -773,7 +773,14 @@ var popup2 = (function() {
 							});
 						});
 
-						$( window ).resize(function() {
+						$(window).resize(function() {
+
+				      windowSize.height = window.innerHeight;
+				      windowSize.width = window.innerWidth;
+				      chrome.storage.local.set({'windowSize' : windowSize}, function() {
+				        console.log("save new windowSize");
+				      });
+
 							if(window.innerWidth>=992 && previusWindowWidth<992)
   							sizeOfExportArea();
 							else if (window.innerWidth<992 && previusWindowWidth>=992)
@@ -1002,6 +1009,23 @@ var popup2 = (function() {
 						};
 						chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
 							console.log("refreshOptions init");
+						});
+					}
+
+					var windowSize;
+					if(storageL.windowSize){
+						windowSize = storageL.windowSize;
+					}
+					else {
+			      var tmp_width = Math.max(window.screen.availWidth*0.75, 500);
+			      var tmp_height = Math.max(window.screen.availHeight*0.75, 600);
+			      windowSize={
+			        option : "relativeBrowser",
+			        width : tmp_width,
+			        height : tmp_height
+			      };
+						chrome.storage.local.set({'windowSize' : windowSize}, function() {
+							console.log("windowSize init");
 						});
 					}
 
