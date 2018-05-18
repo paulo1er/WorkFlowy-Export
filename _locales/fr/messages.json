@@ -4,5 +4,8 @@
   },
   "OpenWorkFlowy": {
     "message": "Ouvrir WorkFlowy"
+  },
+  "1": {
+    "message": "Paramètre WorkFlowy Export"
   }
 }
