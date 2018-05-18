@@ -8,9 +8,13 @@
 	<body>
 		<div id="messages" class="container" style="min-width:100%; padding:0;">
 		</div>
-		<div class="panel panel-info position-absolute" style="min-width:100%; min-height:100%;">
+		<div class="panel panel-info position-absolute" style="min-width:100%; min-height:100%; margin:0;">
 			<div class="panel-heading" id="popupTitle">
-				<h4 id="title"></h4>
+				<div style="height:49px;">
+					<img src="image/icon48.png" style="float:left; margin-right:10px;">
+					<h4 id="title"></h4>
+					<h5><a id="url" href="" target="_blank"></a></h5>
+				</div>
 			</div>
 			<div class="panel-body">
 
@@ -451,13 +455,18 @@
 			    </div>
 			  </div>
 			</div>
-			<div class="panel-footer">
-				<ul class="">
-				  <li class=""><a href="options.html" target="_blank">WorkFlowy Export Settings</a></li>
-				  <li class="">Soucre code : <a href="https://github.com/paulo1er/WorkFlowy-Export">github.com</a></li>
-				  <li class=""><a href="README.md" target="_blank">README</a></li>
-				  <li class=""><a href="LICENSE" target="_blank">LICENSE</a></li>
-				</ul>
+			<div class="panel-footer" style="padding:0;">
+				<div class="text-center" style="padding:10px;">
+					<a href="options.html" role="button" class="btn btn-info" target="_blank">WorkFlowy Export Settings</a>
+					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Soucre code</a>
+					<a href="README.md" role="button" class="btn btn-info" target="_blank">README</a>
+					<a href="LICENSE" role="button" class="btn btn-info" target="_blank">LICENSE</a>
+				</div>
+				</div>
+				<div class="bg-primary text-center">
+					Copyright (c) 2018 by MADELINE, Paul
+					<span class="badge badge-secondary">paulmadeline@orange.fr</span>
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="js/jquery.min.js"></script>

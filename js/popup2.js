@@ -480,8 +480,8 @@ var popup2 = (function() {
 						text = exportLib(g_my_nodes, curent_profile, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
-						$("#title").remove();
-						$("#popupTitle").append($("<h5 id=\"title\"></h5>").text(g_title + " : ").append($("<a href=\""+g_url+"\" target=\"_blank\"></a>").text(g_url)));
+						$("#title").text(g_title);
+						$("#url").attr("href",g_url).text(g_url);
 						chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
 							console.log("profileName init");
 						});
