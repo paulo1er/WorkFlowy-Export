@@ -3,7 +3,7 @@
     "message": "Extantion de WorkFlowy. Exporter vers Markdown et HTML, Theme, Count letters, et d'autres options utiles."
   },
   "OpenWorkFlowy": {
-    "message": "Ouvrir WorkFlowy"
+    "message": "re-ouvrir la dernière page WorkFlowy exportée"
   },
   "1": {
     "message": "Paramètre WorkFlowy Export"

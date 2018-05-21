@@ -20,14 +20,14 @@
   "commands": {
     "_execute_page_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Y",
-        "mac": "Command+Shift+Y"
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
       }
     },
     "open_workflowy": {
       "suggested_key": {
-        "default": "Ctrl+Shift+U",
-        "mac": "Command+Shift+U"
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
       },
       "description": "__MSG_OpenWorkFlowy__"
     }

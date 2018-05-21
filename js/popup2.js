@@ -350,6 +350,8 @@ var popup2 = (function() {
 
 							document.getElementById("find").value = "";
 							document.getElementById("replace").value = "";
+							sizeOfExportArea();
+
 						}
 					}
 
@@ -417,6 +419,7 @@ var popup2 = (function() {
 						curent_profile.findReplace[index]=null;
 						document.getElementById("findReplace" + index).remove();
 						console.log("curent_profile.findReplace", curent_profile.findReplace);
+						sizeOfExportArea();
 					}
 
 					// change curent_profile with the value enter in the form

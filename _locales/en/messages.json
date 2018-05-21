@@ -3,7 +3,7 @@
     "message": "Extends WorkFlowy. Export to Markdown and HTML, Theme, Count letters, and more useful features."
   },
   "OpenWorkFlowy": {
-    "message": "Open WorkFlowy"
+    "message": "Reload last exported WorkFlowy outline."
   },
   "1": {
     "message": "WorkFlowy Export Settings"
