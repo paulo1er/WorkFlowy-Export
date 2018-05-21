@@ -516,23 +516,23 @@ var popup2 = (function() {
 							}
 						});
 
-						document.getElementById("addFindReplace").addEventListener("click", function() {
+						$("#addFindReplace").click(function() {
 							addFindReplace();
-						}, false);
+						});
 
-						document.getElementById("newProfile").addEventListener("click", function() {
+						$("#newProfile").click(function() {
 							newProfile();
-						}, false);
+						});
 
-						document.getElementById("saveProfile").addEventListener("click", function() {
+						$("#saveProfile").click(function() {
 							loading(function(callback){
 								saveProfile(document.getElementById('profileList').value);
 								exportText();
 								return callback();
 							});
-						}, false);
+						});
 
-						document.getElementById("saveNewProfile").addEventListener("click", function() {
+						$("#saveNewProfile").click(function() {
 							if(document.getElementById('inputNewProfile').value != ""){
 								$('#modalNewProfile').modal('hide');
 								loading(function(callback){
@@ -541,7 +541,7 @@ var popup2 = (function() {
 									return callback();
 								});
 							}
-						}, false);
+						});
 
 						$("#deleteProfile").click(function(){
 							var nameProfile = document.getElementById("profileList").value;
@@ -570,15 +570,15 @@ var popup2 = (function() {
 							$("#textArea").select();
 						});
 
-						document.getElementById("download").addEventListener("click", function() {
+						$("#download").click(function() {
 							if($("#fileName").text() != ""){
 								download($("#fileName").text(), $("#textArea").val());
 							}
-						}, false);
+						});
 
-						document.getElementById("downloadProfiles").addEventListener("click", function() {
+						$("#downloadProfiles").click(function() {
 							download("profiles.json",JSON.stringify(profileList));
-						}, false);
+						});
 
 						$('#importProfile').click(function(){
 							$('#importFile').click();
