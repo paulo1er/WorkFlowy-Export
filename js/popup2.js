@@ -523,18 +523,20 @@ var popup2 = (function() {
 					//add event Listener for the button in the popup
 					function setEventListers() {
 
-						document.getElementById("refresh").addEventListener("click", function() {
+						$("#refresh").click(function() {
 							changeFormat();
 							loading(function(callback){
 								exportText();
 								return callback();
 							});
-							/*
+						});
+
+						$("#update").click(function() {
+							changeFormat();
 							loading(function(callback){
 								chrome.tabs.sendMessage(currentTabId, {
 									request: 'getTopic'
 								}, function(response) {
-										curent_profile = copy(profileList[document.getElementById('profileList').value]);
 										g_nodes = response.content;
 										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 										g_title = response.title;
@@ -544,8 +546,9 @@ var popup2 = (function() {
 										return callback();
 								});
 							});
-							*/
-						}, false);
+						});
+
+
 
 						$('input[type=radio][name=defaultItemStyle]').change("change", function() {
 							if($("#Bullet").is(':checked'))
