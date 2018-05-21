@@ -1,95 +1,11 @@
 {
-  "Addtobookmark": {
-    "message": "Add this topic to bookmark"
-  },
-  "Apply": {
-    "message": "Apply"
-  },
-  "ApplyMessage": {
-    "message": "Applied! ***Please reload*** the tab of WorkFlowy."
-  },
-  "Basetheme": {
-    "message": "Base Theme"
-  },
-  "Bookmark": {
-    "message": "Bookmark"
-  },
-  "Bookmarkwidth": {
-    "message": "Bookmark width"
-  },
-  "Clicktocount": {
-    "message": "Click to count"
-  },
-  "Close": {
-    "message": "Close"
-  },
-  "ConfirmDelete": {
-    "message": "Are you sure you want to delete it?"
-  },
-  "Customcss": {
-    "message": "Addtional CSS"
-  },
-  "Delete": {
-    "message": "Delete bookmark"
-  },
-  "Edit": {
-    "message": "Edit title"
-  },
-  "Editor": {
-    "message": "(Show Editor)"
-  },
-  "Edittitle": {
-    "message": "Edit title"
-  },
-  "Enablebookmark": {
-    "message": "Enable Bookmark (Replace WorkFlowy's help to the original bookmark)"
-  },
-  "Enabletheme": {
-    "message": "Enable Theme"
-  },
-  "Folder": {
-    "message": "Add Folder"
-  },
-  "Format": {
-    "message": "Format"
-  },
-  "General": {
-    "message": "General"
-  },
-  "Inputfoldername": {
-    "message": "Input folder name"
-  },
   "Manifestdesc": {
     "message": "Extends WorkFlowy. Export to Markdown and HTML, Theme, Count letters, and more useful features."
   },
-  "Middle": {
-    "message": "Middle"
+  "OpenWorkFlowy": {
+    "message": "Reload last exported WorkFlowy outline."
   },
-  "Narrow": {
-    "message": "Narrow"
-  },
-  "Opennewwindow": {
-    "message": "Open this topic in new window"
-  },
-  "Option": {
-    "message": "Option"
-  },
-  "Outputnotes": {
-    "message": "Output notes"
-  },
-  "Outputtoc": {
-    "message": "Output TOC"
-  },
-  "Preview": {
-    "message": "Preview"
-  },
-  "Theme": {
-    "message": "Theme"
-  },
-  "Topicnavigation": {
-    "message": "Topic Navigation"
-  },
-  "Wide": {
-    "message": "Wide"
+  "1": {
+    "message": "WorkFlowy Export Settings"
   }
 }

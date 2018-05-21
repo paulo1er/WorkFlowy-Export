@@ -1,4 +1,4 @@
-var exportLib = function(my_nodes, options, email, is_document) {
+var exportLib = function(nodes, options, email) {
 	// private method
 	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
@@ -16,7 +16,137 @@ var exportLib = function(my_nodes, options, email, is_document) {
 	var header = "";
 	var body = "";
 	var footer = "";
+	var my_nodes = arrayToTree(nodes);
 
+	//import the WorkFlowy text in Nodes
+	function arrayToTree(nodes) {
+		var start = 0; //nodes[0].node_forest[0]; EP
+		var level = 0;
+		var parent = -1;
+		var root = 0;
+		var doctype = "OUTLINE";
+		var l = nodes.length;
+		var oldestChild = start;
+		nodes[start].allSiblings = [start];
+		console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
+		if ((nodes[start].type == "node") || (nodes[start].type == "note")) console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type, ", text is:", nodes[start].title)
+		else console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type);
+
+		for (var i = start + 1; i < l; i++) {
+
+			if ((nodes[i].type == "node") || (nodes[i].type == "note")) console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type, ", text is:", nodes[i].title)
+			else console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type);
+
+			// Updating level, indentation and heading info
+			if (((i > 0) && (nodes[i - 1].type == "title") || (nodes[i - 1].type == "node")) && (nodes[i].type == "node")) {
+				level = level + 1;
+				console.log("Increase level to " + level.toString());
+				parent = i - 1;
+				oldestChild = i;
+				nodes[oldestChild].allSiblings = []; // fill in info later
+				nodes[parent].myType = "HEADING";
+				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
+				nodes[i].myType = "ITEM";
+				console.log("Node", i.toString(), "new type: " + nodes[i].myType);
+
+			} else if ((i > 1) && (nodes[i - 1].type == "note") && (nodes[i].type == "node")) {
+				level = level + 1;
+				console.log("Increase level to " + level.toString());
+				parent = i - 2;
+				oldestChild = i;
+				nodes[oldestChild].allSiblings = []; // fill in info later
+				nodes[parent].myType = "HEADING";
+				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
+
+			} else if ((nodes[i - 1].type == "node") && (nodes[i].type == "eoc")) {
+				nodes[i - 1].myType = "ITEM";
+				console.log("Node", i.toString() + "-1 : new type: " + nodes[i - 1].myType);
+
+			} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
+				level = level - 1;
+				console.log("Decrease level to " + level.toString());
+
+				if (level > 0) {
+					parent = nodes[parent].parent;
+					oldestChild = nodes[parent].children[0];
+				} else if (level == 0) parent = -1
+				else {
+					console.log("dummy node");
+					l = nodes.length;
+					console.log("insert dummy node: nodes[" + l.toString() + "]");
+
+					parent = l;
+					root = l;
+
+					nodes[i - 2].parent = parent;
+					console.log("node[" + i.toString() + "-2] = " + nodes[i].title + " has now parent", parent);
+
+					nodes.push({
+						type: 'dummy',
+						title: null,
+						note: '',
+						children: [i - 2]
+					});
+					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+					console.log("dummy node: nodes[" + l.toString() + "] has title ", nodes[l].title);
+
+					level = level + 1;
+					parent = -1;
+					doctype = "FRAGMENT"; // #todo don't need this
+					console.log("Document type is FRAGMENT");
+
+				}
+			}
+
+			// Update level info
+			nodes[i].level = level;
+
+			// Update parent and sibling info and create notes
+			if (nodes[i].type == "node") {
+				if (parent >= 0) {
+					console.log("Oldest child is ", oldestChild);
+					nodes[oldestChild].allSiblings.push(i);
+					console.log("All siblings of node[" + oldestChild.toString() + "]=", nodes[oldestChild].allSiblings);
+
+					nodes[i].parent = parent;
+					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
+
+					nodes[parent].children.push(i);
+					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+				} else {
+					l = nodes.length;
+					console.log("insert dummy node:: nodes[" + l.toString() + "]");
+
+					parent = l;
+					root = l;
+
+					nodes[i].parent = parent;
+					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
+
+					nodes.push({
+						type: 'dummy',
+						title: null,
+						note: '',
+						children: [0, i]
+					});
+					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+
+					level = level + 1;
+
+					doctype = "FRAGMENT";
+					console.log("Document type is FRAGMENT");
+
+				}
+			} else if (nodes[i].type == "note") {
+				console.log("Set note of item", nodes[i - 1].title, "to", nodes[i].title);
+				nodes[i - 1].note = nodes[i].title;
+			}
+
+			// Update level and document info
+			nodes[i].level = level;
+		}
+		return [nodes, root];
+	}
 
 	function WFE(name, parameter=null){
 		this.name = name;
@@ -24,9 +154,10 @@ var exportLib = function(my_nodes, options, email, is_document) {
 		this.toString = function(){
 			if(typeof WFE_FUNCTION["wfe-"+this.name] == "function"){
 				var args = this.parameter;
+				console.log("WFE", this.name, args);
 				return WFE_FUNCTION["wfe-"+this.name].apply( this, args );
 			}
-			console.log("no function define for", name);
+			console.log("WFE no function ", name);
 			return "";
 		}
 	}
@@ -54,22 +185,18 @@ var exportLib = function(my_nodes, options, email, is_document) {
 			return "NaN";
 		},
 		"wfe-ignore-tags": function(bool=true){
-			console.log('ignore-tags', bool);
 			options.ignore_tags = bool;
 			return "";
 		},
 		"wfe-ignore-item": function(bool=true){
-			console.log('ignore-item', bool);
 			options.ignore_item = bool;
 			return "";
 		},
 		"wfe-ignore-outline": function(bool=true){
-			console.log('ignore-outline', bool);
 			options.ignore_outline = bool;
 			return "";
 		},
 		"wfe-page-break": function(bool=true){
-			console.log('page break found');
 			options.page_break = bool;
 			return "";
 		},
@@ -466,7 +593,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 
 	exportNodesTree = function(nodes, index, level, options) {
 		options.findReplace.forEach(function(e) {
-			console.log("#F&R",e);
 			if(e!=null){
 				e.regexFind = functionRegexFind(e.txtFind, e.isRegex, e.isMatchCase);
 			}
@@ -499,15 +625,15 @@ var exportLib = function(my_nodes, options, email, is_document) {
 		options.page_break = false;
 
 		// Create header text
-		if(is_document) header = HEADER[options.format];
-
-		console.log("header", header, nodes[index].type);
-		console.log("STYLESHEET",STYLESHEET.Normal);
-		// Create body text
-		body = exportNodesTreeBody(nodes, index, level, options);
+		if(!options.fragment) header = HEADER[options.format];
+		console.log("header", header);
 
 		// Create footer text
-		if(is_document) footer = FOOTER[options.format];
+		if(!options.fragment) footer = FOOTER[options.format];
+		console.log("footer", footer);
+
+		// Create body text
+		body = exportNodesTreeBody(nodes, index, level, options);
 
 		wfe_count={};
 		wfe_count_ID={};
@@ -542,12 +668,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 			nodesStyle = new Style(STYLESHEET[styleName].Id);
 		else
 			nodesStyle = copy(STYLESHEET[styleName]);
-		// Create section heading LaTeX
-/* 					var title_level = 0;
-		var part_level = -1;
-		var section_level = 1;
-		var subsection_level = 2;
-		var frame_level = 3; */
 
 		var title_level = -1;
 		var part_level = -1;
@@ -568,7 +688,7 @@ var exportLib = function(my_nodes, options, email, is_document) {
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
-				console.log("#F&R",e);
+				//console.log("apply find and replace",e);
 				if(e!=null){
 					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(e.regexFind, e.txtReplace)});
 				}
@@ -579,6 +699,7 @@ var exportLib = function(my_nodes, options, email, is_document) {
 				// Assign new rules from WFE-tags in item
 
 				ALIAS.forEach(function(e) {
+					//console.log("Replace Alias",e);
 						textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[1]).join(e[0])});
 				});
 
@@ -679,7 +800,7 @@ var exportLib = function(my_nodes, options, email, is_document) {
 					break;
 			}
 
-			console.log('Finished processing rules:', textList, options.ignore_item);
+			console.log('Finished processing rules:', textList, options);
 
 
 			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
@@ -932,7 +1053,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 					output = output + indent + "</outline>\n"
 				else if (options.format == 'beamer')
 				{
-					console.log("toto", level, nodes[index].children.length);
 					if ((level >= frame_level) && (output_children.length > 0))
 						output = output + indent + "\\end{itemize}\n";
 					if (level == frame_level)
@@ -946,7 +1066,6 @@ var exportLib = function(my_nodes, options, email, is_document) {
 
 
 	var text = "";
-	console.log("Options in toMyText:", options);
 	text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options);
 	return text;
 }
