@@ -10,37 +10,6 @@ var popup2 = (function() {
 		}
 	});
 
-	var promisify = function (fn) {
-	  var args = Array.prototype.slice.call(arguments).slice(1);
-	  return new Promise(function(resolve, reject) {
-	    fn.apply(null, args.concat(function (res) {
-	      if (chrome.runtime.lastError) {
-	        return reject(chrome.runtime.lastError);
-	      }
-	      return resolve(res);
-	    }));
-	  });
-	};
-
-	function setStorageItems(items) {
-  	promisify(chrome.storage.sync.set, items).then(function() {
-			console.log('settings saved');
-		})
-		.catch(function (err) {
-			console.error(err);
-			error("Error when saving profile list");
-		});
-	}
-
-	function error(text){
-		var containerError = document.getElementById("messages");
-		var newError = document.createElement('div');
-		newError.setAttribute('class', "alert alert-danger");
-		newError.setAttribute('style', "margin:0;");
-		newError.innerHTML = '<button type="button" class="close" data-dismiss="alert">&times;</button>'+text;
-		containerError.appendChild(newError);
-	}
-
 	function load(currentTabId, callback) {
 
 		chrome.tabs.onRemoved.addListener(
@@ -174,7 +143,6 @@ var popup2 = (function() {
 							else
 								profileList[newkey]=copy(newProfileList[newkey]);
 								updateProfileChoice();
-								//setStorageItems({'profileList' : profileList});
 								chrome.storage.sync.set({'profileList' : profileList}, function() {});
 						});
 						if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
@@ -191,21 +159,6 @@ var popup2 = (function() {
 							case "beamer" : return ".tex";
 							default : return ".txt";
 						}
-					}
-
-					function profileToHTML(profile){
-						var r = "format : "+profile.format+"<br>"+
-						"defaultItemStyle : "+profile.defaultItemStyle+"<br>"+
-						"indent_chars : "+profile.indent_chars+"<br>"+
-						"prefix_indent_chars : "+profile.prefix_indent_chars.split("\t").join("\\t")+"<br>"+
-						"item_sep : "+profile.item_sep.split("\n").join("\\n")+"<br>"+
-						"applyWFERules : "+profile.applyWFERules+"<br>"+
-						"outputNotes : "+profile.outputNotes+"<br>"+
-						"ignore_tags : "+profile.ignore_tags+"<br>"+
-						"escapeCharacter : "+profile.escapeCharacter+"<br>"+
-						"fragment : "+profile.fragment+"<br>"+
-						"findReplace : "+profile.findReplace;
-						return r;
 					}
 
 					function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace, fragment){
@@ -313,10 +266,9 @@ var popup2 = (function() {
 					}
 
 					//delete a preset of option
-					function removeOption(){
-						var nameProfile = document.getElementById("profileList").value;
+					function removeProfile(profileName){
 						if(nameProfile!="list"){
-							delete profileList[document.getElementById("profileList").value];
+							delete profileList[profileName];
 							updateProfileChoice();
 							chrome.storage.sync.set({'profileList' : profileList}, function() {
 								console.log("profileList saved ");
@@ -404,13 +356,8 @@ var popup2 = (function() {
 						but.appendChild(span);
 						span.appendChild(newText);
 
-						addEventListenerButton(idFindReplace);
-					}
-
-					//add event Listener for delete a rule of Find an Replace
-					function addEventListenerButton(id){
-						document.getElementById("ButtonfindReplace" + id).addEventListener("click", function() {
-							deleteFindReplace(id);
+						document.getElementById("ButtonfindReplace" + idFindReplace).addEventListener("click", function() {
+							deleteFindReplace(idFindReplace);
 						}, false);
 					}
 
@@ -480,7 +427,7 @@ var popup2 = (function() {
 
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $('#textArea');
-						text = exportLib(g_my_nodes, curent_profile, g_email);
+						text = exportLib(copy(g_nodes), curent_profile, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
@@ -538,7 +485,6 @@ var popup2 = (function() {
 									request: 'getTopic'
 								}, function(response) {
 										g_nodes = response.content;
-										g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 										g_title = response.title;
 									 	g_url = response.url;
 										g_email= response.email;
@@ -606,7 +552,7 @@ var popup2 = (function() {
 						});
 
 						$("#yesDeleteProfile").click(function(){
-							removeOption();
+							removeProfile(document.getElementById("profileList").value);
 							$("#modalDeleteProfile").modal("hide");
 						});
 
@@ -807,156 +753,6 @@ var popup2 = (function() {
 						});
 					}
 
-					//import the WorkFlowy text in Nodes
-					function arrayToTree(nodes, indent_chars, prefix_indent_chars) {
-						var start = 0; //nodes[0].node_forest[0]; EP
-						var text = nodes[start].title + "\n";
-						var indent = "";
-						var level = 0;
-						var output;
-						var parent = -1;
-						var root = 0;
-						var doctype = "OUTLINE";
-						var l = nodes.length;
-						var oldestChild = start;
-						nodes[start].allSiblings = [start];
-						console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
-						if ((nodes[start].type == "node") || (nodes[start].type == "note")) console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type, ", text is:", nodes[start].title)
-						else console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type);
-
-						for (var i = start + 1; i < l; i++) {
-
-							if ((nodes[i].type == "node") || (nodes[i].type == "note")) console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type, ", text is:", nodes[i].title)
-							else console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type);
-
-							// Updating level, indentation and heading info
-							if (((i > 0) && (nodes[i - 1].type == "title") || (nodes[i - 1].type == "node")) && (nodes[i].type == "node")) {
-								level = level + 1;
-								console.log("Increase level to " + level.toString());
-								parent = i - 1;
-								oldestChild = i;
-								nodes[oldestChild].allSiblings = []; // fill in info later
-								nodes[parent].myType = "HEADING";
-								console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
-								nodes[i].myType = "ITEM";
-								console.log("Node", i.toString(), "new type: " + nodes[i].myType);
-
-							} else if ((i > 1) && (nodes[i - 1].type == "note") && (nodes[i].type == "node")) {
-								level = level + 1;
-								console.log("Increase level to " + level.toString());
-								parent = i - 2;
-								oldestChild = i;
-								nodes[oldestChild].allSiblings = []; // fill in info later
-								nodes[parent].myType = "HEADING";
-								console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
-
-							} else if ((nodes[i - 1].type == "node") && (nodes[i].type == "eoc")) {
-								nodes[i - 1].myType = "ITEM";
-								console.log("Node", i.toString() + "-1 : new type: " + nodes[i - 1].myType);
-
-							} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
-								level = level - 1;
-								console.log("Decrease level to " + level.toString());
-
-								if (level > 0) {
-									parent = nodes[parent].parent;
-									oldestChild = nodes[parent].children[0];
-								} else if (level == 0) parent = -1
-								else {
-									console.log("dummy node");
-									l = nodes.length;
-									console.log("insert dummy node: nodes[" + l.toString() + "]");
-
-									parent = l;
-									root = l;
-
-									nodes[i - 2].parent = parent;
-									console.log("node[" + i.toString() + "-2] = " + nodes[i].title + " has now parent", parent);
-
-									nodes.push({
-										type: 'dummy',
-										title: null,
-										note: '',
-										children: [i - 2]
-									});
-									console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-									console.log("dummy node: nodes[" + l.toString() + "] has title ", nodes[l].title);
-
-									level = level + 1;
-									parent = -1;
-									doctype = "FRAGMENT"; // #todo don't need this
-									console.log("Document type is FRAGMENT");
-
-								}
-							}
-
-							// Update level info
-							nodes[i].level = level;
-							if (level > 0) {
-								indent = indent_chars;
-								if (level > 1) {
-									indent = Array(level).join(prefix_indent_chars) + indent_chars;
-								}
-							} else indent = "";
-
-							// Update parent and sibling info and create notes
-							if (nodes[i].type == "node") {
-								if (parent >= 0) {
-									console.log("Oldest child is ", oldestChild);
-									nodes[oldestChild].allSiblings.push(i);
-									console.log("All siblings of node[" + oldestChild.toString() + "]=", nodes[oldestChild].allSiblings);
-
-									nodes[i].parent = parent;
-									console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
-
-									nodes[parent].children.push(i);
-									console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-								} else {
-									l = nodes.length;
-									console.log("insert dummy node:: nodes[" + l.toString() + "]");
-
-									parent = l;
-									root = l;
-
-									nodes[i].parent = parent;
-									console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
-
-									nodes.push({
-										type: 'dummy',
-										title: null,
-										note: '',
-										children: [0, i]
-									});
-									console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-
-									level = level + 1;
-
-									doctype = "FRAGMENT";
-									console.log("Document type is FRAGMENT");
-
-								}
-							} else if (nodes[i].type == "note") {
-								console.log("Set note of item", nodes[i - 1].title, "to", nodes[i].title);
-								nodes[i - 1].note = nodes[i].title;
-							}
-
-							// Update output
-							if (nodes[i].type == "node") {
-								output = indent + nodes[i].title + "\n";
-								console.log("** Output: ", output);
-							} else if (nodes[i].type == "note") {
-								output = indent + "[" + nodes[i].title + "]\n";
-								console.log("** Output: ", output);
-							} else output = "";
-
-							text = text + output;
-
-							// Update level and document info
-							nodes[i].level = level;
-						}
-						return [nodes, root];
-					}
-
 					function initProfileList(){
 						if(profileList == null){
 							profileList = {
@@ -1038,7 +834,6 @@ var popup2 = (function() {
 					initProfileList();
 
 					var g_nodes = response.content;
-					var g_my_nodes = arrayToTree(g_nodes, "    ", "    ");
 					var g_title = response.title;
 					var g_url = response.url;
 					var g_email= response.email;

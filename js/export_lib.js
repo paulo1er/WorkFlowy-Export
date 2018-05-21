@@ -1,4 +1,4 @@
-var exportLib = function(my_nodes, options, email) {
+var exportLib = function(nodes, options, email) {
 	// private method
 	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
@@ -16,7 +16,137 @@ var exportLib = function(my_nodes, options, email) {
 	var header = "";
 	var body = "";
 	var footer = "";
+	var my_nodes = arrayToTree(nodes);
 
+	//import the WorkFlowy text in Nodes
+	function arrayToTree(nodes) {
+		var start = 0; //nodes[0].node_forest[0]; EP
+		var level = 0;
+		var parent = -1;
+		var root = 0;
+		var doctype = "OUTLINE";
+		var l = nodes.length;
+		var oldestChild = start;
+		nodes[start].allSiblings = [start];
+		console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
+		if ((nodes[start].type == "node") || (nodes[start].type == "note")) console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type, ", text is:", nodes[start].title)
+		else console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type);
+
+		for (var i = start + 1; i < l; i++) {
+
+			if ((nodes[i].type == "node") || (nodes[i].type == "note")) console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type, ", text is:", nodes[i].title)
+			else console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type);
+
+			// Updating level, indentation and heading info
+			if (((i > 0) && (nodes[i - 1].type == "title") || (nodes[i - 1].type == "node")) && (nodes[i].type == "node")) {
+				level = level + 1;
+				console.log("Increase level to " + level.toString());
+				parent = i - 1;
+				oldestChild = i;
+				nodes[oldestChild].allSiblings = []; // fill in info later
+				nodes[parent].myType = "HEADING";
+				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
+				nodes[i].myType = "ITEM";
+				console.log("Node", i.toString(), "new type: " + nodes[i].myType);
+
+			} else if ((i > 1) && (nodes[i - 1].type == "note") && (nodes[i].type == "node")) {
+				level = level + 1;
+				console.log("Increase level to " + level.toString());
+				parent = i - 2;
+				oldestChild = i;
+				nodes[oldestChild].allSiblings = []; // fill in info later
+				nodes[parent].myType = "HEADING";
+				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
+
+			} else if ((nodes[i - 1].type == "node") && (nodes[i].type == "eoc")) {
+				nodes[i - 1].myType = "ITEM";
+				console.log("Node", i.toString() + "-1 : new type: " + nodes[i - 1].myType);
+
+			} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
+				level = level - 1;
+				console.log("Decrease level to " + level.toString());
+
+				if (level > 0) {
+					parent = nodes[parent].parent;
+					oldestChild = nodes[parent].children[0];
+				} else if (level == 0) parent = -1
+				else {
+					console.log("dummy node");
+					l = nodes.length;
+					console.log("insert dummy node: nodes[" + l.toString() + "]");
+
+					parent = l;
+					root = l;
+
+					nodes[i - 2].parent = parent;
+					console.log("node[" + i.toString() + "-2] = " + nodes[i].title + " has now parent", parent);
+
+					nodes.push({
+						type: 'dummy',
+						title: null,
+						note: '',
+						children: [i - 2]
+					});
+					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+					console.log("dummy node: nodes[" + l.toString() + "] has title ", nodes[l].title);
+
+					level = level + 1;
+					parent = -1;
+					doctype = "FRAGMENT"; // #todo don't need this
+					console.log("Document type is FRAGMENT");
+
+				}
+			}
+
+			// Update level info
+			nodes[i].level = level;
+
+			// Update parent and sibling info and create notes
+			if (nodes[i].type == "node") {
+				if (parent >= 0) {
+					console.log("Oldest child is ", oldestChild);
+					nodes[oldestChild].allSiblings.push(i);
+					console.log("All siblings of node[" + oldestChild.toString() + "]=", nodes[oldestChild].allSiblings);
+
+					nodes[i].parent = parent;
+					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
+
+					nodes[parent].children.push(i);
+					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+				} else {
+					l = nodes.length;
+					console.log("insert dummy node:: nodes[" + l.toString() + "]");
+
+					parent = l;
+					root = l;
+
+					nodes[i].parent = parent;
+					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
+
+					nodes.push({
+						type: 'dummy',
+						title: null,
+						note: '',
+						children: [0, i]
+					});
+					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
+
+					level = level + 1;
+
+					doctype = "FRAGMENT";
+					console.log("Document type is FRAGMENT");
+
+				}
+			} else if (nodes[i].type == "note") {
+				console.log("Set note of item", nodes[i - 1].title, "to", nodes[i].title);
+				nodes[i - 1].note = nodes[i].title;
+			}
+
+			// Update level and document info
+			nodes[i].level = level;
+		}
+		return [nodes, root];
+	}
 
 	function WFE(name, parameter=null){
 		this.name = name;
