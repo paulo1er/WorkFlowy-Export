@@ -10,7 +10,7 @@
 					case "maximised" :
 						windowPopup2 = window.open("popup2.html", "_blank", "screenX=0,screenY=0,left=0,top=0,fullscreen=yes,width="+(screen.availWidth-5)+",height="+(screen.availHeight-(55))+ ",status=1,scrollbars=1");
 						break;
-					case "remeberSize" :
+					case "rememberSize" :
 						var top = (window.screen.availHeight-storageL.windowSize.height)/2;
 						var left = (window.screen.availWidth-storageL.windowSize.width)/2;
 						windowPopup2 = window.open("popup2.html", "_blank", "left=" + left  + ",top=" + top + ",status=1,scrollbars=1, width=" + storageL.windowSize.width + ",height=" + storageL.windowSize.height);
