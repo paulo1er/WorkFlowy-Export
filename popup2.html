@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>WorkFlowy Export</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/custom.css" rel="stylesheet">
 	</head>
 	<body>
 		<div id="messages" class="container" style="min-width:100%; padding:0;">
@@ -36,19 +37,17 @@
 									</div>
 								</div>
 								<div id="footerTextArea" class="panel-footer">
-									<div class="text-center">
-			  						<div class="btn-group" role="group">
-											<button id="refresh" type="button" class="btn btn-primary center-block">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
-										</div>
-				  					<div class="btn-group" role="group">
-											<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
-										</div>
-				  					<div class="btn-group" role="group">
-											<div hidden id="fileName"></div>
-											<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
-										</div>
-			  						<div class="btn-group" role="group">
-											<button id="update" type="button" class="btn btn-primary center-block">Reload <i class="glyphicon glyphicon-refresh"></i></button>
+									<div class="container-fluid">
+										<div class="input-group">
+											<span class="input-group-btn">
+												<button id="refresh" type="button" class="btn btn-primary">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
+												<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
+												<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
+											</span>
+											<span class="input-group-btn pull-right">
+												<button id="update" type="button" class="btn btn-primary pull-right">Reload WorkFlowy <i class="glyphicon glyphicon-refresh"></i></button>
+												<div hidden id="fileName"></div>
+											</span>
 										</div>
 									</div>
 								</div>
@@ -286,10 +285,8 @@
 												<button id="downloadProfiles" type="button" class="btn btn-default">Export <i class="glyphicon glyphicon-download"></i></button>
 												<button id="importProfile" type="button" class="btn btn-default">Import <i class="glyphicon glyphicon-upload"></i></button>
 											</span>
-										</div>
-										<div class="input-group">
-											<span class="input-group-btn">
-												<button id="reset" type="button" class="btn btn-danger">Reset profiles to default</button>
+											<span class="input-group-btn pull-right">
+												<button id="reset" type="button" class="btn btn-danger pull-right"> &nbsp;Reset profiles to default </button>
 											</span>
 										</div>
 									</div>
@@ -460,7 +457,7 @@
 			<div class="panel-footer" style="padding:0;">
 				<div class="text-center" style="padding:10px;">
 					<a href="options.html" role="button" class="btn btn-info" target="_blank">WorkFlowy Export Settings</a>
-					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Soucre code</a>
+					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Source code</a>
 					<a href="README.md" role="button" class="btn btn-info" target="_blank">README</a>
 					<a href="LICENSE" role="button" class="btn btn-info" target="_blank">LICENSE</a>
 				</div>

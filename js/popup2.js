@@ -267,7 +267,7 @@ var popup2 = (function() {
 
 					//delete a preset of option
 					function removeProfile(profileName){
-						if(nameProfile!="list"){
+						if(profileName!="list"){
 							delete profileList[profileName];
 							updateProfileChoice();
 							chrome.storage.sync.set({'profileList' : profileList}, function() {
