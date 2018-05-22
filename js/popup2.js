@@ -358,6 +358,13 @@ var popup2 = (function() {
 
 						document.getElementById("ButtonfindReplace" + idFindReplace).addEventListener("click", function() {
 							deleteFindReplace(idFindReplace);
+							if(refreshOptions["autoReload"]){
+								changeFormat();
+								loading(function(callback){
+									exportText();
+									return callback();
+								});
+							}
 						}, false);
 					}
 
@@ -518,6 +525,13 @@ var popup2 = (function() {
 
 						$("#addFindReplace").click(function() {
 							addFindReplace();
+							if(refreshOptions["autoReload"]){
+								changeFormat();
+								loading(function(callback){
+									exportText();
+									return callback();
+								});
+							}
 						});
 
 						$("#newProfile").click(function() {
@@ -525,21 +539,23 @@ var popup2 = (function() {
 						});
 
 						$("#saveProfile").click(function() {
-							loading(function(callback){
-								saveProfile(document.getElementById('profileList').value);
-								exportText();
-								return callback();
-							});
+							saveProfile(document.getElementById('profileList').value);
 						});
+
+						$('#formOutputFormat input, #formDefaultItemStyle input, #formIndentation input, #formOptions input').change(function(){
+							if(refreshOptions["autoReload"]){
+								changeFormat();
+								loading(function(callback){
+									exportText();
+									return callback();
+								});
+							}
+					  });
 
 						$("#saveNewProfile").click(function() {
 							if(document.getElementById('inputNewProfile').value != ""){
 								$('#modalNewProfile').modal('hide');
-								loading(function(callback){
-									saveProfile(document.getElementById('inputNewProfile').value);
-									exportText();
-									return callback();
-								});
+								saveProfile(document.getElementById('inputNewProfile').value);
 							}
 						});
 
@@ -554,14 +570,22 @@ var popup2 = (function() {
 						$("#yesDeleteProfile").click(function(){
 							removeProfile(document.getElementById("profileList").value);
 							$("#modalDeleteProfile").modal("hide");
+							if(refreshOptions["autoReload"]){
+								loading(function(callback){
+									exportText();
+									return callback();
+								});
+							}
 						});
 
 						document.getElementById("profileList").onchange=function(){
 							curent_profile = copy(profileList[document.getElementById('profileList').value]);
-							loading(function(callback){
-								exportText();
-								return callback();
-							});
+							if(refreshOptions["autoReload"]){
+								loading(function(callback){
+									exportText();
+									return callback();
+								});
+							}
 							updadeForm();
 						};
 
@@ -806,9 +830,10 @@ var popup2 = (function() {
 					}
 					else {
 						refreshOptions={
-							"autoCopy" : false,
-							"autoDownload" : false
-						};
+			        "autoCopy" : false,
+			        "autoDownload" : false,
+			        "autoReload" : false
+						}
 						chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
 							console.log("refreshOptions init");
 						});

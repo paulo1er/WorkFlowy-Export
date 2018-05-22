@@ -41,6 +41,13 @@
       });
     });
 
+    $('#autoReload').change(function(){
+      refreshOptions["autoReload"] = $("#autoReload").prop('checked');
+      chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
+        console.log("save autoReload at", $("#autoReload").prop('checked'));
+      });
+    });
+
     document.getElementById("reset").addEventListener("click", function() {
       chrome.storage.local.clear(function (){});
       refreshOptions = null;
@@ -77,7 +84,7 @@
       refreshOptions={
         "autoCopy" : false,
         "autoDownload" : false,
-        "fragment": false
+        "autoReload" : false
       };
       chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
         console.log("refreshOptions init");
@@ -85,6 +92,7 @@
     }
     $("#autoCopy").prop("checked", refreshOptions["autoCopy"]);
     $("#autoDownload").prop("checked", refreshOptions["autoDownload"]);
+    $("#autoReload").prop("checked", refreshOptions["autoReload"]);
     $("#fragment").prop("checked", refreshOptions["fragment"]);
   }
 
