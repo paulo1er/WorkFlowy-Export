@@ -13,7 +13,7 @@ var popup2 = (function() {
 	function load(currentTabId, callback) {
 
 		chrome.tabs.onRemoved.addListener(
-			function(tabId, removeInfo) {
+			function(tabId) {
 					if(tabId==currentTabId) {
 						window.close();
 					}
@@ -296,7 +296,7 @@ var popup2 = (function() {
 							var isRegex = document.getElementById("regex").checked;
 							var isMatchCase = document.getElementById("matchCase").checked;
 
-							curent_profile.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, document.getElementById("matchCase").checked));
+							curent_profile.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, isMatchCase));
 
 							addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase);
 
@@ -347,16 +347,33 @@ var popup2 = (function() {
 						var but = document.createElement("button");
 						var span = document.createElement("span");
 						newText = document.createElement('i');
+						newText.setAttribute("class", "glyphicon glyphicon-pencil");
+						but.setAttribute("type", "button");
+						but.setAttribute("id", "FindReplaceUpdate" + (idFindReplace));
+						but.setAttribute("class", "btn btn-primary btn-rounded btn-sm");
+
+						newCell.appendChild(but);
+						but.appendChild(span);
+						span.appendChild(newText);
+
+						document.getElementById("FindReplaceUpdate" + idFindReplace).addEventListener("click", function() {
+							updateFindReplace(idFindReplace);
+						}, false);
+
+						newCell  = newRow.insertCell(6);
+						but = document.createElement("button");
+						span = document.createElement("span");
+						newText = document.createElement('i');
 						newText.setAttribute("class", "glyphicon glyphicon-trash");
 						but.setAttribute("type", "button");
-						but.setAttribute("id", "ButtonfindReplace" + (idFindReplace));
+						but.setAttribute("id", "FindReplaceDelete" + (idFindReplace));
 						but.setAttribute("class", "btn btn-warning btn-rounded btn-sm");
 
 						newCell.appendChild(but);
 						but.appendChild(span);
 						span.appendChild(newText);
 
-						document.getElementById("ButtonfindReplace" + idFindReplace).addEventListener("click", function() {
+						document.getElementById("FindReplaceDelete" + idFindReplace).addEventListener("click", function() {
 							deleteFindReplace(idFindReplace);
 							if(refreshOptions["autoReload"]){
 								changeFormat();
@@ -375,6 +392,15 @@ var popup2 = (function() {
 						console.log("curent_profile.findReplace", curent_profile.findReplace);
 						sizeOfExportArea();
 					}
+
+					function updateFindReplace(index){
+						$("#replace").val(curent_profile.findReplace[index].txtReplace);
+						$("#find").val(curent_profile.findReplace[index].txtFind);
+						$("#regex").prop('checked',curent_profile.findReplace[index].isRegex)
+						$("#matchCase").prop('checked',curent_profile.findReplace[index].isMatchCase);
+						deleteFindReplace(index);
+					}
+
 
 					// change curent_profile with the value enter in the form
 					function changeFormat() {
