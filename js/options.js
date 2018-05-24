@@ -50,18 +50,14 @@
 
     $("#reset").click(function() {
       chrome.storage.local.clear(function (){});
-      refreshOptions = null;
-      textAreaStyle = null;
-      windowSize = null;
-      initTextAreaStyle();
-      initRefreshOptions();
-      initWindowSize();
+    		textAreaStyle = initTextAreaStyle();
+    		refreshOptions = initRefreshOptions();
+        windowSize = initWindowSize();
+        initHTML();
     });
   }
 
   function initHTML(){
-    setEventListers();
-
     $("#"+windowSize.option).prop("checked", true);
     $("#autoCopy").prop("checked", refreshOptions["autoCopy"]);
     $("#autoDownload").prop("checked", refreshOptions["autoDownload"]);
@@ -76,6 +72,7 @@
   		textAreaStyle = initTextAreaStyle(storage.textAreaStyle);
   		refreshOptions = initRefreshOptions(storage.refreshOptions);
       windowSize = initWindowSize(storage.windowSize);
+      setEventListers();
       initHTML();
     });
   }

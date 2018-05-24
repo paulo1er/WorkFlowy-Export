@@ -516,10 +516,11 @@ var popup2 = (function() {
 
 					function reset(){
 						chrome.storage.sync.clear(function (){});
-						initProfileList();
-						initCurentProfile();
+						profileList = initProfileList();
+						curent_profile = initCurentProfile();
 						updateProfileChoice();
 						updadeForm(curent_profile);
+						autoReload();
 					}
 
 					//add event Listener for the button in the popup
