@@ -28,74 +28,6 @@ var popup2 = (function() {
 
 	}
 
-	//return a copy of an object
-	function copy(o) {
-		var output, v, key;
-		output = Array.isArray(o) ? [] : {};
-		for (key in o) {
-			v = o[key];
-			output[key] = (typeof v === "object" && v !== null) ? copy(v) : v;
-		}
-		return output;
-	}
-
-	//download a file with the name and the text
-	function download(name, text) {
-		var element = document.createElement('a');
-		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-		element.setAttribute('download', name);
-
-		element.style.display = 'none';
-		document.body.appendChild(element);
-
-		element.click();
-
-		document.body.removeChild(element);
-	}
-
-	//copy the text to the Clipboard
-	function copyToClipboard(text){
-    var $temp = $("<textarea>");
-    $("body").append($temp);
-    $temp.val(text).select();
-    document.execCommand("copy");
-    $temp.remove();
-	}
-
-	function extensionFileName(format){
-		switch(format){
-			case "html" : return ".html";
-			case "opml" : return ".opml";
-			case "markdown" : return ".md";
-			case "rtf" : return ".rtf";
-			case "latex" : return ".tex";
-			case "beamer" : return ".tex";
-			default : return ".txt";
-		}
-	}
-
-	function Profile(name, format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace, fragment){
-		this.name= name,
-		this.format = format,
-		this.defaultItemStyle = defaultItemStyle,
-		this.indent_chars = indent_chars,
-		this.prefix_indent_chars = prefix_indent_chars,
-		this.item_sep = item_sep,
-		this.applyWFERules = applyWFERules,
-		this.outputNotes = outputNotes,
-		this.ignore_tags = ignore_tags,
-		this.escapeCharacter = escapeCharacter,
-		this.findReplace = copy(findReplace),
-		this.fragment = fragment
-	};
-
-	function FindReplace(txtFind, txtReplace, isRegex, isMatchCase){
-		this.txtReplace = txtReplace;
-		this.txtFind = txtFind;
-		this.isRegex = isRegex;
-		this.isMatchCase = isMatchCase;
-	}
-
 	function load(currentTabId, callback) {
 
 		closeExtentionOnCloseWorkFlowy(currentTabId);
@@ -776,144 +708,45 @@ var popup2 = (function() {
 						});
 					}
 
-					function initProfileList(storageProfileList=null){
-						if(storageProfileList){
-							profileList=storageProfileList;
-						}
-						else{
-							profileList = {
-								"list" : new Profile("list", "text", "None", "", "\t", "\n", false, false, true, false, [], false),
-								"HTML doc" : new Profile("HTML doc", "html", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
-								"RTF doc" : new Profile("RTF doc", "rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
-								"LaTeX Report" : new Profile("LaTeX Report", "latex", "None", "", "\t", "\n", true, false, true, true, [], false),
-								"OPML" : new Profile("OPML", "opml", "None", "", "\t", "\n", true, false, true, true, [], false),
-								"LaTeX Beamer" : new Profile("LaTeX Beamer", "beamer", "None", "", "\t", "\n", true, false, true, true, [], false)
-							};
-							chrome.storage.sync.set({'profileList' : profileList}, function() {
-								console.log("profileList init");
-							});
-						};
-					}
-
-					function initCurentProfile(storageCurentProfile=null){
-						if(storageCurentProfile){
-							curent_profile = storageCurentProfile;
-						}
-						else{
-							curent_profile = profileList["list"];
-							chrome.storage.sync.set({'curent_profile' : curent_profile}, function() {
-								console.log("curent_profile init");
-							});
-						}
-					}
-
-				  function initTextAreaStyle(storageTextAreaStyle){
-				    if(storageTextAreaStyle){
-				      textAreaStyle = storageTextAreaStyle;
-				    }
-				    else {
-				      textAreaStyle={
-				        "font-family" : "Arial",
-				        "font-size" : 14
-				      };
-				      chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
-				        console.log("textAreaStyle init");
-				      });
-				    }
-				  }
-
-				  function initRefreshOptions(storageRefreshOptions){
-				    if(storageRefreshOptions){
-				      refreshOptions = storageRefreshOptions;
-				    }
-				    else {
-				      refreshOptions={
-				        "autoCopy" : false,
-				        "autoDownload" : false,
-				        "autoReload" : false
-				      };
-				      chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
-				        console.log("refreshOptions init");
-				      });
-				    }
-				  }
-
-				  function initWindowSize(storageWindowSize){
-				    if(storageWindowSize){
-				      windowSize = storageWindowSize;
-				    }
-				    else {
-				      var tmp_width = Math.max(window.screen.availWidth*0.75, 500);
-				      var tmp_height = Math.max(window.screen.availHeight*0.75, 600);
-				      windowSize={
-				        option : "relativeBrowser",
-				        width : tmp_width,
-				        height : tmp_height
-				      };
-				      chrome.storage.local.set({'windowSize' : windowSize}, function() {
-				        console.log("windowSize init");
-				      });
-				    }
-				  }
-
-				  function initHideForm(storageHideForm){
-				    if(storageHideForm){
-				      hideForm = storageHideForm;
-				    }
-				    else {
-				      hideForm=false;
-				      chrome.storage.local.set({'hideForm' : hideForm}, function() {
-				        console.log("hideForm init");
-				      });
-				    }
-				  }
-
-				  function initHideProfileList(storageHideProfileList){
-				    if(storageHideProfileList){
-				      hideProfileList = storageHideProfileList;
-				    }
-				    else {
-				      hideProfileList=false;
-				      chrome.storage.local.set({'hideProfileList' : hideProfileList}, function() {
-				        console.log("hideProfileList init");
-				      });
-				    }
-				  }
-
-					function initialization(){
-						initProfileList(storageS.profileList);
-						initCurentProfile(storageS.curent_profile);
+					function initHTML(){
 						updateProfileChoice();
 						updadeForm(curent_profile);
-						initTextAreaStyle(storageL.textAreaStyle);
-						initRefreshOptions(storageL.refreshOptions);
-						initHideForm(storageL.hideForm);
-						initHideProfileList(storageL.hideProfileList);
-						initWindowSize(storageL.windowSize)
-						previusWindowWidth = window.innerWidth;
 
-				    $("#textArea").css("font-family", textAreaStyle["font-family"]);
-				    $("#textArea").css('font-size', textAreaStyle["font-size"]+"px");
+						$("#textArea").css("font-family", textAreaStyle["font-family"]);
+						$("#textArea").css('font-size', textAreaStyle["font-size"]+"px");
 
 						if(hideForm){
 							$("#form").hide();
 							$("#hideForm").html('<i class="glyphicon glyphicon-plus"></i');
 						}
-
 						if(hideProfileList){
 							$("#divProfileList").hide();
 							$("#hideProfileList").html('<i class="glyphicon glyphicon-plus"></i');
 						}
 
-						conflictProfileList=[];
 						sizeOfExportArea();
 
 						exportText();
 						setEventListers();
 
 					}
+					function initialization(){
+						profileList = initProfileList(storageS.profileList);
+						curent_profile = initCurentProfile(storageS.curent_profile);
+						conflictProfileList=[];
+
+						textAreaStyle = initTextAreaStyle(storageL.textAreaStyle);
+						refreshOptions = initRefreshOptions(storageL.refreshOptions);
+						windowSize = initWindowSize(storageL.windowSize);
+						previusWindowWidth = window.innerWidth;
+
+						hideForm = initHideForm(storageL.hideForm);
+						hideProfileList = initHideProfileList(storageL.hideProfileList);
+
+						initHTML();
+					}
 					var profileList, curent_profile, conflictProfileList;
-					var textAreaStyle, refreshOptions, previusWindowWidth;
+					var textAreaStyle, refreshOptions, windowSize, previusWindowWidth;
 					var hideForm, hideProfileList;
 					var g_nodes = response.content;
 					var g_title = response.title;
