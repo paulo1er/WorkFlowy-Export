@@ -13,6 +13,7 @@ var exportLib = function(nodes, options, email) {
 	var previus_styleName=null;
 	var styleName="default";
 	var nodesStyle;
+	var escapeCharacter = true;
 	var header = "";
 	var body = "";
 	var footer = "";
@@ -296,6 +297,11 @@ var exportLib = function(nodes, options, email) {
 
 		"wfe-email": function(){
 			return email;
+		},
+
+		"wfe-verbose": function(){
+			escapeCharacter = false;
+			return "";
 		}
 	}
 
@@ -651,6 +657,7 @@ var exportLib = function(nodes, options, email) {
 		var textList = [];
 		var note = "";
 		var output_children;
+		escapeCharacter= true;
 
 		if(options.defaultItemStyle=="Bullet" && level>6) level=6;
 
@@ -814,7 +821,7 @@ var exportLib = function(nodes, options, email) {
 					note = note.replace(WF_TAG_REGEXP, "");
 				}
 
-				if(options.escapeCharacter)
+				if(escapeCharacter)
 					ESCAPE_CHARACTER[options.format].forEach(function(e) {
 	  					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[0]).join(e[1])});
 			  			note = note.split(e[0]).join(e[1]);

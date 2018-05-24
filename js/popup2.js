@@ -73,8 +73,8 @@ var popup2 = (function() {
 						if(profileList[newkey].ignore_tags) $("#yourProfile-ignore_tags").html(HTML_true);
 						else $("#yourProfile-ignore_tags").html(HTML_false);
 
-						if(profileList[newkey].escapeCharacter) $("#yourProfile-escapeCharacter").html(HTML_true);
-						else $("#yourProfile-escapeCharacter").html(HTML_false);
+						if(profileList[newkey].mdSyntax) $("#yourProfile-mdSyntax").html(HTML_true);
+						else $("#yourProfile-mdSyntax").html(HTML_false);
 
 						if(profileList[newkey].fragment) $("#yourProfile-fragment").html(HTML_true);
 						else $("#yourProfile-fragment").html(HTML_false);
@@ -106,8 +106,8 @@ var popup2 = (function() {
 						if(newProfile.ignore_tags) $("#newProfile-ignore_tags").html(HTML_true);
 						else $("#newProfile-ignore_tags").html(HTML_false);
 
-						if(newProfile.escapeCharacter) $("#newProfile-escapeCharacter").html(HTML_true);
-						else $("#newProfile-escapeCharacter").html(HTML_false);
+						if(newProfile.mdSyntax) $("#newProfile-mdSyntax").html(HTML_true);
+						else $("#newProfile-mdSyntax").html(HTML_false);
 
 						if(newProfile.fragment) $("#newProfile-fragment").html(HTML_true);
 						else $("#newProfile-fragment").html(HTML_false);
@@ -176,7 +176,7 @@ var popup2 = (function() {
 						document.getElementById("wfeRules").checked = profile.applyWFERules;
 						document.getElementById("outputNotes").checked = profile.outputNotes;
 						document.getElementById("stripTags").checked =	profile.ignore_tags;
-						document.getElementById("escapeCharacter").checked = profile.escapeCharacter;
+						document.getElementById("mdSyntax").checked = profile.mdSyntax;
 						document.getElementById("fragment").checked = profile.fragment;
 						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
 						switch (profile.prefix_indent_chars) {
@@ -387,7 +387,7 @@ var popup2 = (function() {
 						curent_profile.applyWFERules = document.getElementById("wfeRules").checked;
 						curent_profile.outputNotes = document.getElementById("outputNotes").checked;
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
-						curent_profile.escapeCharacter = document.getElementById("escapeCharacter").checked;
+						curent_profile.mdSyntax = document.getElementById("mdSyntax").checked;
 						curent_profile.fragment = document.getElementById("fragment").checked;
 					};
 

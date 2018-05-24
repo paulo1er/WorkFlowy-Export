@@ -1,4 +1,4 @@
-function Profile(name, format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace, fragment){
+function Profile(name, format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, mdSyntax, findReplace, fragment){
 	this.name= name,
 	this.format = format,
 	this.defaultItemStyle = defaultItemStyle,
@@ -8,7 +8,7 @@ function Profile(name, format, defaultItemStyle, indent_chars, prefix_indent_cha
 	this.applyWFERules = applyWFERules,
 	this.outputNotes = outputNotes,
 	this.ignore_tags = ignore_tags,
-	this.escapeCharacter = escapeCharacter,
+	this.mdSyntax = mdSyntax,
 	this.findReplace = copy(findReplace),
 	this.fragment = fragment
 };
