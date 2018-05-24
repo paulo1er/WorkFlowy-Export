@@ -12,14 +12,18 @@
   </head>
   <body style="min-height:100%;">
   	<div class="panel panel-info position-absolute" style="min-width:100%; min-height:100%;">
-  		<div class="panel-heading">
-  			<h4 data-translate="1">WorkFlowy Export Settings</h4>
+  		<div class="panel-heading" style="padding:0;">
+  			<h4 style="margin:0;">
+					<img src="image/icon48.png" style="float: none; margin-right:10px;">
+          WorkFlowy Export Settings
+        </h4>
   		</div>
 			<div class="panel-body">
 
         <div class="container-fluid">
+          <div class="col-xs-0 col-sm-0 col-md-2 col-lg-2"></div>
   				<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
-  					<p class="text-center">Export window Size settings</p>
+  					<p class="text-center">Export window size settings</p>
   					<div class="input-group input-group-sm">
   					  <span class="input-group-addon">
   							<input type="radio" id="relativeBrowser" value="relativeBrowser" name="windowSize" class="form-check-input">
@@ -46,7 +50,13 @@
   					</div>
   				</div>
           <div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
-            <p class="text-center">Action after refresh</p>
+            <p class="text-center">Option for export action</p>
+            <div class="input-group input-group-sm">
+              <span class="input-group-addon">
+                <input type="checkbox" id="autoReload" name="autoReload" class="form-check-input with-gap">
+              </span>
+              <label class="form-control" for="autoReload">Auto-refresh</label>
+            </div>
             <div class="input-group input-group-sm">
               <span class="input-group-addon">
                 <input type="checkbox" id="autoCopy" name="autoCopy" class="form-check-input with-gap">
@@ -88,7 +98,7 @@
       </div>
 			<div class="panel-footer" style="padding:0;">
 				<div class="text-center" style="padding:10px;">
-					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Soucre code</a>
+					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Source code</a>
 					<a href="README.md" role="button" class="btn btn-info" target="_blank">README</a>
 					<a href="LICENSE" role="button" class="btn btn-info" target="_blank">LICENSE</a>
 				</div>
@@ -96,8 +106,7 @@
     </div>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/translate.js"></script>
-    <script type="text/javascript" src="js/storage.js"></script>
+    <script type="text/javascript" src="js/Object.js"></script>
     <script type="text/javascript" src="js/options.js"></script>
   </body>
 </html>

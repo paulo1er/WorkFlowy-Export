@@ -1,7 +1,5 @@
 var popup2 = (function() {
 	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
-	var start = Date.now();
-
 
 	chrome.storage.onChanged.addListener(function(changes, namespace) {
 		for (key in changes) {
@@ -10,16 +8,16 @@ var popup2 = (function() {
 		}
 	});
 
-	function load(currentTabId, callback) {
-
+	function closeExtentionOnCloseWorkFlowy(currentTabId){
+		//close the extention when the WorkFlowy tab is closed
 		chrome.tabs.onRemoved.addListener(
-			function(tabId, removeInfo) {
+			function(tabId) {
 					if(tabId==currentTabId) {
 						window.close();
 					}
 			}
 		);
-
+		//close the extention when the WorkFlowy tab change to an non WorkFlowy URL
     chrome.tabs.onUpdated.addListener(
 			function(tabId, changeInfo, tab){
 				if(tabId==currentTabId && tab.url.indexOf("https://workflowy.com")!=0) {
@@ -28,43 +26,27 @@ var popup2 = (function() {
     	}
 		);
 
+	}
+
+	function load(currentTabId, callback) {
+
+		closeExtentionOnCloseWorkFlowy(currentTabId);
+
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
-			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize"], function(storageL) {
-				chrome.storage.sync.get(['profileList', 'profileName'], function(storageS) {
-					//return a copy of an object (recursif)
-					function copy(o) {
-					  var output, v, key;
-					  output = Array.isArray(o) ? [] : {};
-					  for (key in o) {
-					    v = o[key];
-					    output[key] = (typeof v === "object" && v !== null) ? copy(v) : v;
-					  }
-					  return output;
-					}
+			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize", "hideForm", "hideProfileList"], function(storageL) {
+				chrome.storage.sync.get(['profileList', 'curent_profile'], function(storageS) {
 
-					function download(filename, text) {
-					  var element = document.createElement('a');
-					  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-					  element.setAttribute('download', filename);
-
-					  element.style.display = 'none';
-					  document.body.appendChild(element);
-
-					  element.click();
-
-					  document.body.removeChild(element);
-					}
-
-					var HTML_true = '<small><i class="glyphicon glyphicon-ok"></i></small>';
-					var HTML_false = '<small><i class="glyphicon glyphicon-remove"></i></small>';
 
 					function openSolverConflictProfile(newkey, newProfile){
+						var HTML_true = '<small><i class="glyphicon glyphicon-ok"></i></small>';
+						var HTML_false = '<small><i class="glyphicon glyphicon-remove"></i></small>';
 						console.log("Conflic profile", newkey, newProfile);
-						$('#myModal').modal("show");
+						$("#myModal").modal("show");
 						$("#renameNewProfile").val(newkey);
 						$("#newNameProfile").text(newkey);
+						$("#applyForAllNewProfile").prop("disabled", false);
 
 
 						$("#yourProfile-format").text(profileList[newkey].format);
@@ -143,37 +125,9 @@ var popup2 = (function() {
 							else
 								profileList[newkey]=copy(newProfileList[newkey]);
 								updateProfileChoice();
-								chrome.storage.sync.set({'profileList' : profileList}, function() {});
 						});
-						if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
 						console.log("conflictProfileList", conflictProfileList);
 					}
-
-					function extensionFileName(format){
-						switch(format){
-							case "html" : return ".html";
-							case "opml" : return ".opml";
-							case "markdown" : return ".md";
-							case "rtf" : return ".rtf";
-							case "latex" : return ".tex";
-							case "beamer" : return ".tex";
-							default : return ".txt";
-						}
-					}
-
-					function Profile(format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, escapeCharacter, findReplace, fragment){
-						this.format = format,
-						this.defaultItemStyle = defaultItemStyle,
-						this.indent_chars = indent_chars,
-						this.prefix_indent_chars = prefix_indent_chars,
-						this.item_sep = item_sep,
-						this.applyWFERules = applyWFERules,
-						this.outputNotes = outputNotes,
-						this.ignore_tags = ignore_tags,
-						this.escapeCharacter = escapeCharacter,
-						this.findReplace = copy(findReplace),
-						this.fragment = fragment
-					};
 
 					//update the list in the popup with the different preset of options
 					function updateProfileChoice(){
@@ -194,12 +148,13 @@ var popup2 = (function() {
 								documentProfileChoice.removeChild(option);
 				    	}
 						}
+						chrome.storage.sync.set({'profileList' : profileList}, function() {});
+						$("#profileList").val(curent_profile.name);
 					}
 
-					function updadeForm(){
-						curent_profile = copy(profileList[document.getElementById('profileList').value]);
+					function updadeForm(profile){
 
-						document.getElementById(curent_profile.format).checked = true;
+						document.getElementById(profile.format).checked = true;
 						if($("#opml").is(':checked')){
 							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
 							$("#None").prop("checked", true);
@@ -211,20 +166,20 @@ var popup2 = (function() {
 							$("[name=TxtDefaultItemStyle]").css('color', '');
 						}
 
-						document.getElementById(curent_profile.defaultItemStyle).checked = true
+						document.getElementById(profile.defaultItemStyle).checked = true
 						if($("#Bullet").is(':checked'))
 							$("#divBulletCaracter").show();
 						else
 							$("#divBulletCaracter").hide();
 
 
-						document.getElementById("wfeRules").checked = curent_profile.applyWFERules;
-						document.getElementById("outputNotes").checked = curent_profile.outputNotes;
-						document.getElementById("stripTags").checked =	curent_profile.ignore_tags;
-						document.getElementById("escapeCharacter").checked = curent_profile.escapeCharacter;
-						document.getElementById("fragment").checked = curent_profile.fragment;
-						document.getElementById("insertLine").checked = (curent_profile.item_sep == "\n\n");
-						switch (curent_profile.prefix_indent_chars) {
+						document.getElementById("wfeRules").checked = profile.applyWFERules;
+						document.getElementById("outputNotes").checked = profile.outputNotes;
+						document.getElementById("stripTags").checked =	profile.ignore_tags;
+						document.getElementById("escapeCharacter").checked = profile.escapeCharacter;
+						document.getElementById("fragment").checked = profile.fragment;
+						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
+						switch (profile.prefix_indent_chars) {
 							case "\t":
 								document.getElementById('tab').checked = true;
 								break;
@@ -235,56 +190,39 @@ var popup2 = (function() {
 								document.getElementById('withoutIndent').checked = true;
 								break;
 						}
-						document.getElementById("indentOther").value = curent_profile.indent_chars;
+						document.getElementById("indentOther").value = profile.indent_chars;
 
 						document.getElementById('findReplace').getElementsByTagName('tbody')[0].innerHTML = "";
-						curent_profile.findReplace.forEach(function(e, id){
+						profile.findReplace.forEach(function(e, id){
 							addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 						});
 					}
-					//open a form to create or update a preset of options
-					function newProfile(){
-						$('#modalNewProfile').modal("show");
-					}
 
 					//save the form for create or update a preset of options
-					function saveProfile(profileName){
-						if(profileName != ""){
+					function saveProfile(newProfileName){
+						if(newProfileName != ""){
+							curent_profile.name = newProfileName;
 							changeFormat();
 							var idnull=curent_profile.findReplace.indexOf(null);
 							while(idnull!=-1){
 								curent_profile.findReplace.splice(idnull,1);
 								idnull=curent_profile.findReplace.indexOf(null);
 							};
-							profileList[profileName] = copy(curent_profile);
+							profileList[curent_profile.name] = copy(curent_profile);
 							updateProfileChoice();
-							document.getElementById('profileList').value = profileName;
-							chrome.storage.sync.set({'profileList' : profileList}, function() {
-								console.log("profileList saved ");
-							});
+							$("#profileList").val(curent_profile.name);
 						}
 					}
 
 					//delete a preset of option
-					function removeProfile(profileName){
-						if(nameProfile!="list"){
-							delete profileList[profileName];
+					function removeProfile(){
+						if(curent_profile.name!="list"){
+							delete profileList[curent_profile.name];
 							updateProfileChoice();
-							chrome.storage.sync.set({'profileList' : profileList}, function() {
-								console.log("profileList saved ");
-							});
-							document.getElementById("profileList").value = "list";
-							updadeForm();
+							$("#profileList").val("list");
 							curent_profile = copy(profileList["list"]);
+							updadeForm(curent_profile);
 						}
-					}
-
-
-					function FindReplace(txtFind, txtReplace, isRegex, isMatchCase){
-						this.txtReplace = txtReplace;
-						this.txtFind = txtFind;
-						this.isRegex = isRegex;
-						this.isMatchCase = isMatchCase;
 					}
 
 					//create a new rule for Find and Replace
@@ -296,14 +234,14 @@ var popup2 = (function() {
 							var isRegex = document.getElementById("regex").checked;
 							var isMatchCase = document.getElementById("matchCase").checked;
 
-							curent_profile.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, document.getElementById("matchCase").checked));
+							curent_profile.findReplace.push(new FindReplace(txtFind, txtReplace, isRegex, isMatchCase));
 
 							addLineOfTableRindReplace(idFindReplace, txtFind, txtReplace, isRegex, isMatchCase);
 
 							document.getElementById("find").value = "";
 							document.getElementById("replace").value = "";
 							sizeOfExportArea();
-
+							autoReload();
 						}
 					}
 
@@ -347,16 +285,33 @@ var popup2 = (function() {
 						var but = document.createElement("button");
 						var span = document.createElement("span");
 						newText = document.createElement('i');
+						newText.setAttribute("class", "glyphicon glyphicon-pencil");
+						but.setAttribute("type", "button");
+						but.setAttribute("id", "FindReplaceUpdate" + (idFindReplace));
+						but.setAttribute("class", "btn btn-primary btn-rounded btn-sm");
+
+						newCell.appendChild(but);
+						but.appendChild(span);
+						span.appendChild(newText);
+
+						document.getElementById("FindReplaceUpdate" + idFindReplace).addEventListener("click", function() {
+							updateFindReplace(idFindReplace);
+						}, false);
+
+						newCell  = newRow.insertCell(6);
+						but = document.createElement("button");
+						span = document.createElement("span");
+						newText = document.createElement('i');
 						newText.setAttribute("class", "glyphicon glyphicon-trash");
 						but.setAttribute("type", "button");
-						but.setAttribute("id", "ButtonfindReplace" + (idFindReplace));
+						but.setAttribute("id", "FindReplaceDelete" + (idFindReplace));
 						but.setAttribute("class", "btn btn-warning btn-rounded btn-sm");
 
 						newCell.appendChild(but);
 						but.appendChild(span);
 						span.appendChild(newText);
 
-						document.getElementById("ButtonfindReplace" + idFindReplace).addEventListener("click", function() {
+						document.getElementById("FindReplaceDelete" + idFindReplace).addEventListener("click", function() {
 							deleteFindReplace(idFindReplace);
 						}, false);
 					}
@@ -367,11 +322,25 @@ var popup2 = (function() {
 						document.getElementById("findReplace" + index).remove();
 						console.log("curent_profile.findReplace", curent_profile.findReplace);
 						sizeOfExportArea();
+						if(refreshOptions["autoReload"]){
+							changeFormat();
+							loading(function(callback){
+								exportText();
+								return callback();
+							});
+						}
+					}
+
+					function updateFindReplace(index){
+						$("#replace").val(curent_profile.findReplace[index].txtReplace);
+						$("#find").val(curent_profile.findReplace[index].txtFind);
+						$("#regex").prop('checked',curent_profile.findReplace[index].isRegex)
+						$("#matchCase").prop('checked',curent_profile.findReplace[index].isMatchCase);
+						deleteFindReplace(index);
 					}
 
 					// change curent_profile with the value enter in the form
 					function changeFormat() {
-						var text;
 
 						var formatOptions = document.getElementsByName('formatOptions');
 						for ( var i = 0; i < formatOptions.length; i++) {
@@ -424,16 +393,15 @@ var popup2 = (function() {
 
 					//export the nodes in the textArea in the popup
 					function exportText(){
-
 						console.log("##################### Export the page with profile", curent_profile);
-						var $textArea = $('#textArea');
+						var $textArea = $("#textArea");
 						text = exportLib(copy(g_nodes), curent_profile, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
 						$("#url").attr("href",g_url).text(g_url);
-						chrome.storage.sync.set({'profileName' : document.getElementById('profileList').value}, function() {
-							console.log("profileName init");
+						chrome.storage.sync.set({'curent_profile' : curent_profile}, function() {
+							console.log("curent_profile init");
 						});
 						if(refreshOptions["autoCopy"]){
 							copyToClipboard(text);
@@ -442,14 +410,6 @@ var popup2 = (function() {
 							download($("#fileName").text(), $("#textArea").val());
 						}
 					};
-
-					function copyToClipboard(text){
-				    var $temp = $("<textarea>");
-				    $("body").append($temp);
-				    $temp.val(text).select();
-				    document.execCommand("copy");
-				    $temp.remove();
-					}
 
 					function sizeOfExportArea(){
 						if(window.innerWidth >= 992){
@@ -467,43 +427,117 @@ var popup2 = (function() {
 							$("#textArea").css("resize", "vertical");
 						}
 					}
+
+					function refresh(){
+						changeFormat();
+						loading(function(callback){
+							exportText();
+							return callback();
+						});
+					}
+
+					function autoReload(){
+						if(refreshOptions["autoReload"]){
+							refresh();
+						}
+					}
+
+					function update(){
+						changeFormat();
+						loading(function(callback){
+							chrome.tabs.sendMessage(currentTabId, {
+								request: 'getTopic'
+							}, function(response) {
+									g_nodes = response.content;
+									g_title = response.title;
+									g_url = response.url;
+									g_email= response.email;
+									exportText();
+									return callback();
+							});
+						});
+					}
+
+					function replaceProfile(newProfileName, applyForAllNewProfile=false){
+						profileList[newProfileName] = copy(conflictProfileList[0][1]);
+						updateProfileChoice();
+						conflictProfileList.shift();
+						if(applyForAllNewProfile){
+							while(conflictProfileList.length != 0){
+								replaceProfile(conflictProfileList[0][0]);
+							}
+						}
+					}
+
+					function autoRenameProfile(newProfileName, applyForAllNewProfile=false){
+						var i = 1;
+						var newkey =newProfileName;
+						var keys = Object.keys(profileList);
+						if(keys.includes(newkey)){
+							while(keys.includes(newkey + " " + i)){
+								i++;
+							}
+							profileList[newkey + " " + i] = copy(conflictProfileList[0][1]);
+							updateProfileChoice();
+							conflictProfileList.shift();
+						}
+						else {
+							profileList[newkey] = copy(conflictProfileList[0][1]);
+							updateProfileChoice();
+							conflictProfileList.shift();
+						}
+						if(applyForAllNewProfile){
+							while(conflictProfileList.length != 0){
+								autoRenameProfile(conflictProfileList[0][0]);
+							}
+						}
+					}
+
+					function ignoreProfile(applyForAllNewProfile=false){
+						conflictProfileList.shift();
+						if(applyForAllNewProfile){
+							conflictProfileList = [];
+						}
+					}
+
+					function continueSolverConflictProfile(){
+						if(conflictProfileList.length != 0) openSolverConflictProfile(conflictProfileList[0][0], conflictProfileList[0][1]);
+						else $("#myModal").modal('hide');
+					}
+
+					function importFile(file){
+						var fr = new FileReader();
+						fr.onload = function(e) {
+							var result = JSON.parse(e.target.result);
+							addProfileToProfileList(result);
+						}
+						fr.readAsText(file);
+					}
+
+					function reset(){
+						chrome.storage.sync.clear(function (){});
+						profileList = initProfileList();
+						curent_profile = initCurentProfile();
+						updateProfileChoice();
+						updadeForm(curent_profile);
+						autoReload();
+					}
+
 					//add event Listener for the button in the popup
 					function setEventListers() {
 
-						$("#refresh").click(function() {
-							changeFormat();
-							loading(function(callback){
-								exportText();
-								return callback();
-							});
-						});
+						$("#refresh").click(refresh);
 
-						$("#update").click(function() {
-							changeFormat();
-							loading(function(callback){
-								chrome.tabs.sendMessage(currentTabId, {
-									request: 'getTopic'
-								}, function(response) {
-										g_nodes = response.content;
-										g_title = response.title;
-									 	g_url = response.url;
-										g_email= response.email;
-										exportText();
-										return callback();
-								});
-							});
-						});
+						$("#update").click(update);
 
-
-
-						$('input[type=radio][name=defaultItemStyle]').change("change", function() {
+						$("input[type=radio][name=defaultItemStyle]").change("change", function() {
 							if($("#Bullet").is(':checked'))
 								$("#divBulletCaracter").show();
 							else
 								$("#divBulletCaracter").hide();
 						});
 
-						$('input[type=radio][name=formatOptions]').change("change", function() {
+						$("input[type=radio][name=formatOptions]").change("change", function() {
 							if($("#opml").is(':checked')){
 								$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
 								$("#None").prop("checked", true);
@@ -516,57 +550,47 @@ var popup2 = (function() {
 							}
 						});
 
-						$("#addFindReplace").click(function() {
-							addFindReplace();
-						});
+						$("#addFindReplace").click(addFindReplace);
 
 						$("#newProfile").click(function() {
-							newProfile();
+							$("#modalNewProfile").modal("show");
 						});
 
 						$("#saveProfile").click(function() {
-							loading(function(callback){
-								saveProfile(document.getElementById('profileList').value);
-								exportText();
-								return callback();
-							});
+							saveProfile($("#profileList").val());
 						});
+
+						$("#formOutputFormat input, #formDefaultItemStyle input, #formIndentation input, #formOptions input").change(autoReload);
 
 						$("#saveNewProfile").click(function() {
 							if(document.getElementById('inputNewProfile').value != ""){
-								$('#modalNewProfile').modal('hide');
-								loading(function(callback){
-									saveProfile(document.getElementById('inputNewProfile').value);
-									exportText();
-									return callback();
-								});
+								$("#modalNewProfile").modal('hide');
+								saveProfile(document.getElementById('inputNewProfile').value);
 							}
 						});
 
 						$("#deleteProfile").click(function(){
-							var nameProfile = document.getElementById("profileList").value;
-							if(nameProfile!="list"){
-								$("#nameDeleteProfile").text(nameProfile);
+							if(curent_profile.name!="list"){
+								$("#nameDeleteProfile").text(curent_profile.name);
 								$("#modalDeleteProfile").modal("show");
 							}
 						});
 
 						$("#yesDeleteProfile").click(function(){
-							removeProfile(document.getElementById("profileList").value);
+							removeProfile();
 							$("#modalDeleteProfile").modal("hide");
+							autoReload();
 						});
 
-						document.getElementById("profileList").onchange=function(){
-							curent_profile = copy(profileList[document.getElementById('profileList').value]);
-							loading(function(callback){
-								exportText();
-								return callback();
-							});
-							updadeForm();
-						};
+						$("#profileList").change(function(){
+							curent_profile.name = $("#profileList").val();
+							curent_profile = copy(profileList[curent_profile.name]);
+							updadeForm(curent_profile);
+							autoReload();
+						});
 
 						$("#copy").click(function() {
-							copyToClipboard($('#textArea').val());
+							copyToClipboard($("#textArea").val());
 							$("#textArea").select();
 						});
 
@@ -580,111 +604,40 @@ var popup2 = (function() {
 							download("profiles.json",JSON.stringify(profileList));
 						});
 
-						$('#importProfile').click(function(){
-							$('#importFile').click();
+						$("#importProfile").click(function(){
+							$("#importFile").click();
 						});
 
 
-						$('#newProfileReplace').click(function(){
-							profileList[$('#renameNewProfile').val()] = copy(conflictProfileList[0][1]);
-							updateProfileChoice();
-							chrome.storage.sync.set({'profileList' : profileList}, function() {});
-							conflictProfileList.shift();
-							if($('#applyForAllNewProfile').prop('checked')){
-								conflictProfileList.forEach(function(e){
-									profileList[e[0]] = copy(e[1]);
-									updateProfileChoice();
-									chrome.storage.sync.set({'profileList' : profileList}, function() {});
-								});
-								conflictProfileList = [];
-								$('#myModal').modal('hide');
-							}
-							else{
-								if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
-								else $('#myModal').modal('hide');
-							}
+						$("#newProfileReplace").click(function(){
+							replaceProfile($("#renameNewProfile").val(), $("#applyForAllNewProfile").prop('checked'))
+							continueSolverConflictProfile();
 						});
 
-						$('#newProfileAutoRename').click(function(){
-							var i = 1;
-							var newkey = $('#renameNewProfile').val();
-							var keys = Object.keys(profileList);
-							if(keys.includes(newkey)){
-								while(keys.includes(newkey + " " + i)){
-									i++;
-								}
-								profileList[newkey + " " + i] = copy(conflictProfileList[0][1]);
-								updateProfileChoice();
-								chrome.storage.sync.set({'profileList' : profileList}, function() {});
-								conflictProfileList.shift();
-							}
-							else {
-								profileList[newkey] = copy(conflictProfileList[0][1]);
-								updateProfileChoice();
-								chrome.storage.sync.set({'profileList' : profileList}, function() {});
-								conflictProfileList.shift();
-							}
-							if($('#applyForAllNewProfile').prop('checked')){
-								conflictProfileList.forEach(function(e){
-									var i = 1;
-									var newkey = e[0];
-									var keys = Object.keys(profileList);
-									if(keys.includes(newkey)){
-										while(keys.includes(newkey + " " + i)){
-											i++;
-										}
-										profileList[newkey + " " + i] = copy(e[1]);
-										updateProfileChoice();
-										chrome.storage.sync.set({'profileList' : profileList}, function() {});
-									}
-									else {
-										profileList[newkey] = copy(e[1]);
-										updateProfileChoice();
-										chrome.storage.sync.set({'profileList' : profileList}, function() {});
-									}
-								});
-								conflictProfileList = [];
-								$('#myModal').modal('hide');
-							}
-							else{
-								if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
-								else $('#myModal').modal('hide');
-							}
-
+						$("#newProfileAutoRename").click(function(){
+							autoRenameProfile($("#renameNewProfile").val(), $("#applyForAllNewProfile").prop('checked'))
+							continueSolverConflictProfile();
 						});
 
-						$('#newProfileIgnore').click(function(){
-							conflictProfileList.shift();
-							if($('#applyForAllNewProfile').prop('checked')){
-								conflictProfileList = [];
-								$('#myModal').modal('hide');
-							}
-							else{
-								if(conflictProfileList.length != 0) openSolverConflictProfile(...conflictProfileList[0]);
-								else $('#myModal').modal('hide');
-							}
+						$("#newProfileIgnore").click(function(){
+							ignoreProfile($("#applyForAllNewProfile").prop('checked'));
+							continueSolverConflictProfile();
 						});
-						$('#newProfileCancel').click(function(){
-							$('#myModal').modal('hide');
+
+						$("#newProfileCancel").click(function(){
 							conflictProfileList = [];
-
+							$("#myModal").modal('hide');
 						});
+
 						$("#closeModal").click(function(){
 							conflictProfileList = [];
 						});
 
 
-						$("#importFile").change(function(e) {
-							var file = document.getElementById('importFile').files[0];
-
-							var fr = new FileReader();
-
-							fr.onload = function(e) {
-								var result = JSON.parse(e.target.result);
-								addProfileToProfileList(result);
-							}
-							fr.readAsText(file);
+						$("#importFile").change(function(){
+							importFile($('#importFile').prop('files')[0]);
 							$("#importFile").val('');
+							continueSolverConflictProfile();
 						});
 
 						$("#renameNewProfile").change(function(e) {
@@ -701,26 +654,32 @@ var popup2 = (function() {
 							}
 						});
 
-						$('#hideForm').click(function(){
-							$('#form').slideToggle("slow", function(){
-								if($('#form').is(":visible")){
-									$('#hideForm').html('<i class="glyphicon glyphicon-minus"></i');
+						$("#hideForm").click(function(){
+							$("#form").slideToggle("slow", function(){
+								if($("#form").is(":visible")){
+									$("#hideForm").html('<i class="glyphicon glyphicon-minus"></i');
+									hideForm = false;
 								}
 								else{
-									$('#hideForm').html('<i class="glyphicon glyphicon-plus"></i');
+									$("#hideForm").html('<i class="glyphicon glyphicon-plus"></i');
+									hideForm = true;
 								}
+					      chrome.storage.local.set({'hideForm' : hideForm});
 								sizeOfExportArea();
 							});
 						});
 
-						$('#hideProfileList').click(function(){
-							$('#divProfileList').slideToggle("slow", function(){
-								if($('#divProfileList').is(":visible")){
-									$('#hideProfileList').html('<i class="glyphicon glyphicon-minus"></i');
+						$("#hideProfileList").click(function(){
+							$("#divProfileList").slideToggle("slow", function(){
+								if($("#divProfileList").is(":visible")){
+									$("#hideProfileList").html('<i class="glyphicon glyphicon-minus"></i');
+									hideProfileList = false;
 								}
 								else{
-									$('#hideProfileList').html('<i class="glyphicon glyphicon-plus"></i');
+									$("#hideProfileList").html('<i class="glyphicon glyphicon-plus"></i');
+									hideProfileList = true;
 								}
+					      chrome.storage.local.set({'hideProfileList' : hideProfileList});
 								sizeOfExportArea();
 							});
 						});
@@ -745,103 +704,56 @@ var popup2 = (function() {
 						})
 
 						$("#yesReset").click(function() {
-							chrome.storage.sync.clear(function (){});
-							profileList=null;
-							profileName_LastConnexion = null;
-							initProfileList();
+							reset();
 							$("#modalReset").modal("hide");
 						});
 					}
 
-					function initProfileList(){
-						if(profileList == null){
-							profileList = {
-								"list" : new Profile("text", "None", "", "\t", "\n", false, false, true, false, [], false),
-								"HTML doc" : new Profile("html", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
-								"RTF doc" : new Profile("rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
-								"LaTeX Report" : new Profile("latex", "None", "", "\t", "\n", true, false, true, true, [], false),
-								"OPML" : new Profile("opml", "None", "", "\t", "\n", true, false, true, true, [], false),
-								"LaTeX Beamer" : new Profile("beamer", "None", "", "\t", "\n", true, false, true, true, [], false)
-							};
-							chrome.storage.sync.set({'profileList' : profileList}, function() {
-								console.log("profileList init");
-							});
-						};
-						if(profileName_LastConnexion == null || !profileList.hasOwnProperty(profileName_LastConnexion)){
-							profileName_LastConnexion="list";
-							chrome.storage.sync.set({'profileName' : profileName_LastConnexion}, function() {
-								console.log("profileName init");
-							});
-						};
+					function initHTML(){
 						updateProfileChoice();
-						document.getElementById("profileList").value = profileName_LastConnexion;
-						updadeForm();
-						curent_profile = copy(profileList[document.getElementById('profileList').value]);
-					}
+						updadeForm(curent_profile);
 
-					var profileList = storageS.profileList;
-					var profileName_LastConnexion = storageS.profileName;
-					var curent_profile = null;
-					var conflictProfileList=[];
+						$("#textArea").css("font-family", textAreaStyle["font-family"]);
+						$("#textArea").css('font-size', textAreaStyle["font-size"]+"px");
 
-					var textAreaStyle;
-					if(storageL.textAreaStyle){
-						textAreaStyle = storageL.textAreaStyle;
-					}
-					else {
-						textAreaStyle={
-							"font-family" : "Arial",
-							"font-size" : 14
-						};
-						chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
-							console.log("textAreaStyle init");
-						});
-					}
-			    $('#textArea').css("font-family", textAreaStyle["font-family"]);
-			    $('#textArea').css('font-size', textAreaStyle["font-size"]+"px");
+						if(hideForm){
+							$("#form").hide();
+							$("#hideForm").html('<i class="glyphicon glyphicon-plus"></i');
+						}
+						if(hideProfileList){
+							$("#divProfileList").hide();
+							$("#hideProfileList").html('<i class="glyphicon glyphicon-plus"></i');
+						}
 
-					var refreshOptions;
-					if(storageL.refreshOptions){
-						refreshOptions = storageL.refreshOptions;
-					}
-					else {
-						refreshOptions={
-							"autoCopy" : false,
-							"autoDownload" : false
-						};
-						chrome.storage.local.set({'refreshOptions' : refreshOptions}, function() {
-							console.log("refreshOptions init");
-						});
-					}
+						sizeOfExportArea();
 
-					var windowSize;
-					if(storageL.windowSize){
-						windowSize = storageL.windowSize;
-					}
-					else {
-			      var tmp_width = Math.max(window.screen.availWidth*0.75, 500);
-			      var tmp_height = Math.max(window.screen.availHeight*0.75, 600);
-			      windowSize={
-			        option : "relativeBrowser",
-			        width : tmp_width,
-			        height : tmp_height
-			      };
-						chrome.storage.local.set({'windowSize' : windowSize}, function() {
-							console.log("windowSize init");
-						});
-					}
+						exportText();
+						setEventListers();
 
-					initProfileList();
+					}
+					function initialization(){
+						profileList = initProfileList(storageS.profileList);
+						curent_profile = initCurentProfile(storageS.curent_profile);
+						conflictProfileList=[];
 
+						textAreaStyle = initTextAreaStyle(storageL.textAreaStyle);
+						refreshOptions = initRefreshOptions(storageL.refreshOptions);
+						windowSize = initWindowSize(storageL.windowSize);
+						previusWindowWidth = window.innerWidth;
+
+						hideForm = initHideForm(storageL.hideForm);
+						hideProfileList = initHideProfileList(storageL.hideProfileList);
+
+						initHTML();
+					}
+					var profileList, curent_profile, conflictProfileList;
+					var textAreaStyle, refreshOptions, windowSize, previusWindowWidth;
+					var hideForm, hideProfileList;
 					var g_nodes = response.content;
 					var g_title = response.title;
 					var g_url = response.url;
 					var g_email= response.email;
-
-					exportText();
-					setEventListers();
-					sizeOfExportArea();
-					var previusWindowWidth = window.innerWidth;
+					initialization();
 					return callback();
 				});
 			});

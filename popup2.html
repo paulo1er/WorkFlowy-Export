@@ -36,19 +36,17 @@
 									</div>
 								</div>
 								<div id="footerTextArea" class="panel-footer">
-									<div class="text-center">
-			  						<div class="btn-group" role="group">
-											<button id="refresh" type="button" class="btn btn-primary center-block">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
-										</div>
-				  					<div class="btn-group" role="group">
-											<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
-										</div>
-				  					<div class="btn-group" role="group">
-											<div hidden id="fileName"></div>
-											<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
-										</div>
-			  						<div class="btn-group" role="group">
-											<button id="update" type="button" class="btn btn-primary center-block">Reload <i class="glyphicon glyphicon-refresh"></i></button>
+									<div class="container-fluid">
+										<div class="input-group">
+											<span class="input-group-btn">
+												<button id="refresh" type="button" class="btn btn-primary">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
+												<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
+												<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
+											</span>
+											<span class="input-group-btn pull-right">
+												<button id="update" type="button" class="btn btn-primary pull-right">Reload WorkFlowy <i class="glyphicon glyphicon-refresh"></i></button>
+												<div hidden id="fileName"></div>
+											</span>
 										</div>
 									</div>
 								</div>
@@ -61,12 +59,12 @@
 							<div class="panel panel-info">
 								<div class="panel-heading text-center" style="padding:5px;">
 									<button id="hideForm" type="button" class="close"><i class="glyphicon glyphicon-minus"></i></button>
-									<h5>Curent profile</h5>
+									<h5>Current profile</h5>
 								</div>
 								<div class="panel-body">
 									<div class="container-fluid" id="form">
 										<div class="row justify-content-around">
-											<div class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formOutputFormat" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
 												<p class="text-center">Output Format</p>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -112,7 +110,7 @@
 												</div>
 											</div>
 
-											<div class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formDefaultItemStyle" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
 												<p class="text-center" name="TxtDefaultItemStyle">Default Item Style</p>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -154,7 +152,7 @@
 
 											<div class="clearfix visible-sm-block visible-lg-block"></div>
 
-											<div class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formIndentation" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
 												<p class="text-center" name="TxtindentOptions">Indentation</p>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -176,7 +174,7 @@
 												</div>
 											</div>
 
-											<div class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formOptions" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
 												<p class="text-center">Options</p>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -216,7 +214,7 @@
 												</div>
 											</div>
 
-											<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12">
+											<div id="formFindAndReplace" class="well col-xs-12 col-sm-12 col-md-12 col-lg-12">
 												<p class="text-center">Find and Replace</p>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">Find :</span>
@@ -251,6 +249,7 @@
 																<th scope="col">Replace</th>
 																<th scope="col">Regex</th>
 																<th scope="col">Match Case</th>
+																<th scope="col">Modify</th>
 																<th scope="col">Delete</th>
 															</tr>
 														</thead>
@@ -286,10 +285,8 @@
 												<button id="downloadProfiles" type="button" class="btn btn-default">Export <i class="glyphicon glyphicon-download"></i></button>
 												<button id="importProfile" type="button" class="btn btn-default">Import <i class="glyphicon glyphicon-upload"></i></button>
 											</span>
-										</div>
-										<div class="input-group">
-											<span class="input-group-btn">
-												<button id="reset" type="button" class="btn btn-danger">Reset profiles to default</button>
+											<span class="input-group-btn pull-right">
+												<button id="reset" type="button" class="btn btn-danger pull-right"> &nbsp;Reset profiles to default </button>
 											</span>
 										</div>
 									</div>
@@ -460,7 +457,7 @@
 			<div class="panel-footer" style="padding:0;">
 				<div class="text-center" style="padding:10px;">
 					<a href="options.html" role="button" class="btn btn-info" target="_blank">WorkFlowy Export Settings</a>
-					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Soucre code</a>
+					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Source code</a>
 					<a href="README.md" role="button" class="btn btn-info" target="_blank">README</a>
 					<a href="LICENSE" role="button" class="btn btn-info" target="_blank">LICENSE</a>
 				</div>
@@ -468,6 +465,7 @@
 		</div>
 		<script type="text/javascript" src="js/jquery.min.js"></script>
 		<script type="text/javascript" src="js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/Object.js"></script>
 		<script type="text/javascript" src="js/popup2.js"></script>
 		<script type="text/javascript" src="js/export_lib.js"></script>
 	</body>
