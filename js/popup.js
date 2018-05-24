@@ -26,7 +26,7 @@
 						window.close();
 						break;
 					case "noWindow" :
-						none(tabs[0].id);
+						none(tabs[0].id, window.close);
 						break;
 					default:
 						var width = Math.max(tabs[0].width*0.75, 500);
@@ -44,7 +44,7 @@
 			});
 	});
 
-	function none(currentTabId){
+	function none(currentTabId, callback){
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
@@ -58,7 +58,7 @@
 					var g_email= response.email;
 					console.log("EXPORT : ",response, curent_profile)
 					var text = exportLib(g_nodes, curent_profile, g_email);
-					var fileName = g_title+extensionFileName(curent_profile.format);
+					var fileName = g_title + extensionFileName(curent_profile.format);
 
 					if(refreshOptions["autoCopy"]){
 						copyToClipboard(text);
@@ -66,6 +66,7 @@
 					if(refreshOptions["autoDownload"]){
 						download(fileName, text);
 					}
+					callback();
 
 				});
 			});
