@@ -170,23 +170,29 @@ var popup2 = (function() {
 
 						document.getElementById(profile.format).checked = true;
 						if($("#opml").is(':checked')){
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-							$("#None").prop("checked", true);
-							$("#divBulletCaracter").hide();
+							$("#formDefaultItemStyle input").prop("disabled", true);
+							$("#parentNone").prop("checked", true);
+							$("#childNone").prop("checked", true);
+							$("#parentBulletCaracter").hide();
+							$("#childBulletCaracter").hide();
 							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 						}
 						else{
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+							$("#formDefaultItemStyle input").prop("disabled", false);
 							$("[name=TxtDefaultItemStyle]").css('color', '');
 						}
 
 						document.getElementById("parent"+profile.parentDefaultItemStyle).checked = true
-						if($("#Bullet").is(':checked'))
-							$("#divBulletCaracter").show();
+						if($("#parentBullet").is(':checked'))
+							$("#parentBulletCaracter").show();
 						else
-							$("#divBulletCaracter").hide();
+							$("#parentBulletCaracter").hide();
 
 						document.getElementById("child"+profile.childDefaultItemStyle).checked = true
+						if($("#childBullet").is(':checked'))
+							$("#childBulletCaracter").show();
+						else
+							$("#childBulletCaracter").hide();
 
 
 						document.getElementById("wfeRules").checked = profile.applyWFERules;
@@ -388,8 +394,15 @@ var popup2 = (function() {
 							}
 						}
 
-						curent_profile.parentIndent_chars = document.getElementById("parentIndentOther").value;
-						curent_profile.childIndent_chars = document.getElementById("childIndentOther").value;
+						if(curent_profile.parentDefaultItemStyle == "Bullet")
+							curent_profile.parentIndent_chars = document.getElementById("parentIndentOther").value;
+						else
+							curent_profile.parentIndent_chars = "";
+
+						if(curent_profile.childIndent_chars == "Bullet")
+							curent_profile.childIndent_chars = document.getElementById("childIndentOther").value;
+						else
+							curent_profile.childIndent_chars = "";
 
 						if(document.getElementById("insertLine").checked)
 							curent_profile.item_sep = "\n\n";
@@ -541,22 +554,32 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("input[type=radio][name=defaultItemStyle]").change("change", function() {
-							if($("#Bullet").is(':checked'))
-								$("#divBulletCaracter").show();
+						$("input[type=radio][name=parentDefaultItemStyle]").change("change", function() {
+							if($("#parentBullet").is(':checked'))
+								$("#parentBulletCaracter").show();
 							else
-								$("#divBulletCaracter").hide();
+								$("#parentBulletCaracter").hide();
 						});
 
-						$("input[type=radio][name=formatOptions]").change("change", function() {
+						$("input[type=radio][name=childDefaultItemStyle]").change("change", function() {
+							if($("#childBullet").is(':checked'))
+								$("#childBulletCaracter").show();
+							else
+								$("#childBulletCaracter").hide();
+						});
+
+
+						$("#formOutputFormat input").change("change", function() {
 							if($("#opml").is(':checked')){
-								$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-								$("#None").prop("checked", true);
-								$("#divBulletCaracter").hide();
+								$("#formDefaultItemStyle input").prop("disabled", true);
+								$("#parentNone").prop("checked", true);
+								$("#childNone").prop("checked", true);
+								$("#parentBulletCaracter").hide();
+								$("#childBulletCaracter").hide();
 								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 							}
 							else{
-								$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+								$("#formDefaultItemStyle input").prop("disabled", false);
 								$("[name=TxtDefaultItemStyle]").css('color', '');
 							}
 						});
