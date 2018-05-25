@@ -597,6 +597,13 @@ var exportLib = function(nodes, options, email) {
 		return result;
 	}
 
+	function textListApply(textList, f, args){
+    textList.forEach(function(text, i){
+      if(typeof text == "string")
+        textList[i] = f.apply(textList[i] , args);
+		});
+	}
+
 	exportNodesTree = function(nodes, index, level, options) {
 		options.findReplace.forEach(function(e) {
 			if(e!=null){
@@ -707,7 +714,7 @@ var exportLib = function(nodes, options, email) {
 			options.findReplace.forEach(function(e) {
 				//console.log("apply find and replace",e);
 				if(e!=null){
-					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(e.regexFind, e.txtReplace)});
+					textListApply(textList, "".replace, [e.regexFind, e.txtReplace]);
 				}
 			});
 
@@ -716,18 +723,13 @@ var exportLib = function(nodes, options, email) {
 				// Assign new rules from WFE-tags in item
 
 				ALIAS.forEach(function(e) {
-					//console.log("Replace Alias",e);
-						textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[1]).join(e[0])});
+					textListApply(textList, "".replaceAll, [e[1], e[0]]);
 				});
 
-				textList.forEach(function(subText, i){
-					if(typeof subText=="string"){
-						textList[i] = textList[i].replace(WFE_TAG_REGEXP, function(e,$1,$2){
-							var wfe = new WFE($1,$2);
-							return wfe.toString();
-						});
-					}
-				});
+				textListApply(textList, "".replace, [WFE_TAG_REGEXP, function(e,$1,$2){
+					var wfe = new WFE($1,$2);
+					return wfe.toString();
+				}]);
 
 				// bullets https://stackoverflow.com/questions/15367975/rtf-bullet-list-example
 				if (options.format == 'beamer'){
@@ -827,14 +829,14 @@ var exportLib = function(nodes, options, email) {
 
 				if (options.ignore_tags) {
 					// Strip off tags
-					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].replace(WF_TAG_REGEXP, "")});
+					textListApply(textList, "".replace, [WF_TAG_REGEXP, ""]);
 					note = note.replace(WF_TAG_REGEXP, "");
 				}
 
 				if(escapeCharacter)
 					ESCAPE_CHARACTER[options.format].forEach(function(e) {
-	  					textList.forEach(function(subText, i){if(typeof subText=="string") textList[i] = textList[i].split(e[0]).join(e[1])});
-			  			note = note.split(e[0]).join(e[1]);
+						textListApply(textList, "".replaceAll, [e[0], e[1]]);
+			  		note = note.split(e[0]).join(e[1]);
 					});
 
 				text = textListToText(textList);
