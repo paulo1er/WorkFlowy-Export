@@ -51,11 +51,17 @@ var popup2 = (function() {
 
 						$("#yourProfile-format").text(profileList[newkey].format);
 
-						if(profileList[newkey].defaultItemStyle=="None") $("#yourProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
-						else $("#yourProfile-defaultItemStyle").text(profileList[newkey].defaultItemStyle);
+						if(profileList[newkey].parentDefaultItemStyle=="None") $("#yourProfile-parentDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-parentDefaultItemStyle").text(profileList[newkey].parentDefaultItemStyle);
 
-						if(profileList[newkey].indent_chars=="" || profileList[newkey].defaultItemStyle!="Bullet") $("#yourProfile-indent_chars").html('<span class="text-muted">None</span>');
-						else $("#yourProfile-indent_chars").text(profileList[newkey].indent_chars);
+						if(profileList[newkey].childDefaultItemStyle=="None") $("#yourProfile-childDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-childDefaultItemStyle").text(profileList[newkey].childDefaultItemStyle);
+
+						if(profileList[newkey].parentIndent_chars=="" || profileList[newkey].parentDefaultItemStyle!="Bullet") $("#yourProfile-parentIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-parentIndent_chars").text(profileList[newkey].parentIndent_chars);
+
+						if(profileList[newkey].childIndent_chars=="" || profileList[newkey].childDefaultItemStyle!="Bullet") $("#yourProfile-childIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-childIndent_chars").text(profileList[newkey].childIndent_chars);
 
 						if(profileList[newkey].prefix_indent_chars=="\t")$("#yourProfile-prefix_indent_chars").text("Tab");
 						else if(profileList[newkey].prefix_indent_chars=="  ")$("#yourProfile-prefix_indent_chars").text("Space");
@@ -84,11 +90,18 @@ var popup2 = (function() {
 
 						$("#newProfile-format").text(newProfile.format);
 
-						if(newProfile.defaultItemStyle=="None") $("#newProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
-						else $("#newProfile-defaultItemStyle").text(newProfile.defaultItemStyle);
+						if(newProfile.parentDefaultItemStyle=="None") $("#newProfile-parentDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#newProfile-parentDefaultItemStyle").text(newProfile.parentDefaultItemStyle);
 
-						if(newProfile.indent_chars=="" || newProfile.defaultItemStyle!="Bullet") $("#newProfile-indent_chars").html('<span class="text-muted">None</span>');
-						else $("#newProfile-indent_chars").text(newProfile.indent_chars);
+						if(newProfile.childDefaultItemStyle=="None") $("#newProfile-childDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#newProfile-childDefaultItemStyle").text(newProfile.childDefaultItemStyle);
+
+
+						if(newProfile.parentIndent_chars=="" || newProfile.parentDefaultItemStyle!="Bullet") $("#newProfile-parentIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#newProfile-parentIndent_chars").text(newProfile.parentIndent_chars);
+
+						if(newProfile.childIndent_chars=="" || newProfile.childDefaultItemStyle!="Bullet") $("#newProfile-childIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#newProfile-childIndent_chars").text(newProfile.childIndent_chars);
 
 						if(newProfile.prefix_indent_chars=="\t")$("#newProfile-prefix_indent_chars").text("Tab");
 						else if(newProfile.prefix_indent_chars=="  ")$("#newProfile-prefix_indent_chars").text("Space");
@@ -126,6 +139,7 @@ var popup2 = (function() {
 								profileList[newkey]=copy(newProfileList[newkey]);
 								updateProfileChoice();
 						});
+						continueSolverConflictProfile();
 						console.log("conflictProfileList", conflictProfileList);
 					}
 
@@ -166,11 +180,13 @@ var popup2 = (function() {
 							$("[name=TxtDefaultItemStyle]").css('color', '');
 						}
 
-						document.getElementById(profile.defaultItemStyle).checked = true
+						document.getElementById("parent"+profile.parentDefaultItemStyle).checked = true
 						if($("#Bullet").is(':checked'))
 							$("#divBulletCaracter").show();
 						else
 							$("#divBulletCaracter").hide();
+
+						document.getElementById("child"+profile.childDefaultItemStyle).checked = true
 
 
 						document.getElementById("wfeRules").checked = profile.applyWFERules;
@@ -190,7 +206,8 @@ var popup2 = (function() {
 								document.getElementById('withoutIndent').checked = true;
 								break;
 						}
-						document.getElementById("indentOther").value = profile.indent_chars;
+						document.getElementById("parentIndentOther").value = profile.parentIndent_chars;
+						document.getElementById("childIndentOther").value = profile.childIndent_chars;
 
 						document.getElementById('findReplace').getElementsByTagName('tbody')[0].innerHTML = "";
 						profile.findReplace.forEach(function(e, id){
@@ -350,13 +367,8 @@ var popup2 = (function() {
 				    	}
 						}
 
-						var defaultItemStyle = document.getElementsByName('defaultItemStyle');
-						for ( var i = 0; i < defaultItemStyle.length; i++) {
-							if(defaultItemStyle[i].checked) {
-								curent_profile.defaultItemStyle = defaultItemStyle[i].value;
-								break;
-							}
-						}
+						curent_profile.parentDefaultItemStyle = $("input[name='parentDefaultItemStyle']:checked").val();
+						curent_profile.childDefaultItemStyle = $("input[name='childDefaultItemStyle']:checked").val();
 
 						var indentOptions = document.getElementsByName('indentOptions');
 						for ( var i = 0; i < indentOptions.length; i++) {
@@ -376,7 +388,8 @@ var popup2 = (function() {
 							}
 						}
 
-						curent_profile.indent_chars = document.getElementById("indentOther").value;
+						curent_profile.parentIndent_chars = document.getElementById("parentIndentOther").value;
+						curent_profile.childIndent_chars = document.getElementById("childIndentOther").value;
 
 						if(document.getElementById("insertLine").checked)
 							curent_profile.item_sep = "\n\n";
@@ -395,14 +408,12 @@ var popup2 = (function() {
 					function exportText(){
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $("#textArea");
-						text = exportLib(copy(g_nodes), curent_profile, g_email);
+						text = exportLib(copy(g_nodes), copy(curent_profile), g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
 						$("#url").attr("href",g_url).text(g_url);
-						chrome.storage.sync.set({'curent_profile' : curent_profile}, function() {
-							console.log("curent_profile init");
-						});
+						chrome.storage.sync.set({'curent_profile' : curent_profile});
 						if(refreshOptions["autoCopy"]){
 							copyToClipboard(text);
 						}
@@ -635,9 +646,9 @@ var popup2 = (function() {
 
 
 						$("#importFile").change(function(){
+							console.log("#importFile change");
 							importFile($('#importFile').prop('files')[0]);
 							$("#importFile").val('');
-							continueSolverConflictProfile();
 						});
 
 						$("#renameNewProfile").change(function(e) {

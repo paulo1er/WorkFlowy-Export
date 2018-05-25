@@ -112,41 +112,71 @@
 
 											<div id="formDefaultItemStyle" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
 												<p class="text-center" name="TxtDefaultItemStyle">Default Item Style</p>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="radio" id="None" name="defaultItemStyle" class="form-check-input with-gap" value="None">
-													</span>
-												  <label class="form-control" for="None" name="TxtDefaultItemStyle">None</label>
+												<div class="well">
+													<p class="text-center" name="TxtDefaultItemStyle">If item has nested items, use:</p>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+														  <input type="radio" id="parentHeading" name="parentDefaultItemStyle" class="form-check-input with-gap" value="Heading">
+														</span>
+													  <label class="form-control" for="parentHeading" name="TxtDefaultItemStyle">Heading</label>
+													</div>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+													  	<input type="radio" id="parentBullet" name="parentDefaultItemStyle" class="form-check-input with-gap" value="Bullet">
+														</span>
+													  <label class="form-control" for="parentBullet" name="TxtDefaultItemStyle">Bullet</label>
+													</div>
+													<div class="input-group input-group-sm" id="parentBulletCaracter">
+														<span class="input-group-addon">
+															Bullet Character :
+														</span>
+														<input type="text" id="parentIndentOther" maxlength="1" class="form-control">
+													</div>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+													  	<input type="radio" id="parentEnumeration" name="parentDefaultItemStyle" class="form-check-input with-gap" value="Enumeration">
+														</span>
+													  <label class="form-control" for="parentEnumeration" name="TxtDefaultItemStyle">Enumeration</label>
+													</div>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+															<input type="radio" id="parentNone" name="parentDefaultItemStyle" class="form-check-input with-gap" value="None">
+														</span>
+													  <label class="form-control" for="parentNone" name="TxtDefaultItemStyle">None</label>
+													</div>
 												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-												  	<input type="radio" id="Bullet" name="defaultItemStyle" class="form-check-input with-gap" value="Bullet">
-													</span>
-												  <label class="form-control" for="Bullet" name="TxtDefaultItemStyle">Bullet</label>
-												</div>
-												<div class="input-group input-group-sm" id="divBulletCaracter">
-													<span class="input-group-addon">
-														Bullet Character :
-													</span>
-													<input type="text" id="indentOther" maxlength="1" class="form-control">
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-												  	<input type="radio" id="Enumeration" name="defaultItemStyle" class="form-check-input with-gap" value="Enumeration">
-													</span>
-												  <label class="form-control" for="Enumeration" name="TxtDefaultItemStyle">Enumeration</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-													  <input type="radio" id="Heading" name="defaultItemStyle" class="form-check-input with-gap" value="Heading">
-													</span>
-												  <label class="form-control" for="Heading" name="TxtDefaultItemStyle">Heading</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-													  <input type="radio" id="HeadingParents" name="defaultItemStyle" class="form-check-input with-gap" value="HeadingParents">
-													</span>
-												  <label class="form-control" for="HeadingParents" name="TxtDefaultItemStyle">Heading if parents item</label>
+												<div class="well">
+													<p class="text-center" name="TxtDefaultItemStyle">If item is terminal item, use:</p>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+														  <input type="radio" id="childHeading" name="childDefaultItemStyle" class="form-check-input with-gap" value="Heading">
+														</span>
+													  <label class="form-control" for="childHeading" name="TxtDefaultItemStyle">Heading</label>
+													</div>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+													  	<input type="radio" id="childBullet" name="childDefaultItemStyle" class="form-check-input with-gap" value="Bullet">
+														</span>
+													  <label class="form-control" for="childBullet" name="TxtDefaultItemStyle">Bullet</label>
+													</div>
+													<div class="input-group input-group-sm" id="childBulletCaracter">
+														<span class="input-group-addon">
+															Bullet Character :
+														</span>
+														<input type="text" id="childIndentOther" maxlength="1" class="form-control">
+													</div>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+													  	<input type="radio" id="childEnumeration" name="childDefaultItemStyle" class="form-check-input with-gap" value="Enumeration">
+														</span>
+													  <label class="form-control" for="childEnumeration" name="TxtDefaultItemStyle">Enumeration</label>
+													</div>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+															<input type="radio" id="childNone" name="childDefaultItemStyle" class="form-check-input with-gap" value="None">
+														</span>
+													  <label class="form-control" for="childNone" name="TxtDefaultItemStyle">None</label>
+													</div>
 												</div>
 											</div>
 
@@ -381,14 +411,24 @@
 	    							<div class="col-sm-4 bg-info text-center" id="newProfile-format"></div>
 								</div>
 								<div class="row">
-	    							<div class="col-sm-4 bg-primary">defaultItemStyle</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-defaultItemStyle"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-defaultItemStyle"></div>
+	    							<div class="col-sm-4 bg-primary">parentDefaultItemStyle</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-parentDefaultItemStyle"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-parentDefaultItemStyle"></div>
 								</div>
 								<div class="row">
-	    							<div class="col-sm-4 bg-primary">indent chars</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-indent_chars"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-indent_chars"></div>
+	    							<div class="col-sm-4 bg-primary">childDefaultItemStyle</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-childDefaultItemStyle"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-childDefaultItemStyle"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">parent indent chars</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-parentIndent_chars"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-parentIndent_chars"></div>
+								</div>
+								<div class="row">
+	    							<div class="col-sm-4 bg-primary">child indent chars</div>
+	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-childIndent_chars"></div>
+	    							<div class="col-sm-4 bg-info text-center" id="newProfile-childIndent_chars"></div>
 								</div>
 								<div class="row">
 	    							<div class="col-sm-4 bg-primary">Indentation</div>

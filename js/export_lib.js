@@ -299,7 +299,7 @@ var exportLib = function(nodes, options, email) {
 			return email;
 		},
 
-		"wfe-verbose": function(){
+		"wfe-verbatim": function(){
 			escapeCharacter = false;
 			return "";
 		}
@@ -659,13 +659,13 @@ var exportLib = function(nodes, options, email) {
 		var output_children;
 		escapeCharacter= true;
 
-		if(options.defaultItemStyle=="Bullet" && level>6) level=6;
+		if(options.parentDefaultItemStyle =="Bullet" && level>6) level=6;
 
-		if(((nodes[index].myType == "HEADING" && options.defaultItemStyle == "HeadingParents") || options.defaultItemStyle == "Heading") && level<6)
+		if(options.parentDefaultItemStyle == "Heading" && level<6)
 			styleName = "Heading"+(level+1)
-		else if((options.defaultItemStyle=="Bullet" && level!=0) && level<7)
+		else if((options.parentDefaultItemStyle=="Bullet" && level!=0) && level<7)
 			styleName = "Item"+(level);
-		else if((options.defaultItemStyle=="Enumeration" && level!=0) && level<7)
+		else if((options.parentDefaultItemStyle=="Enumeration" && level!=0) && level<7)
 			styleName = "Enumeration"+(level);
 		else
 			styleName = "Normal";
@@ -978,7 +978,7 @@ var exportLib = function(nodes, options, email) {
 					//output = output + indent + text + nodes[index].myType;
 					var temp_level = level + 1;
 
-					if ((options.defaultItemStyle=='Bullet') || (nodes[index].myType == "HEADING"))
+					if ((options.parentDefaultItemStyle=='Bullet') || (nodes[index].myType == "HEADING"))
 						output = output + indent + text + " #h" + temp_level.toString();
 					else // #todo implement ITEM
 						output = output + indent + text;
@@ -997,7 +997,7 @@ var exportLib = function(nodes, options, email) {
 
 					text = text.replace(/--/g, "\\endash ");
 
-					output = output + "{\\pard" + nodesStyle.toRTFstr() + "{" + text + "}\\par}";
+					output = output + "{\\pard " + nodesStyle.toRTFstr() + "{" + text + "}\\par}";
 
 					if (options.page_break)
 						output = output + "\\page";
@@ -1006,7 +1006,7 @@ var exportLib = function(nodes, options, email) {
 				}
 				else {
 					if (styleName.includes("Item"))
-						output = output + indent + options.indent_chars + " " + text;
+						output = output + indent + options.parentIndent_chars + " " + text;
 					else if (styleName.includes("Heading"))
 						output = output + indent + text + "\n";
 					else if (styleName.includes("Enumeration"))

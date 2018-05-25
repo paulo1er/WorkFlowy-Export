@@ -1,8 +1,10 @@
-function Profile(name, format, defaultItemStyle, indent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, mdSyntax, findReplace, fragment){
+function Profile(name, format, parentDefaultItemStyle, childDefaultItemStyle, parentIndent_chars, childIndent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, mdSyntax, findReplace, fragment){
 	this.name= name,
 	this.format = format,
-	this.defaultItemStyle = defaultItemStyle,
-	this.indent_chars = indent_chars,
+	this.parentDefaultItemStyle = parentDefaultItemStyle,
+	this.childDefaultItemStyle = childDefaultItemStyle,
+	this.parentIndent_chars = parentIndent_chars,
+	this.childIndent_chars = childIndent_chars,
 	this.prefix_indent_chars = prefix_indent_chars,
 	this.item_sep = item_sep,
 	this.applyWFERules = applyWFERules,
@@ -70,12 +72,12 @@ function initProfileList(storageProfileList=null){
 	}
 	else{
 		r = {
-			"list" : new Profile("list", "text", "None", "", "\t", "\n", false, false, true, false, [], false),
-			"HTML doc" : new Profile("HTML doc", "html", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
-			"RTF doc" : new Profile("RTF doc", "rtf", "HeadingParents", "", "\t", "\n", true, false, true, true, [], false),
-			"LaTeX Report" : new Profile("LaTeX Report", "latex", "None", "", "\t", "\n", true, false, true, true, [], false),
-			"OPML" : new Profile("OPML", "opml", "None", "", "\t", "\n", true, false, true, true, [], false),
-			"LaTeX Beamer" : new Profile("LaTeX Beamer", "beamer", "None", "", "\t", "\n", true, false, true, true, [], false)
+			"list" : new Profile("list", "text", "None", "None", "", "\t", "\n", false, false, true, false, [], false),
+			"HTML doc" : new Profile("HTML doc", "html", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
+			"RTF doc" : new Profile("RTF doc", "rtf", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
+			"LaTeX Report" : new Profile("LaTeX Report", "latex", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
+			"OPML" : new Profile("OPML", "opml", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
+			"LaTeX Beamer" : new Profile("LaTeX Beamer", "beamer", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false)
 		};
 		chrome.storage.sync.set({'profileList' : r}, function() {
 			console.log("profileList init");
@@ -90,7 +92,7 @@ function initCurentProfile(storageCurentProfile=null){
 		r = copy(storageCurentProfile);
 	}
 	else{
-		r = new Profile("list", "text", "None", "", "\t", "\n", false, false, true, false, [], false);
+		r = new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false);
 		chrome.storage.sync.set({'curent_profile' : r}, function() {
 			console.log("curent_profile init");
 		});
