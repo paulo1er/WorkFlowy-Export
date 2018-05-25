@@ -658,15 +658,25 @@ var exportLib = function(nodes, options, email) {
 		var note = "";
 		var output_children;
 		escapeCharacter= true;
+		var defaultItemStyle, indent_chars;
 
-		if(options.parentDefaultItemStyle =="Bullet" && level>6) level=6;
+		if(nodes[index].myType == "HEADING"){
+			defaultItemStyle = options.parentDefaultItemStyle;
+			indent_chars = options.parentIndent_chars;
+		}
+		else{
+			defaultItemStyle = options.childDefaultItemStyle;
+			indent_chars = options.childIndent_chars;
+		}
 
-		if(options.parentDefaultItemStyle == "Heading" && level<6)
+		if(level>6) level=6;
+
+		if(defaultItemStyle == "Heading")
 			styleName = "Heading"+(level+1)
-		else if((options.parentDefaultItemStyle=="Bullet" && level!=0) && level<7)
-			styleName = "Item"+(level);
-		else if((options.parentDefaultItemStyle=="Enumeration" && level!=0) && level<7)
-			styleName = "Enumeration"+(level);
+		else if(defaultItemStyle == "Bullet")
+			styleName = "Item"+(level+1);
+		else if(defaultItemStyle == "Enumeration")
+			styleName = "Enumeration"+(level+1);
 		else
 			styleName = "Normal";
 
@@ -978,7 +988,7 @@ var exportLib = function(nodes, options, email) {
 					//output = output + indent + text + nodes[index].myType;
 					var temp_level = level + 1;
 
-					if ((options.parentDefaultItemStyle=='Bullet') || (nodes[index].myType == "HEADING"))
+					if ((defaultItemStyle=='Bullet') || (nodes[index].myType == "HEADING"))
 						output = output + indent + text + " #h" + temp_level.toString();
 					else // #todo implement ITEM
 						output = output + indent + text;
@@ -1006,7 +1016,7 @@ var exportLib = function(nodes, options, email) {
 				}
 				else {
 					if (styleName.includes("Item"))
-						output = output + indent + options.parentIndent_chars + " " + text;
+						output = output + indent + indent_chars + " " + text;
 					else if (styleName.includes("Heading"))
 						output = output + indent + text + "\n";
 					else if (styleName.includes("Enumeration"))

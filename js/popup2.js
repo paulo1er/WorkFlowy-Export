@@ -767,7 +767,7 @@ var popup2 = (function() {
 					}
 					function initialization(){
 						profileList = initProfileList(storageS.profileList);
-						curent_profile = initCurentProfile(storageS.curent_profile);
+						curent_profile = initCurentProfile(storageS.curent_profile, profileList);
 						conflictProfileList=[];
 
 						textAreaStyle = initTextAreaStyle(storageL.textAreaStyle);

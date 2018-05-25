@@ -86,10 +86,10 @@ function initProfileList(storageProfileList=null){
 	return r;
 }
 
-function initCurentProfile(storageCurentProfile=null){
+function initCurentProfile(storageCurentProfile=null, profileList=null){
 	var r;
-	if(storageCurentProfile){
-		r = copy(storageCurentProfile);
+	if(storageCurentProfile && profileList.hasOwnProperty(storageCurentProfile)){
+		r = copy(profileList[storageCurentProfile]);
 	}
 	else{
 		r = new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false);
