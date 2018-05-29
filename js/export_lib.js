@@ -149,6 +149,15 @@ var exportLib = function(nodes, options, email) {
 		return [nodes, root];
 	}
 
+	function nodeTitleToString(nodeTitle){
+		var text = "";
+		nodeTitle.forEach(function(e){
+			text += e.text;
+		});
+		return text;
+	}
+
+
 	function WFE(name, parameter=null){
 		this.name = name;
 		this.parameter = (parameter==null) ? null : parameter.split(":");
@@ -566,21 +575,26 @@ var exportLib = function(nodes, options, email) {
 
 	function insertObj(textList, regex, Obj){
 		var result = [];
-	  textList.forEach(function(text){
-	    	if(typeof text == "string"){
+	  textList.forEach(function(e){
+	    	if(e.constructor.name == "TextExported"){
+					var text = e.text;
 	        var match = regex.exec(text);
 	        var i_prev = 0;
 	        while(match!=null){
 	          var i = match.index;
-	          if(i!=i_prev) result.push(text.slice(i_prev, i));
+	          if(i!=i_prev){
+							result.push(new TextExported(text.slice(i_prev, i), e.isUnderline, e.isBold, e.isItalic));
+						}
 	          i_prev= regex.lastIndex;
 	          result.push(new Obj(...match.slice(1)));
 	          match = regex.exec(text);
 	        }
-	        if(text.length!=i_prev) result.push(text.slice(i_prev, text.length));
+	        if(text.length!=i_prev){
+						result.push(new TextExported(text.slice(i_prev, text.length), e.isUnderline, e.isBold, e.isItalic));
+					}
 	      }
 	      else{
-	      	result.push(text);
+	      	result.push(e);
 	      }
 	  	});
 		return result;
@@ -588,19 +602,16 @@ var exportLib = function(nodes, options, email) {
 
 	function textListToText(textList){
 		var result = "";
-		textList.forEach(function(text){
-	    if(typeof text == "string")
-				result += text;
-			else
-				result += text.toString(options.format);
+		textList.forEach(function(e){
+			result += e.toString(options.format);
 		});
 		return result;
 	}
 
 	function textListApply(textList, f, args){
-    textList.forEach(function(text, i){
-      if(typeof text == "string")
-        textList[i] = f.apply(textList[i] , args);
+    textList.forEach(function(e, i){
+      if(e.constructor.name == "TextExported")
+        textList[i].text = f.apply(textList[i].text , args);
 		});
 	}
 
@@ -614,7 +625,7 @@ var exportLib = function(nodes, options, email) {
 		var HEADER = {
 			text: "",
 			markdown: "",
-			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodes[index].title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
+			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodeTitleToString(nodes[index].title) + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n \\title{TEMP_TITLE}\n \\author{"+email+"}\n \\date{\\today}\n \\begin{document}\n \\maketitle",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
@@ -707,8 +718,10 @@ var exportLib = function(nodes, options, email) {
 		if(nodes[index].title != null){
 			// Not a dummy node
 
-			textList.push(nodes[index].title);
-			note = nodes[index].note;
+			nodes[index].title.forEach(function(e) {
+				textList.push(new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
+			});
+			note = nodeTitleToString(nodes[index].note);
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
@@ -732,7 +745,7 @@ var exportLib = function(nodes, options, email) {
 				}]);
 
 				// bullets https://stackoverflow.com/questions/15367975/rtf-bullet-list-example
-				if (options.format == 'beamer'){
+				/*if (options.format == 'beamer'){
 		 			if (textList[0].search(/#h4($|\s)/ig) != -1)
 					{
 						console.log('#h4 found');
@@ -753,11 +766,12 @@ var exportLib = function(nodes, options, email) {
 						console.log('#subsection found');
 						level = subsection_level;
 					}
-				}
-
+				}*/
+				console.log("TEST 1",textList);
 				textList=insertObj(textList, regexCode, Code);
 				textList=insertObj(textList, regexImage, Image);
 				textList=insertObj(textList, regexLink, Link);
+				console.log("TEST 2",textList);
 
 			}
 

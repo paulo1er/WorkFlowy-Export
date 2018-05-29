@@ -20,7 +20,61 @@ var FindReplace = function(txtFind, txtReplace, isRegex, isMatchCase){
 	this.txtFind = txtFind;
 	this.isRegex = isRegex;
 	this.isMatchCase = isMatchCase;
-}
+};
+
+
+var TextExported = function(text, isUnderline, isBold, isItalic){
+	this.text = text;
+	this.isUnderline = isUnderline;
+	this.isBold = isBold;
+	this.isItalic = isItalic;
+	this.toString = function(format = "text"){
+		var before = "";
+		var after = "";
+		switch(format){
+			case "html" :
+				if(this.isUnderline){
+					before = before + "<u>";
+					after = "</u>" + after;
+				}
+				if(this.isBold){
+					before = before + "<b>";
+					after = "</b>" + after;
+				}
+				if(this.isItalic){
+					before = before + "<i>";
+					after = "</i>" + after;
+				}
+				return before + this.text + after;
+			case "markdown" :
+				if(this.isBold){
+					before = before + "**";
+					after = "**" + after;
+				}
+				if(this.isItalic){
+					before = before + "_";
+					after = "_" + after;
+				}
+				return before + this.text + after;
+			case "rtf" :
+				if(this.isUnderline){
+					before = before + "\\ul";
+					after = "\\ul0" + after;
+				}
+				if(this.isBold){
+					before = before + "\\b";
+					after = "\\b0" + after;
+				}
+				if(this.isItalic){
+					before = before + "\\i";
+					after = "\\i0" + after;
+				}
+				return before + " " + this.text + after + "";
+			case "beamer" : return this.toString("text"); //TODO
+			default : return this.text;
+		}
+	}
+};
 
 function copy(o) {
   var output, v, key;
@@ -88,8 +142,8 @@ function initProfileList(storageProfileList=null){
 
 function initCurentProfile(storageCurentProfile=null, profileList=null){
 	var r;
-	if(storageCurentProfile && profileList.hasOwnProperty(storageCurentProfile)){
-		r = copy(profileList[storageCurentProfile]);
+	if(storageCurentProfile && profileList[storageCurentProfile.name]){
+		r = copy(profileList[storageCurentProfile.name]);
 	}
 	else{
 		r = new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false);
@@ -184,6 +238,5 @@ function initHideProfileList(storageHideProfileList){
 }
 
 String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
+    return this.split(find).join(replace);
 };

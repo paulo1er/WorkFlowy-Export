@@ -5,25 +5,27 @@
 		var i,j;
 		var text;
 		for (i = 0; i < e.length; i++){
-			console.log("element", e[i]);
-			text = e[i].children[0].children[1];
+			text = e[i].children(".name").children(".content");
 			list.push({
-				title: text.textContent,
+				title: elementToText(text.clone()),
 				type: 'node',
-				is_title: e[i].matches('div.selected'),
-				url: e[i].querySelector('a').href,
+				is_title: e[i].hasClass('selected'),
+				url: e[i].children(".name").children("a").attr('href'),
 				children: [],
 				note: ''
 			});
-			text = e[i].children[1].children[0];
+			console.log("Node", list[list.length-1].title);
+			text = e[i].children(".note").children(".content");
 			list.push({
-				title: text.textContent.replace(/\n+$/g, ''),
+				title: elementToText(text.clone()),
 				type: 'note',
 				children: []
 			});
-			for (j = 0; j < e[i].children[2].children.length-1; j++){
-				list = list.concat(elementsToArray([e[i].children[2].children[j]]));
-			}
+			console.log("Note", list[list.length-1].title);
+			e[i].children(".children").children().each(function (i){
+				if($(this).text()!= "")
+					list = list.concat(elementsToArray([$(this)]));
+			});
 			list.push({
 				title: '',
 				type: 'eoc'
@@ -32,13 +34,39 @@
 		return list;
 	}
 
+
+	var TextExported = function(text, isUnderline, isBold, isItalic){
+		this.text = text;
+		this.isUnderline = isUnderline;
+		this.isBold = isBold;
+		this.isItalic = isItalic;
+	};
+
+	function elementToText(e){
+		e.contents().contents().unwrap("a");
+		e.contents().contents().unwrap(".contentTag");
+		e.contents().contents().unwrap(".contentTagText");
+		e.html(e.html());
+		var elements = e.contents();
+		console.log(e);
+		var list = [];
+		elements.each( function( index ){
+			var text = $(this).text();
+			if(index == $(this).length - 1)
+				text = text.replace(/\n+$/g, '');
+			if(text != '')
+				list.push(new TextExported(text, $(this).hasClass("contentUnderline"), $(this).hasClass("contentBold"), $(this).hasClass("contentItalic")));
+		});
+		return list;
+	}
+
 	function getContent(callback) {
 		var url = location.href;
 		var title = document.title;
 
-		var nodeList = document.querySelectorAll('div.addedToSelection');
+		var nodeList = $('div.addedToSelection');
 		if (nodeList.length==0){
-			nodeList = [document.querySelector('div.selected')];
+			nodeList = [$('div.selected')];
 		}
 		var email = document.getElementById("userEmail").innerText;
 		chrome.storage.sync.set({'lastURL' : url}, function() {});
