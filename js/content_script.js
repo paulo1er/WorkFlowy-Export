@@ -2,35 +2,26 @@
 
 	function elementsToArray(e) {
 		var list = [];
-		var i,j;
-		var text;
-		for (i = 0; i < e.length; i++){
-			text = e[i].children(".name").children(".content");
+
+		console.log(e);
+		e.each(function(){
 			list.push({
-				title: elementToText(text.clone()),
+				title: elementToText($(this).children(".name").children(".content")),
 				type: 'node',
-				is_title: e[i].hasClass('selected'),
-				url: e[i].children(".name").children("a").attr('href'),
+				url: $(this).children(".name").children("a").attr('href'),
 				children: [],
-				note: ''
+				note: elementToText($(this).children(".notes").children(".content"))
 			});
 			console.log("Node", list[list.length-1].title);
-			text = e[i].children(".notes").children(".content");
-			list.push({
-				title: elementToText(text.clone()),
-				type: 'note',
-				children: []
-			});
-			console.log("Note", list[list.length-1].title);
-			e[i].children(".children").children().each(function (i){
+			$(this).children(".children").children().each(function(){
 				if($(this).text()!= "")
-					list = list.concat(elementsToArray([$(this)]));
+					list = list.concat(elementsToArray($(this)));
 			});
 			list.push({
 				title: '',
 				type: 'eoc'
 			});
-		}
+		});
 		return list;
 	}
 
@@ -43,11 +34,12 @@
 	};
 
 	function elementToText(e){
-		e.contents().contents().unwrap("a");
-		e.contents().contents().unwrap(".contentTag");
-		e.contents().contents().unwrap(".contentTagText");
-		e.html(e.html().replace(/\n+$/g, ''));
-		var elements = e.contents();
+		var cloneE = e.clone();
+		cloneE.contents().contents().unwrap("a");
+		cloneE.contents().contents().unwrap(".contentTag");
+		cloneE.contents().contents().unwrap(".contentTagText");
+		cloneE.html(cloneE.html().replace(/\n+$/g, ''));
+		var elements = cloneE.contents();
 		var list = [];
 		elements.each( function( index ){
 			var text = $(this).text();
@@ -63,7 +55,7 @@
 
 		var nodeList = $('div.addedToSelection');
 		if (nodeList.length==0){
-			nodeList = [$('div.selected')];
+			nodeList = $('div.selected');
 		}
 		var email = document.getElementById("userEmail").innerText;
 		chrome.storage.sync.set({'lastURL' : url}, function() {});

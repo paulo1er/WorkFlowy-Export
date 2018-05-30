@@ -1,6 +1,6 @@
-var exportLib = function(nodes, options, email) {
+var exportLib = function(nodes, options, title, email) {
 	// private method
-	var hasChild, getElement, exportNodesTree, exportNodesTreeBody;
+	var getElement, exportNodesTree, exportNodesTreeBody;
 	var wfe_count={};
 	var wfe_count_ID={};
 	var TABLE_REGEXP = /^\s*\|/;
@@ -18,135 +18,53 @@ var exportLib = function(nodes, options, email) {
 	var body = "";
 	var footer = "";
 	var my_nodes = arrayToTree(nodes);
+	console.log("TEST", my_nodes);
 
 	//import the WorkFlowy text in Nodes
 	function arrayToTree(nodes) {
-		var start = 0; //nodes[0].node_forest[0]; EP
 		var level = 0;
-		var parent = -1;
+		var parent = 0;
 		var root = 0;
-		var doctype = "OUTLINE";
 		var l = nodes.length;
-		var oldestChild = start;
-		nodes[start].allSiblings = [start];
-		console.log("All siblings of node[" + start.toString() + "]=", nodes[start].allSiblings);
-		if ((nodes[start].type == "node") || (nodes[start].type == "note")) console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type, ", text is:", nodes[start].title)
-		else console.log("nodes[" + start.toString() + "] is of type:", nodes[start].type);
+		var my_nodes = [];
+		my_nodes.push({
+			type: 'dummy',
+			title: null,
+			note: null,
+			level:-1,
+			children: []
+		});
 
-		for (var i = start + 1; i < l; i++) {
 
-			if ((nodes[i].type == "node") || (nodes[i].type == "note")) console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type, ", text is:", nodes[i].title)
-			else console.log("nodes[" + i.toString() + "] is of type:", nodes[i].type);
+		for (var i = 0; i < l; i++) {
 
 			// Updating level, indentation and heading info
-			if (((i > 0) && (nodes[i - 1].type == "title") || (nodes[i - 1].type == "node")) && (nodes[i].type == "node")) {
-				level = level + 1;
-				console.log("Increase level to " + level.toString());
-				parent = i - 1;
-				oldestChild = i;
-				nodes[oldestChild].allSiblings = []; // fill in info later
-				nodes[parent].myType = "HEADING";
-				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
-				nodes[i].myType = "ITEM";
-				console.log("Node", i.toString(), "new type: " + nodes[i].myType);
-
-			} else if ((i > 1) && (nodes[i - 1].type == "note") && (nodes[i].type == "node")) {
-				level = level + 1;
-				console.log("Increase level to " + level.toString());
-				parent = i - 2;
-				oldestChild = i;
-				nodes[oldestChild].allSiblings = []; // fill in info later
-				nodes[parent].myType = "HEADING";
-				console.log("Node", parent.toString(), "new type: " + nodes[parent].myType);
-
-			} else if ((nodes[i - 1].type == "node") && (nodes[i].type == "eoc")) {
-				nodes[i - 1].myType = "ITEM";
-				console.log("Node", i.toString() + "-1 : new type: " + nodes[i - 1].myType);
-
-			} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
-				level = level - 1;
-				console.log("Decrease level to " + level.toString());
-
-				if (level > 0) {
-					parent = nodes[parent].parent;
-					oldestChild = nodes[parent].children[0];
-				} else if (level == 0) parent = -1
-				else {
-					console.log("dummy node");
-					l = nodes.length;
-					console.log("insert dummy node: nodes[" + l.toString() + "]");
-
-					parent = l;
-					root = l;
-
-					nodes[i - 2].parent = parent;
-					console.log("node[" + i.toString() + "-2] = " + nodes[i].title + " has now parent", parent);
-
-					nodes.push({
-						type: 'dummy',
-						title: null,
-						note: '',
-						children: [i - 2]
-					});
-					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-					console.log("dummy node: nodes[" + l.toString() + "] has title ", nodes[l].title);
-
+			if(i>0){
+				if ((nodes[i - 1].type == "node") && (nodes[i].type == "node")) {
 					level = level + 1;
-					parent = -1;
-					doctype = "FRAGMENT"; // #todo don't need this
-					console.log("Document type is FRAGMENT");
+					parent = my_nodes.length - 1;
+				} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
+					level = level - 1;
 
+					if (level > 0) {
+						parent = nodes[parent].parent;
+					}
+					else if (level <= 0){
+						parent=0;
+						level=0;
+					}
 				}
 			}
-
-			// Update level info
-			nodes[i].level = level;
 
 			// Update parent and sibling info and create notes
 			if (nodes[i].type == "node") {
-				if (parent >= 0) {
-					console.log("Oldest child is ", oldestChild);
-					nodes[oldestChild].allSiblings.push(i);
-					console.log("All siblings of node[" + oldestChild.toString() + "]=", nodes[oldestChild].allSiblings);
-
-					nodes[i].parent = parent;
-					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
-
-					nodes[parent].children.push(i);
-					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-				} else {
-					l = nodes.length;
-					console.log("insert dummy node:: nodes[" + l.toString() + "]");
-
-					parent = l;
-					root = l;
-
-					nodes[i].parent = parent;
-					console.log("node[" + i.toString() + "] = " + nodes[i].title + " has now parent", parent);
-
-					nodes.push({
-						type: 'dummy',
-						title: null,
-						note: '',
-						children: [0, i]
-					});
-					console.log("node[", parent, "] = " + nodes[parent].title + " has now children", nodes[parent].children);
-
-					level = level + 1;
-
-					doctype = "FRAGMENT";
-					console.log("Document type is FRAGMENT");
-
-				}
-			} else if (nodes[i].type == "note") {
-				console.log("Set note of item", nodes[i - 1].title, "to", nodes[i].title);
-				nodes[i - 1].note = nodes[i].title;
+				my_nodes.push(nodes[i]);
+				my_nodes[my_nodes.length - 1].level = level;
+				my_nodes[my_nodes.length - 1].parent = parent;
+				my_nodes[parent].children.push(my_nodes.length - 1);
 			}
-
-			// Update level and document info
-			nodes[i].level = level;
 		}
-		return [nodes, root];
+		return my_nodes;
 	}
 
 	function nodeTitleToString(nodeTitle){
@@ -487,15 +405,6 @@ var exportLib = function(nodes, options, email) {
 			rtf: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
 		};
 
-	hasChild = function(nodes, pos) {
-		if (nodes[pos].type != "node") return false;
-		for (var i = pos + 1; i < nodes.length; i++) {
-			if (nodes[i].type == "eoc") return false;
-			if (nodes[i].type == "node") return true;
-		};
-		return false;
-	};
-
 	getElement = function(line) {
 		var e;
 		if (line.match(TABLE_REGEXP)) e = "TABLE";
@@ -504,16 +413,6 @@ var exportLib = function(nodes, options, email) {
 		else e = "PARAGRAPH";
 		return e;
 	};
-
-	function copy(mainObj) {
-  	let objCopy = {}; // objCopy will store a copy of the mainObj
-  	let key;
-  	for (key in mainObj) {
-    	objCopy[key] = mainObj[key]; // copies each property to the objCopy object
-  	}
-  	return objCopy;
-	}
-
 
 	//create a regular expression with txtFind isRegex and isMatchCase
 	function functionRegexFind(txtFind, isRegex, isMatchCase){
@@ -625,7 +524,7 @@ var exportLib = function(nodes, options, email) {
 		var HEADER = {
 			text: "",
 			markdown: "",
-			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + nodeTitleToString(nodes[index].title) + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
+			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n \\title{TEMP_TITLE}\n \\author{"+email+"}\n \\date{\\today}\n \\begin{document}\n \\maketitle",
 			beamer: "",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
@@ -666,7 +565,6 @@ var exportLib = function(nodes, options, email) {
 	}
 
 	exportNodesTreeBody = function(nodes, index, level, options) {
-		var start = 0; //nodes[0].node_forest[0]; // EP
 		var indent = "";
 		var output = "";
 		var output_after_children = "";
@@ -679,32 +577,6 @@ var exportLib = function(nodes, options, email) {
 		escapeCharacter= true;
 		var defaultItemStyle, indent_chars;
 
-		if(nodes[index].myType == "HEADING"){
-			defaultItemStyle = options.parentDefaultItemStyle;
-			indent_chars = options.parentIndent_chars;
-		}
-		else{
-			defaultItemStyle = options.childDefaultItemStyle;
-			indent_chars = options.childIndent_chars;
-		}
-
-		if(level>6) level=6;
-
-		if(defaultItemStyle == "Heading")
-			styleName = "Heading"+(level+1)
-		else if(defaultItemStyle == "Bullet")
-			styleName = "Item"+(level+1);
-		else if(defaultItemStyle == "Enumeration")
-			styleName = "Enumeration"+(level+1);
-		else
-			styleName = "Normal";
-
-
-		if(options.format == 'html')
-			nodesStyle = new Style(STYLESHEET[styleName].Id);
-		else
-			nodesStyle = copy(STYLESHEET[styleName]);
-
 		var title_level = -1;
 		var part_level = -1;
 		var section_level = 0;
@@ -712,12 +584,37 @@ var exportLib = function(nodes, options, email) {
 		var frame_level = 1;
 		var heading = 0;
 
-		console.log("nodesTreeToText -- processing nodes["+index.toString()+"] = ", nodes[index].title, 'at level', level.toString());
-		console.log("options:", options);
 
-
-		if(nodes[index].title != null){
+		if(nodes[index].type != "dummy"){
 			// Not a dummy node
+			if(nodes[index].children.length != 0){
+				defaultItemStyle = options.parentDefaultItemStyle;
+				indent_chars = options.parentIndent_chars;
+			}
+			else{
+				defaultItemStyle = options.childDefaultItemStyle;
+				indent_chars = options.childIndent_chars;
+			}
+
+			if(level>6) level=6;
+
+			if(defaultItemStyle == "Heading")
+				styleName = "Heading"+(level+1)
+			else if(defaultItemStyle == "Bullet")
+				styleName = "Item"+(level+1);
+			else if(defaultItemStyle == "Enumeration")
+				styleName = "Enumeration"+(level+1);
+			else
+				styleName = "Normal";
+
+
+			if(options.format == 'html')
+				nodesStyle = new Style(STYLESHEET[styleName].Id);
+			else
+				nodesStyle = copy(STYLESHEET[styleName]);
+
+			console.log("nodesTreeToText -- processing nodes["+index.toString()+"] = ", nodes[index].title, 'at level', level.toString());
+			console.log("options:", options);
 
 			nodes[index].title.forEach(function(e) {
 				textList.push(new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
@@ -1000,7 +897,7 @@ var exportLib = function(nodes, options, email) {
 					}
 					output = output + options.item_sep;
 
-					if ((nodes[index].myType == "HEADING") && (level >= frame_level))
+					if ((nodes[index].children.length != 0) && (level >= frame_level))
 					{
 						output = output + indent + "\\begin{itemize}" + options.item_sep;
 					}
@@ -1014,10 +911,9 @@ var exportLib = function(nodes, options, email) {
 
 				}
 				else if (options.format == 'WFE-TAGGED') {
-					//output = output + indent + text + nodes[index].myType;
 					var temp_level = level + 1;
 
-					if ((defaultItemStyle=='Bullet') || (nodes[index].myType == "HEADING"))
+					if ((defaultItemStyle=='Bullet') || (nodes[index].children.length != 0))
 						output = output + indent + text + " #h" + temp_level.toString();
 					else // #todo implement ITEM
 						output = output + indent + text;
@@ -1112,6 +1008,6 @@ var exportLib = function(nodes, options, email) {
 
 
 	var text = "";
-	text = text + exportNodesTree(my_nodes[0], my_nodes[1], 0, options);
+	text = text + exportNodesTree(my_nodes, 0, 0, options);
 	return text;
 }

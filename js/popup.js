@@ -58,7 +58,7 @@
 					var g_url = response.url;
 					var g_email= response.email;
 					console.log("EXPORT : ",response, curent_profile)
-					var text = exportLib(g_nodes, curent_profile, g_email);
+					var text = exportLib(g_nodes, curent_profile, g_title, g_email);
 					var fileName = g_title + extensionFileName(curent_profile.format);
 
 					if(refreshOptions["autoCopy"]){
