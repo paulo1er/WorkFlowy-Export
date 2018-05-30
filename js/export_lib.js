@@ -17,55 +17,8 @@ var exportLib = function(nodes, options, title, email) {
 	var header = "";
 	var body = "";
 	var footer = "";
-	var my_nodes = arrayToTree(nodes);
+	var my_nodes = nodes;
 	console.log("TEST", my_nodes);
-
-	//import the WorkFlowy text in Nodes
-	function arrayToTree(nodes) {
-		var level = 0;
-		var parent = 0;
-		var root = 0;
-		var l = nodes.length;
-		var my_nodes = [];
-		my_nodes.push({
-			type: 'dummy',
-			title: null,
-			note: null,
-			level:-1,
-			children: []
-		});
-
-
-		for (var i = 0; i < l; i++) {
-
-			// Updating level, indentation and heading info
-			if(i>0){
-				if ((nodes[i - 1].type == "node") && (nodes[i].type == "node")) {
-					level = level + 1;
-					parent = my_nodes.length - 1;
-				} else if ((nodes[i - 1].type == "eoc") && (nodes[i].type == "eoc")) {
-					level = level - 1;
-
-					if (level > 0) {
-						parent = nodes[parent].parent;
-					}
-					else if (level <= 0){
-						parent=0;
-						level=0;
-					}
-				}
-			}
-
-			// Update parent and sibling info and create notes
-			if (nodes[i].type == "node") {
-				my_nodes.push(nodes[i]);
-				my_nodes[my_nodes.length - 1].level = level;
-				my_nodes[my_nodes.length - 1].parent = parent;
-				my_nodes[parent].children.push(my_nodes.length - 1);
-			}
-		}
-		return my_nodes;
-	}
 
 	function nodeTitleToString(nodeTitle){
 		var text = "";

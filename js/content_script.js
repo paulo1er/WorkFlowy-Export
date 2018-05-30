@@ -1,28 +1,53 @@
 (function(global) {
 
-	function elementsToArray(e) {
+	function elementsToArray(e, level) {
 		var list = [];
-
-		console.log(e);
+		var nodeID;
 		e.each(function(){
 			list.push({
-				title: elementToText($(this).children(".name").children(".content")),
 				type: 'node',
+				title: elementToText($(this).children(".name").children(".content")),
+				note: elementToText($(this).children(".notes").children(".content")),
 				url: $(this).children(".name").children("a").attr('href'),
-				children: [],
-				note: elementToText($(this).children(".notes").children(".content"))
+				level: level,
+				children: []
 			});
-			console.log("Node", list[list.length-1].title);
+			console.log("Node", list[list.length-1]);
 			$(this).children(".children").children().each(function(){
-				if($(this).text()!= "")
-					list = list.concat(elementsToArray($(this)));
-			});
-			list.push({
-				title: '',
-				type: 'eoc'
+				if($(this).text()!= ""){
+					list = list.concat(elementsToArray($(this), level+1));
+				}
 			});
 		});
 		return list;
+	}
+
+	//add parent and children info in node
+	function arrayToTree(nodes) {
+		var parent = 0;
+		var my_nodes = [];
+		my_nodes.push({
+			type: 'dummy',
+			title: null,
+			note: null,
+			level:-1,
+			children: []
+		});
+
+
+		for (var i = 0; i < nodes.length; i++) {
+			if(i>0){
+				if ((nodes[i - 1].level == nodes[i].level - 1)) {
+					parent = my_nodes.length - 1;
+				} else if ((nodes[i - 1].level == nodes[i].level + 1)) {
+					parent = my_nodes[parent].parent;
+				}
+			}
+			my_nodes.push(nodes[i]);
+			my_nodes[my_nodes.length - 1].parent = parent;
+			my_nodes[parent].children.push(my_nodes.length - 1);
+		}
+		return my_nodes;
 	}
 
 
@@ -59,7 +84,7 @@
 		}
 		var email = document.getElementById("userEmail").innerText;
 		chrome.storage.sync.set({'lastURL' : url}, function() {});
-		var content = elementsToArray(nodeList);
+		var content = arrayToTree(elementsToArray(nodeList, 0));
 		var result = {
 			content: content,
 			url: url,
