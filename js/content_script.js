@@ -15,7 +15,7 @@
 				note: ''
 			});
 			console.log("Node", list[list.length-1].title);
-			text = e[i].children(".note").children(".content");
+			text = e[i].children(".notes").children(".content");
 			list.push({
 				title: elementToText(text.clone()),
 				type: 'note',
@@ -46,14 +46,11 @@
 		e.contents().contents().unwrap("a");
 		e.contents().contents().unwrap(".contentTag");
 		e.contents().contents().unwrap(".contentTagText");
-		e.html(e.html());
+		e.html(e.html().replace(/\n+$/g, ''));
 		var elements = e.contents();
-		console.log(e);
 		var list = [];
 		elements.each( function( index ){
 			var text = $(this).text();
-			if(index == $(this).length - 1)
-				text = text.replace(/\n+$/g, '');
 			if(text != '')
 				list.push(new TextExported(text, $(this).hasClass("contentUnderline"), $(this).hasClass("contentBold"), $(this).hasClass("contentItalic")));
 		});

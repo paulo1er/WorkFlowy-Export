@@ -674,6 +674,7 @@ var exportLib = function(nodes, options, email) {
 		var text = "";
 		var textList = [];
 		var note = "";
+		var noteList = [];
 		var output_children;
 		escapeCharacter= true;
 		var defaultItemStyle, indent_chars;
@@ -721,13 +722,17 @@ var exportLib = function(nodes, options, email) {
 			nodes[index].title.forEach(function(e) {
 				textList.push(new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
 			});
-			note = nodeTitleToString(nodes[index].note);
+
+			nodes[index].note.forEach(function(e) {
+				noteList.push(new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
+			});
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
 				//console.log("apply find and replace",e);
 				if(e!=null){
 					textListApply(textList, "".replace, [e.regexFind, e.txtReplace]);
+					textListApply(noteList, "".replace, [e.regexFind, e.txtReplace]);
 				}
 			});
 
@@ -737,9 +742,15 @@ var exportLib = function(nodes, options, email) {
 
 				ALIAS.forEach(function(e) {
 					textListApply(textList, "".replaceAll, [e[1], e[0]]);
+					textListApply(noteList, "".replaceAll, [e[1], e[0]]);
 				});
 
 				textListApply(textList, "".replace, [WFE_TAG_REGEXP, function(e,$1,$2){
+					var wfe = new WFE($1,$2);
+					return wfe.toString();
+				}]);
+
+				textListApply(noteList, "".replace, [WFE_TAG_REGEXP, function(e,$1,$2){
 					var wfe = new WFE($1,$2);
 					return wfe.toString();
 				}]);
@@ -767,12 +778,13 @@ var exportLib = function(nodes, options, email) {
 						level = subsection_level;
 					}
 				}*/
-				console.log("TEST 1",textList);
 				textList=insertObj(textList, regexCode, Code);
 				textList=insertObj(textList, regexImage, Image);
 				textList=insertObj(textList, regexLink, Link);
-				console.log("TEST 2",textList);
 
+				noteList=insertObj(noteList, regexCode, Code);
+				noteList=insertObj(noteList, regexImage, Image);
+				noteList=insertObj(noteList, regexLink, Link);
 			}
 
 
@@ -833,7 +845,7 @@ var exportLib = function(nodes, options, email) {
 					break;
 			}
 
-			console.log('Finished processing rules:', textList, options);
+			console.log('Finished processing rules:', textList, noteList, options);
 
 
 			if(level>0) indent = Array(level+1).join(options.prefix_indent_chars);
@@ -844,16 +856,17 @@ var exportLib = function(nodes, options, email) {
 				if (options.ignore_tags) {
 					// Strip off tags
 					textListApply(textList, "".replace, [WF_TAG_REGEXP, ""]);
-					note = note.replace(WF_TAG_REGEXP, "");
+					textListApply(noteList, "".replace, [WF_TAG_REGEXP, ""]);
 				}
 
 				if(escapeCharacter)
 					ESCAPE_CHARACTER[options.format].forEach(function(e) {
 						textListApply(textList, "".replaceAll, [e[0], e[1]]);
-			  		note = note.split(e[0]).join(e[1]);
+						textListApply(noteList, "".replaceAll, [e[0], e[1]]);
 					});
 
 				text = textListToText(textList);
+				note = textListToText(noteList);
 
 				// Update output
 				if(options.format == 'markdown'){
@@ -907,7 +920,7 @@ var exportLib = function(nodes, options, email) {
 
 					output += indent + "<" + idStyleToHTMLBalise[nodesStyle.Id] + " class=\"" + styleName + "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[nodesStyle.Id] + ">";
 
-					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p>" + note + "</p>";
+					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p class=\"Note\">" + note + "</p>";
 
 					output = output + options.item_sep;
 					if (options.page_break)
