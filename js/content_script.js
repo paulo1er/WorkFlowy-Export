@@ -22,35 +22,6 @@
 		return list;
 	}
 
-	//add parent and children info in node
-	function arrayToTree(nodes) {
-		var parent = 0;
-		var my_nodes = [];
-		my_nodes.push({
-			type: 'dummy',
-			title: null,
-			note: null,
-			level:-1,
-			children: []
-		});
-
-
-		for (var i = 0; i < nodes.length; i++) {
-			if(i>0){
-				if ((nodes[i - 1].level == nodes[i].level - 1)) {
-					parent = my_nodes.length - 1;
-				} else if ((nodes[i - 1].level == nodes[i].level + 1)) {
-					parent = my_nodes[parent].parent;
-				}
-			}
-			my_nodes.push(nodes[i]);
-			my_nodes[my_nodes.length - 1].parent = parent;
-			my_nodes[parent].children.push(my_nodes.length - 1);
-		}
-		return my_nodes;
-	}
-
-
 	var TextExported = function(text, isUnderline, isBold, isItalic){
 		this.text = text;
 		this.isUnderline = isUnderline;
@@ -84,7 +55,7 @@
 		}
 		var email = document.getElementById("userEmail").innerText;
 		chrome.storage.sync.set({'lastURL' : url}, function() {});
-		var content = arrayToTree(elementsToArray(nodeList, 0));
+		var content = elementsToArray(nodeList, 0);
 		var result = {
 			content: content,
 			url: url,

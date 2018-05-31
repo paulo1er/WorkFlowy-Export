@@ -126,7 +126,7 @@ function initProfileList(storageProfileList=null){
 	}
 	else{
 		r = {
-			"list" : new Profile("list", "text", "None", "None", "", "\t", "\n", false, false, true, false, [], false),
+			"list" : new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false),
 			"HTML doc" : new Profile("HTML doc", "html", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
 			"RTF doc" : new Profile("RTF doc", "rtf", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
 			"LaTeX Report" : new Profile("LaTeX Report", "latex", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
@@ -142,11 +142,14 @@ function initProfileList(storageProfileList=null){
 
 function initCurentProfile(storageCurentProfile=null, profileList=null){
 	var r;
-	if(storageCurentProfile && profileList[storageCurentProfile.name]){
+	if(storageCurentProfile && profileList && profileList[storageCurentProfile.name]){
 		r = copy(profileList[storageCurentProfile.name]);
 	}
+	else if(storageCurentProfile && !profileList){
+		r = storageCurentProfile;
+	}
 	else{
-		r = new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false);
+		r = new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false),
 		chrome.storage.sync.set({'curent_profile' : r}, function() {
 			console.log("curent_profile init");
 		});
@@ -237,6 +240,34 @@ function initHideProfileList(storageHideProfileList){
 	return r;
 }
 
-String.prototype.replaceAll = function(search, replacement) {
+function arrayToTree(nodes) {
+
+	var root = {
+		type: 'dummy',
+		title: null,
+		note: null,
+		level:-1,
+		children: []
+	};
+
+	var my_node;
+	var parent = root;
+
+	for (var i = 0; i < nodes.length; i++) {
+		if(i>0){
+			if ((nodes[i - 1].level == nodes[i].level - 1)) {
+				parent = my_node;
+			} else if ((nodes[i - 1].level == nodes[i].level + 1)) {
+				parent = parent.parent;
+			}
+		}
+		my_node = nodes[i];
+		my_node.parent = parent;
+		parent.children.push(my_node);
+	}
+	return root;
+}
+
+String.prototype.replaceAll = function(find, replace) {
     return this.split(find).join(replace);
 };

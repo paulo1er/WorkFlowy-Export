@@ -17,8 +17,9 @@ var exportLib = function(nodes, options, title, email) {
 	var header = "";
 	var body = "";
 	var footer = "";
-	var my_nodes = nodes;
-	console.log("TEST", my_nodes);
+	console.log("TEST", nodes);
+	var nodesTree = arrayToTree(nodes);
+	console.log("TEST", nodesTree);
 
 	function nodeTitleToString(nodeTitle){
 		var text = "";
@@ -467,7 +468,7 @@ var exportLib = function(nodes, options, title, email) {
 		});
 	}
 
-	exportNodesTree = function(nodes, index, level, options) {
+	exportNodesTree = function(nodesTree, options) {
 		options.findReplace.forEach(function(e) {
 			if(e!=null){
 				e.regexFind = functionRegexFind(e.txtFind, e.isRegex, e.isMatchCase);
@@ -509,7 +510,7 @@ var exportLib = function(nodes, options, title, email) {
 		console.log("footer", footer);
 
 		// Create body text
-		body = exportNodesTreeBody(nodes, index, level, options);
+		body = exportNodesTreeBody(nodesTree, options);
 
 		wfe_count={};
 		wfe_count_ID={};
@@ -517,19 +518,17 @@ var exportLib = function(nodes, options, title, email) {
 		return header + body + footer;
 	}
 
-	exportNodesTreeBody = function(nodes, index, level, options) {
+	exportNodesTreeBody = function(node, options) {
 		var indent = "";
 		var output = "";
 		var output_after_children = "";
-		var children_level;
 		var text = "";
 		var textList = [];
 		var note = "";
 		var noteList = [];
-		var output_children;
 		escapeCharacter= true;
 		var defaultItemStyle, indent_chars;
-
+		var level = node.level;
 		var title_level = -1;
 		var part_level = -1;
 		var section_level = 0;
@@ -538,9 +537,9 @@ var exportLib = function(nodes, options, title, email) {
 		var heading = 0;
 
 
-		if(nodes[index].type != "dummy"){
+		if(node.type != "dummy"){
 			// Not a dummy node
-			if(nodes[index].children.length != 0){
+			if(node.children.length != 0){
 				defaultItemStyle = options.parentDefaultItemStyle;
 				indent_chars = options.parentIndent_chars;
 			}
@@ -566,14 +565,14 @@ var exportLib = function(nodes, options, title, email) {
 			else
 				nodesStyle = copy(STYLESHEET[styleName]);
 
-			console.log("nodesTreeToText -- processing nodes["+index.toString()+"] = ", nodes[index].title, 'at level', level.toString());
+			console.log("nodesTreeToText -- processing node = ", node.title, 'at level', level.toString());
 			console.log("options:", options);
 
-			nodes[index].title.forEach(function(e) {
+			node.title.forEach(function(e) {
 				textList.push(new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
 			});
 
-			nodes[index].note.forEach(function(e) {
+			node.note.forEach(function(e) {
 				noteList.push(new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
 			});
 
@@ -850,7 +849,7 @@ var exportLib = function(nodes, options, title, email) {
 					}
 					output = output + options.item_sep;
 
-					if ((nodes[index].children.length != 0) && (level >= frame_level))
+					if ((node.children.length != 0) && (level >= frame_level))
 					{
 						output = output + indent + "\\begin{itemize}" + options.item_sep;
 					}
@@ -866,7 +865,7 @@ var exportLib = function(nodes, options, title, email) {
 				else if (options.format == 'WFE-TAGGED') {
 					var temp_level = level + 1;
 
-					if ((defaultItemStyle=='Bullet') || (nodes[index].children.length != 0))
+					if ((defaultItemStyle=='Bullet') || (node.children.length != 0))
 						output = output + indent + text + " #h" + temp_level.toString();
 					else // #todo implement ITEM
 						output = output + indent + text;
@@ -918,29 +917,25 @@ var exportLib = function(nodes, options, title, email) {
 				}
 			}
 		}
-			//console.log(nodes[index].note);
+			//console.log(node.note);
 			console.log("Output: ", output);
 			// Reset item-local rules
 			options.ignore_item = false;
 			options.page_break = false;
 
-			output_children = '';
 			if (!options.ignore_outline) {
-				// Recursion on children
-				if ((!options.ignore_item) && (nodes[index].title !== null)) children_level = level + 1;
-				else children_level = level;
 
 				previus_styleName = styleName;
 
-				console.log("Apply recursion to: ", nodes[index].children);
-				for (var i = 0; i < nodes[index].children.length; i++)
+				console.log("Apply recursion to: ", node.children);
+				for (var i = 0; i < node.children.length; i++)
 				{
-					output_children = output_children + exportNodesTreeBody(nodes, nodes[index].children[i], children_level, options);
+					output += exportNodesTreeBody(node.children[i], options);
 				}
 
 			}
 
-			output = output + output_children + output_after_children;
+			output += output_after_children;
 
 			if (!options.ignore_item && !options.ignore_outline) {
 				// Only finish item if no rule specifies ignoring it
@@ -948,7 +943,7 @@ var exportLib = function(nodes, options, title, email) {
 					output = output + indent + "</outline>\n"
 				else if (options.format == 'beamer')
 				{
-					if ((level >= frame_level) && (output_children.length > 0))
+					if (level >= frame_level)
 						output = output + indent + "\\end{itemize}\n";
 					if (level == frame_level)
 						output = output + indent + "\\end{frame}\n";
@@ -961,6 +956,6 @@ var exportLib = function(nodes, options, title, email) {
 
 
 	var text = "";
-	text = text + exportNodesTree(my_nodes, 0, 0, options);
+	text = text + exportNodesTree(nodesTree, options);
 	return text;
 }
