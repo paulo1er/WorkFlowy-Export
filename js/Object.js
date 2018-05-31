@@ -242,10 +242,17 @@ function initHideProfileList(storageHideProfileList){
 
 function arrayToTree(nodes) {
 
+	function addNode(node){
+		var my_node=this;
+		node.parent = my_node.parent;
+		this.parent.children[this.parent.children.indexOf(my_node)] = node;
+		node.children.push(my_node);
+	}
+
 	var root = {
 		type: 'dummy',
-		title: null,
-		note: null,
+		title: [],
+		note: [],
 		level:-1,
 		children: []
 	};
@@ -262,6 +269,7 @@ function arrayToTree(nodes) {
 			}
 		}
 		my_node = nodes[i];
+		my_node.addNode = addNode;
 		my_node.parent = parent;
 		parent.children.push(my_node);
 	}
