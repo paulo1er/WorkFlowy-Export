@@ -249,6 +249,24 @@ function arrayToTree(nodes) {
 		node.children.push(my_node);
 	}
 
+	function olderSibling(){
+		var my_node=this;
+		var siblings=my_node.parent.children;
+		if(siblings.indexOf(my_node) > 0)
+			return siblings[siblings.indexOf(my_node)-1];
+		else
+			return null;
+	}
+
+	function youngerSibling(){
+		var my_node=this;
+		var siblings=my_node.parent.children;
+		if(siblings.indexOf(my_node) < siblings.length - 1)
+			return siblings[siblings.indexOf(my_node)+1];
+		else
+			return null;
+	}
+
 	var root = {
 		type: 'dummy',
 		title: [],
@@ -264,12 +282,16 @@ function arrayToTree(nodes) {
 		if(i>0){
 			if ((nodes[i - 1].level == nodes[i].level - 1)) {
 				parent = my_node;
-			} else if ((nodes[i - 1].level == nodes[i].level + 1)) {
-				parent = parent.parent;
+			} else if (nodes[i - 1].level > nodes[i].level) {
+				for(var j=0; j<nodes[i - 1].level - nodes[i].level; j++){
+					parent = parent.parent;
+				}
 			}
 		}
 		my_node = nodes[i];
 		my_node.addNode = addNode;
+		my_node.olderSibling = olderSibling;
+		my_node.youngerSibling = youngerSibling;
 		my_node.parent = parent;
 		parent.children.push(my_node);
 	}

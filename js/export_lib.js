@@ -15,6 +15,7 @@ var exportLib = function(nodes, options, title, email) {
 	var ignore_item = false;
 	var ignore_outline = false;
 	var escapeCharacter = true;
+	var page_break = false;
 	var header = "";
 	var body = "";
 	var footer = "";
@@ -71,7 +72,7 @@ var exportLib = function(nodes, options, title, email) {
 			return "";
 		},
 		"wfe-page-break": function(bool=true){
-			options.page_break = bool;
+			page_break = bool;
 			return "";
 		},
 		"wfe-style":function(style="default"){
@@ -185,7 +186,8 @@ var exportLib = function(nodes, options, title, email) {
 		["#wfe-style:Heading4","#h4"],
 		["#wfe-style:Heading5","#h5"],
 		["#wfe-style:Heading6","#h6"],
-		["#wfe-style:Item1","#item"]
+		["#wfe-style:Item1","#item"],
+		["#wfe-style:Enumeration1","#enum"]
 	];
 
 	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
@@ -492,7 +494,7 @@ var exportLib = function(nodes, options, title, email) {
 		ignore_item = false;
 		ignore_outline = false;
 		escapeCharacter= true;
-		options.page_break = false;
+		page_break = false;
 
 		// Create header text
 		if(!options.fragment) header = HEADER[options.format];
@@ -504,6 +506,7 @@ var exportLib = function(nodes, options, title, email) {
 
 		// Create body text
 		applyRulesNodesTree(nodesTree, options);
+		console.log("convert node to text : ", nodesTree, options);
 		body = exportNodesTreeBody(nodesTree, options);
 
 		wfe_count={};
@@ -526,8 +529,9 @@ var exportLib = function(nodes, options, title, email) {
 
 			if(node.level>6) node.level=6;
 
-			if(node.styleName == "Heading")
+			if(node.styleName == "Heading"){
 				styleName = "Heading"+(node.level+1)
+			}
 			else if(node.styleName == "Bullet")
 				styleName = "Item"+(node.level+1);
 			else if(node.styleName == "Enumeration")
@@ -586,31 +590,37 @@ var exportLib = function(nodes, options, title, email) {
 				node.note=insertObj(node.note, regexLink, Link);
 			}
 
+			node.styleName=styleName;
+			node.style=nodesStyle;
 
-			switch (styleName) {
-				case "Heading1" :
-					node.level=0;
+			switch (node.styleName) {
+				case "Enumeration1" :
+					counter_enumeration[1]++;
+					node.style.counter=counter_enumeration[1];
 					break;
-				case "Heading2" :
-					node.level=1;
+				case "Enumeration2" :
+					counter_enumeration[2]++;
+					node.style.counter=counter_enumeration[2];
 					break;
-				case "Heading3" :
-					node.level=2;
+				case "Enumeration3" :
+					counter_enumeration[3]++;
+					node.style.counter=counter_enumeration[3];
 					break;
-				case "Heading4" :
-					node.level=3;
+				case "Enumeration4" :
+					counter_enumeration[4]++;
+					node.style.counter=counter_enumeration[4];
 					break;
-				case "Heading5" :
-					node.level=4;
+				case "Enumeration5" :
+					counter_enumeration[5]++;
+					node.style.counter=counter_enumeration[5];
 					break;
-				case "Heading6" :
-					node.level=5;
+				case "Enumeration6" :
+					counter_enumeration[6]++;
+					node.style.counter=counter_enumeration[6];
 					break;
 			}
 
 			node.indent = Array(node.level+1).join(options.prefix_indent_chars);
-			node.styleName=styleName;
-			node.style=nodesStyle;
 
 			if (options.ignore_tags) {
 				// Strip off tags
@@ -627,9 +637,11 @@ var exportLib = function(nodes, options, title, email) {
 		}
 		node.ignore_item = ignore_item;
 		node.ignore_outline = ignore_outline;
+		node.page_break = page_break;
 		ignore_item = false;
 		ignore_outline = false;
 		escapeCharacter = true;
+		page_break = false;
 		for (var i = 0; i < node.children.length; i++){
 			applyRulesNodesTree(node.children[i], options);
 		}
@@ -661,7 +673,7 @@ var exportLib = function(nodes, options, title, email) {
 					if(node.styleName.includes("Item"))
 						indent = "\t".repeat(node.style["level"]-1) + "* ";
 					else if(node.styleName.includes("Enumeration"))
-						indent = "\t".repeat(node.style["level"]-1) + counter_enumeration[node.style["level"]-1]+". ";
+						indent = "\t".repeat(node.style["level"]-1) + node.style.counter +". ";
 					else if(node.styleName.includes("Heading"))
 						indent = "#".repeat(node.style["level"]) + " ";
 					else
@@ -670,20 +682,37 @@ var exportLib = function(nodes, options, title, email) {
 					output += indent + text + "\n\n";
 					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
 				}
+
 				else if (options.format == 'html') {
 					text = text.replace(/--/g, "&ndash;");
 
 					var style = node.style.toHTMLstr();
 					if(style!="")style = "style=\""+style+"\"";
-
+					if(node.styleName.includes("Item")){
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						if(!olderSibling || !olderSibling.styleName.includes("Item"))
+							output += indent + "<ul>\n";
+						if(!youngerSibling || !youngerSibling.styleName.includes("Item"))
+							output_after_children += indent + "</ul>\n";
+					}
+					if(node.styleName.includes("Enumeration")){
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						if(!olderSibling || !olderSibling.styleName.includes("Enumeration"))
+							output += indent + "<ol>\n";
+						if(!youngerSibling || !youngerSibling.styleName.includes("Enumeration"))
+							output_after_children += indent + "</ol>\n";
+					}
 					output += indent + "<" + idStyleToHTMLBalise[node.style.Id] + " class=\"" + node.styleName + "\" " + style + ">" + text + "</" + idStyleToHTMLBalise[node.style.Id] + ">";
 
 					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p class=\"Note\">" + note + "</p>";
 
 					output = output + options.item_sep;
-					if (options.page_break)
-							output = output + "<div class=\"page-break\"></div>";
+					if (node.page_break)
+							output = output + "<div class=\"page-break\"></div>\n";
 				}
+
 				else if (options.format == 'latex'){
 					if(level==0){
 						header = header.replace("TEMP_TITLE", text);
@@ -719,12 +748,12 @@ var exportLib = function(nodes, options, title, email) {
 
 					if ((note !== "") && (options.outputNotes))
 						output += "\n" + indent + note;
-					if (options.page_break)
+					if (node.page_break)
 						output += "\\pagebreak ";
 
 					output += options.item_sep;
-
 				}
+
 				else if (options.format == 'beamer'){
 					if (level == title_level)
 						output = output + indent + "\\title{" + text + "}";
@@ -764,13 +793,13 @@ var exportLib = function(nodes, options, title, email) {
 					}
 
 				}
-				else if (options.format == 'opml') {
 
+				else if (options.format == 'opml') {
 					output = output + indent + "<outline text=\"" + text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") + "\"";
 					if (options.outputNotes) output = output + " _note=\"" + note + "\"";
 					output = output + ">\n";
-
 				}
+
 				else if (options.format == 'WFE-TAGGED') {
 					var temp_level = level + 1;
 
@@ -783,11 +812,23 @@ var exportLib = function(nodes, options, title, email) {
 					output = output + options.item_sep;
 
 				}
+
 				else if (options.format == 'rtf') {
 
 					if(node.styleName.includes("Item")){
-						node.style.after="{\\pntext\\f3\\'B7\\tab}";
-						node.style.before="{\\*\\pn\\pnlvlblt\\pnf3\\pnindent0{\\pntxtb\\'B7}}";
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						node.style.after="{\\f3\\'B7}";
+						//if(!youngerSibling || !youngerSibling.styleName.includes("Item"))
+							//output_after_children += indent + "\\sect	\n";
+					}
+
+					if(node.styleName.includes("Enumeration")){
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						node.style.after="{\\f3 "+node.style.counter+"}";
+						//if(!youngerSibling || !youngerSibling.styleName.includes("Enumeration"))
+							//output_after_children += indent + "\\sect	\n";
 					}
 
 
@@ -795,18 +836,19 @@ var exportLib = function(nodes, options, title, email) {
 
 					output = output + "{\\pard " + node.style.toRTFstr() + "{" + text + "}\\par}";
 
-					if (options.page_break)
+					if (node.page_break)
 						output = output + "\\page";
 					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard" + STYLESHEET["Note"].toRTFstr() + "" + note + "\\par}";
 					output = output + "\n";
 				}
+
 				else {
 					if (node.styleName.includes("Item"))
 						output = output + indent + indent_chars + " " + text;
 					else if (node.styleName.includes("Heading"))
 						output = output + indent + text + "\n";
 					else if (node.styleName.includes("Enumeration"))
-						output = output + indent + counter_enumeration[node.styleName[11]-1]+ " " + text;
+						output = output + indent + node.style.counter+ " " + text;
 					else
 						output = output + indent + text
 
@@ -814,6 +856,8 @@ var exportLib = function(nodes, options, title, email) {
 						output = output + "\n" + indent + "[" + note + "]";
 
 					output = output + options.item_sep;
+					if (node.page_break)
+						output = output + "\n";
 				}
 			}
 		}
