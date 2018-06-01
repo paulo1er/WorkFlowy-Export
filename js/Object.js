@@ -46,6 +46,20 @@ var TextExported = function(text, isUnderline, isBold, isItalic){
 					after = "</i>" + after;
 				}
 				return before + this.text + after;
+			case "latex" :
+				if(this.isUnderline){
+					before = before + "\\underline{";
+					after = "}" + after;
+				}
+				if(this.isBold){
+					before = before + "\\textbf{";
+					after = "}" + after;
+				}
+				if(this.isItalic){
+					before = before + "\\textit{";
+					after = "}" + after;
+				}
+				return before + this.text + after;
 			case "markdown" :
 				if(this.isBold){
 					before = before + "**";
@@ -70,7 +84,21 @@ var TextExported = function(text, isUnderline, isBold, isItalic){
 					after = "\\i0" + after;
 				}
 				return before + " " + this.text + after + "";
-			case "beamer" : return this.toString("text"); //TODO
+			case "beamer" : return this.toString("latex");
+			case "opml" :
+				if(this.isUnderline){
+					before = before + "&lt;u&gt;";
+					after = "&lt;/u&gt;" + after;
+				}
+				if(this.isBold){
+					before = before + "&lt;b&gt;";
+					after = "&lt;/b&gt;" + after;
+				}
+				if(this.isItalic){
+					before = before + "&lt;i&gt;";
+					after = "&lt;/i&gt;" + after;
+				}
+				return before + this.text + after;
 			default : return this.text;
 		}
 	}

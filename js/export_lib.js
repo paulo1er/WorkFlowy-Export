@@ -176,6 +176,12 @@ var exportLib = function(nodes, options, title, email) {
 		"wfe-verbatim": function(){
 			escapeCharacter = false;
 			return "";
+		},
+
+		"wfe-beamer-slide": function(){
+			nodesStyle.level = 3;
+			styleName = "frame";
+			return "";
 		}
 	}
 
@@ -187,7 +193,8 @@ var exportLib = function(nodes, options, title, email) {
 		["#wfe-style:Heading5","#h5"],
 		["#wfe-style:Heading6","#h6"],
 		["#wfe-style:Item1","#item"],
-		["#wfe-style:Enumeration1","#enum"]
+		["#wfe-style:Enumeration1","#enum"],
+		["#wfe-beamer-slide","#slide"]
 	];
 
 	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
@@ -349,7 +356,7 @@ var exportLib = function(nodes, options, title, email) {
 			html: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
 			latex: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
 			beamer: [["\\","\\textbackslash "],["ˆ","\\textasciicircum "],["&","\\&"],["%","\\%"],["$","\\$"],["#","\\#"],["_","\\_"],["{","\\{"],["}","\\}"]],
-			opml: [["",""]],
+			opml: [["&","&amp;"],[">","&gt;"],["<","&lt;"],["\"","&quot;"],["\'","&#39;"]],
 			rtf: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
 		};
 
@@ -399,7 +406,8 @@ var exportLib = function(nodes, options, title, email) {
 				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">"+this.text+"</span>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return this.toString("text"); //TODO
-				case "beamer" : return "\\begin{figure}[t]\\includegraphics["+this.text+"]{"+this.link+"}\\centering \\end{figure}";
+				case "latex" : return "\\begin{figure}[t]\\includegraphics["+this.text+"]{"+this.link+"}\\centering \\end{figure}";
+				case "beamer" : return this.toString("latex");
 				default : return "!["+this.text+"]("+this.link+")";
 			}
 		}
@@ -414,7 +422,8 @@ var exportLib = function(nodes, options, title, email) {
 				case "html" : return "<a href=\""+this.link+"\" target=\"_blank\">"+this.text+"</a>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return "{\\field{\\*\\fldinst HYPERLINK "+this.link+" }{\\fldrslt\\cf3\\ul "+this.text+"}}";
-				case "beamer" : return "\\href{"+this.link+"}{"+this.text+"}";
+				case "latex" : return "\\href{"+this.link+"}{"+this.text+"}";
+				case "beamer" : return this.toString("latex");
 				default : return "["+this.text+"]("+this.link+")";
 			}
 		}
@@ -529,19 +538,52 @@ var exportLib = function(nodes, options, title, email) {
 
 			if(node.level>6) node.level=6;
 
-			if(node.styleName == "Heading"){
-				styleName = "Heading"+(node.level+1)
+			if(options.format == "beamer"){
+				if(node.parent.type != "dummy" && node.parent.styleName=="frame"){
+					styleName = "itemize";
+				}
+				else if(node.parent.type != "dummy" && node.parent.styleName=="itemize"){
+					styleName = "itemize";
+				}
+				else {
+					switch(node.level){
+						case 0 :
+							styleName = "title";
+							break;
+						case 1 :
+							styleName = "section";
+							break;
+						case 2 :
+							styleName = "subsection";
+							break;
+						case 3 :
+							styleName = "frame";
+							break;
+						default :
+							styleName = "itemize";
+							break;
+						}
+				}
 			}
-			else if(node.styleName == "Bullet")
-				styleName = "Item"+(node.level+1);
-			else if(node.styleName == "Enumeration")
-				styleName = "Enumeration"+(node.level+1);
-			else
-				styleName = "Normal";
+			else{
+				if(node.styleName == "Heading"){
+					styleName = "Heading"+(node.level+1)
+				}
+				else if(node.styleName == "Bullet")
+					styleName = "Item"+(node.level+1);
+				else if(node.styleName == "Enumeration")
+					styleName = "Enumeration"+(node.level+1);
+				else
+					styleName = "Normal";
+			}
 
 
 			if(options.format == 'html')
 				nodesStyle = new Style(STYLESHEET[styleName].Id);
+			else if(options.format == 'beamer'){
+				nodesStyle = new Style(-1);
+				nodesStyle.level = node.level;
+			}
 			else
 				nodesStyle = copy(STYLESHEET[styleName]);
 
@@ -656,12 +698,6 @@ var exportLib = function(nodes, options, title, email) {
 		var noteList = node.note;
 		var indent_chars = node.indentChars;
 		var level = node.level;
-		var title_level = -1;
-		var part_level = -1;
-		var section_level = 0;
-		var subsection_level = -1;
-		var frame_level = 1;
-		var heading = 0;
 
 
 		if(node.type != "dummy"){
@@ -714,11 +750,11 @@ var exportLib = function(nodes, options, title, email) {
 				}
 
 				else if (options.format == 'latex'){
-					if(level==0){
+					if(node.level==0){
 						header = header.replace("TEMP_TITLE", text);
 					}
 					else if(node.styleName.includes("Heading")){
-						switch (level){
+						switch (node.style.level){
 							case 1 :
 								output += indent + "\\begin{section}{"+text+"}";
 								output_after_children = indent + "\\end{section}\n";
@@ -737,17 +773,27 @@ var exportLib = function(nodes, options, title, email) {
 						}
 					}
 					else if (node.styleName.includes("Item")){
-						output += indent + "\\begin{itemize}\n"+indent+"\\item "+text;
-						output_after_children = indent + "\\end{itemize}\n";
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						if(!olderSibling || !olderSibling.styleName.includes("Item"))
+							output += indent + "\\begin{itemize}\n";
+						if(!youngerSibling || !youngerSibling.styleName.includes("Item"))
+							output_after_children += indent + "\\end{itemize}\n";
+						output += indent+"\\item "+text;
 					}
 					else if (node.styleName.includes("Enumeration")){
-						output += indent + "\\begin{enumerate}\n"+indent+"\\item "+text;
-						output_after_children = indent + "\\end{enumerate}\n";
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						if(!olderSibling || !olderSibling.styleName.includes("Enumeration"))
+							output += indent + "\\begin{enumerate}\n";
+						if(!youngerSibling || !youngerSibling.styleName.includes("Enumeration"))
+							output_after_children += indent + "\\end{enumerate}\n";
+						output += indent+"\\item "+text;
 					}
 					else output += indent + text + "\\\\";
 
 					if ((note !== "") && (options.outputNotes))
-						output += "\n" + indent + note;
+						output += "\n" + indent + note + "\\\\";
 					if (node.page_break)
 						output += "\\pagebreak ";
 
@@ -755,62 +801,41 @@ var exportLib = function(nodes, options, title, email) {
 				}
 
 				else if (options.format == 'beamer'){
-					if (level == title_level)
-						output = output + indent + "\\title{" + text + "}";
-					else if (level == section_level)
-						output = output + indent + "\\section{" + text + "}";
-					else if (level == subsection_level)
-						output = output + indent + "\\subsection{" + text + "}";
-					else if (level == frame_level)
-						output = output + indent + "\\begin{frame}{" + text + "}";
-					else if (level > frame_level)
-						output = output + indent + "\\item " + text;
-
-					// Add notes if required by option
-					if ((note !== "") && (options.outputNotes)){
-						// Create images
-						console.log('check for images ');
-						// First replace with optional {: } syntax
-						note = note.replace(/\!\[(.*)\]\((.*)\)\{:(.*)\}/g, "\\begin{figure}[t]\\includegraphics[$3]{$2}\\centering \\end{figure}");
-						console.log('item now', note);
-						// Replace if this is missing
-						note = note.replace(/\!\[(.*)\]\((.*)\)/g, "\\begin{figure}[t]\\includegraphics[width=.75\\textwidth]{$2}\\centering \\end{figure}");
-						console.log('item now', note);
-
-						// Create hyperlinks
-						console.log('check for hyperlink');
-						note = note.replace(/\[(.*)\]\((.*)\)/g, "\\href{$2}{$1}");
-						console.log('item now', note);
-
-						output = output + options.item_sep + indent + " " + note;
-						// .replace(/\!\[(.*)\]\((.*)\)\{:(.*)\}/g, "\\begin{figure}[t]\\includegraphics[$3]{$2}\\centering \\end{figure}")
+					switch(node.styleName){
+						case "title" :
+							output += indent + "\\title{" + text + "}" + options.item_sep;
+							break;
+						case "section" :
+							output += indent + "\\section{" + text + "}" + options.item_sep;
+							break;
+						case "subsection" :
+							output += indent + "\\subsection{" + text + "}" + options.item_sep;
+							break;
+						case "frame" :
+							output += indent + "\\begin{frame}{" + text + "}" + options.item_sep;
+							output_after_children += indent + "\\end{frame}" +  options.item_sep;
+							break;
+						default :
+							var olderSibling = node.olderSibling();
+							var youngerSibling = node.youngerSibling();
+							if(!olderSibling || (olderSibling.styleName != "itemize"))
+								output += indent + "\\begin{itemize}\n";
+							if(!youngerSibling || (youngerSibling.styleName != "itemize"))
+								output_after_children += indent + "\\end{itemize}\n";
+							output += indent + "\\item " + text + options.item_sep;
+							break;
 					}
-					output = output + options.item_sep;
-
-					if ((node.children.length != 0) && (level >= frame_level))
-					{
-						output = output + indent + "\\begin{itemize}" + options.item_sep;
+					if ((note !== "") && options.outputNotes){
+						output = output  + indent + " " + note + options.item_sep;
 					}
 
 				}
 
 				else if (options.format == 'opml') {
-					output = output + indent + "<outline text=\"" + text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") + "\"";
+					output = output + indent + "<outline text=\"" + text + "\"";
 					if (options.outputNotes) output = output + " _note=\"" + note + "\"";
 					output = output + ">\n";
-				}
-
-				else if (options.format == 'WFE-TAGGED') {
-					var temp_level = level + 1;
-
-					if ((defaultItemStyle=='Bullet') || (node.children.length != 0))
-						output = output + indent + text + " #h" + temp_level.toString();
-					else // #todo implement ITEM
-						output = output + indent + text;
-
-					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "[" + note + "]";
-					output = output + options.item_sep;
-
+					output_after_children += indent + "</outline>\n";
 				}
 
 				else if (options.format == 'rtf') {
@@ -876,19 +901,6 @@ var exportLib = function(nodes, options, title, email) {
 			}
 
 			output += output_after_children;
-
-			if (!node.ignore_item && !node.ignore_outline) {
-				// Only finish item if no rule specifies ignoring it
-				if (options.format == 'opml')
-					output = output + indent + "</outline>\n"
-				else if (options.format == 'beamer')
-				{
-					if (level >= frame_level)
-						output = output + indent + "\\end{itemize}\n";
-					if (level == frame_level)
-						output = output + indent + "\\end{frame}\n";
-				}
-			}
 		return output;
 	};
 
