@@ -22,6 +22,17 @@ var FindReplace = function(txtFind, txtReplace, isRegex, isMatchCase){
 	this.isMatchCase = isMatchCase;
 };
 
+var Bold = function(text){
+	TextExported.call(this, text, false, true, false);
+}
+
+var Italic = function(text){
+	TextExported.call(this, text, false, false, true);
+}
+
+var BoldItalic = function(text){
+	TextExported.call(this, text, false, true, true);
+}
 
 var TextExported = function(text, isUnderline, isBold, isItalic){
 	this.text = text;
