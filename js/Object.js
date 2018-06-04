@@ -127,7 +127,7 @@ class TextExported{
 };
 
 class mdSyntaxToList extends Array{
-	constructor(text, isUnderline, isBold, isItalic, isStrike){
+	constructor(text, defaultText){
     var list=[];
 		var bold = false;
     var italic=false;
@@ -160,7 +160,7 @@ class mdSyntaxToList extends Array{
 				}
 			}
       else if(e!=""){
-      	list.push(new TextExported(e, isUnderline, bold, italic, strike));
+      	list.push(new TextExported(e, defaultText.isUnderline, bold, italic, strike));
       }
     });
     super(list);

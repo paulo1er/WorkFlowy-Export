@@ -21,9 +21,8 @@ var exportLib = function(nodes, options, title, email) {
 	var header = "";
 	var body = "";
 	var footer = "";
-	console.log("TEST", nodes);
 	var nodesTree = arrayToTree(nodes);
-	console.log("TEST", nodesTree);
+	console.log("nodesTree :", nodesTree);
 
 	function WFE(name, parameter=null){
 		this.name = name;
@@ -412,7 +411,9 @@ var exportLib = function(nodes, options, title, email) {
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
-				case "rtf" : return "{\\f2\\cf4\\highlight5 "+this.text+"}"
+				case "rtf" : return "{\\f2\\cf4\\highlight5 "+this.text+"}";
+				case "latex": return "\\verb|"+this.text+"|";
+				case "beamer" : return this.toString("latex");
 				default : return "`"+this.text+"`";
 			}
 		}
@@ -463,7 +464,7 @@ var exportLib = function(nodes, options, title, email) {
 							result.push(new TextExported(text.slice(i_prev, i), e.isUnderline, e.isBold, e.isItalic, e.isStrike));
 						}
 	          i_prev= regex.lastIndex;
-	          result.push(new Obj(...match.slice(1), e.isUnderline, e.isBold, e.isItalic, e.isStrike));
+	          result.push(new Obj(...match.slice(1), e));
 	          match = regex.exec(text);
 	        }
 	        if(text.length!=i_prev){
@@ -511,7 +512,7 @@ var exportLib = function(nodes, options, title, email) {
 			text: "",
 			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
-			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle",
+			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
 			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame}\n \\maketitle\n \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
@@ -670,6 +671,12 @@ var exportLib = function(nodes, options, title, email) {
 				}]);
 			}
 
+			if (options.ignore_tags) {
+				// Strip off tags
+				textListApply(node.title, "".replace, [WF_TAG_REGEXP, ""]);
+				textListApply(node.note, "".replace, [WF_TAG_REGEXP, ""]);
+			}
+
 			if(options.mdSyntax){
 				node.title=insertObj(node.title, regexCode, Code);
 				node.title=insertObj(node.title, regexImage, Image);
@@ -714,12 +721,6 @@ var exportLib = function(nodes, options, title, email) {
 			}
 
 			node.indent = Array(node.level+1).join(options.prefix_indent_chars);
-
-			if (options.ignore_tags) {
-				// Strip off tags
-				textListApply(node.title, "".replace, [WF_TAG_REGEXP, ""]);
-				textListApply(node.note, "".replace, [WF_TAG_REGEXP, ""]);
-			}
 
 			if(escapeCharacter){
 				ESCAPE_CHARACTER[options.format].forEach(function(e) {
