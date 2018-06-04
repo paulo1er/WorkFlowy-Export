@@ -22,24 +22,14 @@ var FindReplace = function(txtFind, txtReplace, isRegex, isMatchCase){
 	this.isMatchCase = isMatchCase;
 };
 
-var Bold = function(text){
-	TextExported.call(this, text, false, true, false);
-}
-
-var Italic = function(text){
-	TextExported.call(this, text, false, false, true);
-}
-
-var BoldItalic = function(text){
-	TextExported.call(this, text, false, true, true);
-}
-
-var TextExported = function(text, isUnderline, isBold, isItalic){
-	this.text = text;
-	this.isUnderline = isUnderline;
-	this.isBold = isBold;
-	this.isItalic = isItalic;
-	this.toString = function(format = "text"){
+class TextExported{
+	constructor(text, isUnderline, isBold, isItalic){
+		this.text = text;
+		this.isUnderline = isUnderline;
+		this.isBold = isBold;
+		this.isItalic = isItalic;
+	}
+	toString(format = "text"){
 		var before = "";
 		var after = "";
 		switch(format){
@@ -114,6 +104,31 @@ var TextExported = function(text, isUnderline, isBold, isItalic){
 		}
 	}
 };
+
+class mdSyntaxToList extends Array{
+	constructor(text, isUnderline, isBold, isItalic){
+    var list=[];
+		var bold = false;
+    var italic=false;
+		var splitText = text.split(/([*_]+)/g);
+    splitText.forEach(function(e,i){
+    	if(e.includes("***") || e.includes("___")){
+      	bold=!bold;
+      	italic=!italic;
+      }
+    	else if(e.includes("**") || e.includes("__")){
+      	bold=!bold;
+      }
+      else if(e.includes("*") || e.includes("_")){
+      	italic=!italic;
+      }
+      else if(e!=""){
+      	list.push(new TextExported(e, isUnderline, bold, italic));
+      }
+    });
+    super(list);
+	}
+}
 
 function copy(o) {
   var output, v, key;

@@ -7,7 +7,7 @@ var exportLib = function(nodes, options, title, email) {
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
-	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?/ig;
+	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?\s/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[0,0,0,0,0,0];
 	var styleName="Normal";
@@ -196,6 +196,12 @@ var exportLib = function(nodes, options, title, email) {
 		["#wfe-style:Enumeration1","#enum"],
 		["#wfe-beamer-slide","#slide"]
 	];
+	var ALIASmdSyntax_enumList = [
+		[/^1\. /, /^2\. /, /^3\. /, /^4\. /, /^5\. /, /^6\. /, /^7\. /, /^8\. /, /^9\. /, /^10\. /, /^11\. /, /^12\. /, /^13\. /, /^14\. /, /^15\. /, /^16\. /, /^17\. /, /^18\. /, /^19\. /, /^20\. /],
+		[/^\(a\) /, /^\(b\) /, /^\(c\) /, /^\(d\) /, /^\(e\) /, /^\(f\) /, /^\(g\) /, /^\(h\) /, /^\(i\) /, /^\(j\) /, /^\(k\) /, /^\(l\) /, /^\(m\) /, /^\(n\) /, /^\(o\) /, /^\(p\) /, /^\(q\) /, /^\(r\) /, /^\(s\) /, /^\(t\) /],
+		[/^\(i\) /, /^\(ii\) /, /^\(iii\) /, /^\(iv\) /, /^\(v\) /, /^\(vi\) /, /^\(vii\) /, /^\(viii\) /, /^\(ix\) /, /^\(x\) /, /^\(xi\) /, /^\(xii\) /, /^\(xiii\) /, /^\(xiv\) /, /^\(xv\) /, /^\(xvi\) /, /^\(xvii\) /, /^\(xviii\) /, /^\(xix\) /, /^\(xx\) /],
+	]
+	var ALIASmdSyntax_enumList_index = [0,0,0,0,0,0,0];
 	var ALIASmdSyntax = [
 		[/^# /,"#wfe-style:Heading1 "],
 		[/^## /,"#wfe-style:Heading2 "],
@@ -205,9 +211,8 @@ var exportLib = function(nodes, options, title, email) {
 		[/^###### /,"#wfe-style:Heading6 "],
 		[/^\* /,"#wfe-style:Item1 "],
 		[/^\- /,"#wfe-style:Item1 "],
-		[/^\+ /,"#wfe-style:Item1 "],
-		[/^[1-9]+\. /,"#wfe-style:Enumeration1 "]
-	]
+		[/^\+ /,"#wfe-style:Item1 "]
+	];
 
 	var RTF_aligement={left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"};
 	var HTML_aligement={left:"text-align: left;  ", right:"text-align: right;  ", center:"text-align: center;  ", justified:"text-align: justify;  "};
@@ -397,9 +402,7 @@ var exportLib = function(nodes, options, title, email) {
 		return temp_regexFind;
 	}
 
- 	var regexBoldItalic = /(?:[_*]{3})([^_*]*)(?:[_*]{3})/g;
-	var regexBold = /(?:[_*]{2})([^_*]*)(?:[_*]{2})/g;
-	var regexItalic = /(?:[_*])([^_*]*)(?:[_*])/g;
+	var regexMdSyntax = /([_*].*[_*])/g;
 
 	var regexCode=/`([^`]*)`/g;
 	function Code(text){
@@ -448,7 +451,7 @@ var exportLib = function(nodes, options, title, email) {
 	function insertObj(textList, regex, Obj){
 		var result = [];
 	  textList.forEach(function(e){
-	    	if(e.constructor.name == "TextExported"){
+	    	if(e instanceof TextExported){
 					var text = e.text;
 	        var match = regex.exec(text);
 	        var i_prev = 0;
@@ -458,7 +461,7 @@ var exportLib = function(nodes, options, title, email) {
 							result.push(new TextExported(text.slice(i_prev, i), e.isUnderline, e.isBold, e.isItalic));
 						}
 	          i_prev= regex.lastIndex;
-	          result.push(new Obj(...match.slice(1)));
+	          result.push(new Obj(...match.slice(1), e.isUnderline, e.isBold, e.isItalic));
 	          match = regex.exec(text);
 	        }
 	        if(text.length!=i_prev){
@@ -469,8 +472,16 @@ var exportLib = function(nodes, options, title, email) {
 	      	result.push(e);
 	      }
 	  	});
+		result = flatten(result);
 		return result;
 	}
+
+	function flatten(arr) {
+  	return arr.reduce(function (flat, toFlatten) {
+    	return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+  	}, []);
+	}
+
 
 	function textListToText(textList){
 		var result = "";
@@ -482,7 +493,7 @@ var exportLib = function(nodes, options, title, email) {
 
 	function textListApply(textList, f, args){
     textList.forEach(function(e, i){
-      if(e.constructor.name == "TextExported")
+      if(e instanceof TextExported)
         textList[i].text = f.apply(textList[i].text , args);
 		});
 	}
@@ -537,6 +548,7 @@ var exportLib = function(nodes, options, title, email) {
 		wfe_count={};
 		wfe_count_ID={};
 		counter_enumeration=[0,0,0,0,0,0];
+		indexEnumList = [0,0,0];
 		return header + body + footer;
 	}
 
@@ -630,6 +642,15 @@ var exportLib = function(nodes, options, title, email) {
 				});
 
 				if(options.mdSyntax){
+					ALIASmdSyntax_enumList.forEach(function(e,i){
+			      if(node.title[0] instanceof TextExported){
+			        if(e[ALIASmdSyntax_enumList_index[node.level]].test(node.title[0].text)){
+								node.title[0].text = node.title[0].text.replace(e[ALIASmdSyntax_enumList_index[node.level]], "#wfe-style:Enumeration"+(i+1)+" ");
+								ALIASmdSyntax_enumList_index[node.level] ++;
+							}
+						}
+					});
+					if(ALIASmdSyntax_enumList[0])
 					ALIASmdSyntax.forEach(function(e) {
 						textListApply(node.title, "".replace, [e[0], e[1]]);
 						textListApply(node.note, "".replace, [e[0], e[1]]);
@@ -651,16 +672,12 @@ var exportLib = function(nodes, options, title, email) {
 				node.title=insertObj(node.title, regexCode, Code);
 				node.title=insertObj(node.title, regexImage, Image);
 				node.title=insertObj(node.title, regexLink, Link);
-				node.title=insertObj(node.title, regexBoldItalic, BoldItalic);
-				node.title=insertObj(node.title, regexBold, Bold);
-				node.title=insertObj(node.title, regexItalic, Italic);
+				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
 
 				node.note=insertObj(node.note, regexCode, Code);
 				node.note=insertObj(node.note, regexImage, Image);
 				node.note=insertObj(node.note, regexLink, Link);
-				node.note=insertObj(node.note, regexBoldItalic, BoldItalic);
-				node.note=insertObj(node.note, regexBold, Bold);
-				node.note=insertObj(node.note, regexItalic, Italic);
+				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
 
 			}
 
@@ -717,6 +734,9 @@ var exportLib = function(nodes, options, title, email) {
 		escapeCharacter = true;
 		page_break = false;
 		for (var i = 0; i < node.children.length; i++){
+			ALIASmdSyntax_enumList_index.forEach(function(e,j){
+				if(j>node.children[i].level) ALIASmdSyntax_enumList_index[j]=0;
+			})
 			applyRulesNodesTree(node.children[i], options);
 		}
 	}
