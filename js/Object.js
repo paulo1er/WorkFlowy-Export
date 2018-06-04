@@ -23,11 +23,12 @@ var FindReplace = function(txtFind, txtReplace, isRegex, isMatchCase){
 };
 
 class TextExported{
-	constructor(text, isUnderline, isBold, isItalic){
+	constructor(text, isUnderline, isBold, isItalic, isStrike){
 		this.text = text;
 		this.isUnderline = isUnderline;
 		this.isBold = isBold;
 		this.isItalic = isItalic;
+		this.isStrike = isStrike;
 	}
 	toString(format = "text"){
 		var before = "";
@@ -46,6 +47,10 @@ class TextExported{
 					before = before + "<i>";
 					after = "</i>" + after;
 				}
+				if(this.isStrike){
+					before = before + "<s>";
+					after = "</s>" + after;
+				}
 				return before + this.text + after;
 			case "latex" :
 				if(this.isUnderline){
@@ -60,6 +65,10 @@ class TextExported{
 					before = before + "\\textit{";
 					after = "}" + after;
 				}
+				if(this.isStrike){
+					before = before + "\\sout{";
+					after = "}" + after;
+				}
 				return before + this.text + after;
 			case "markdown" :
 				if(this.isBold){
@@ -69,6 +78,10 @@ class TextExported{
 				if(this.isItalic){
 					before = before + "_";
 					after = "_" + after;
+				}
+				if(this.isStrike){
+					before = before + "~";
+					after = "~" + after;
 				}
 				return before + this.text + after;
 			case "rtf" :
@@ -83,6 +96,10 @@ class TextExported{
 				if(this.isItalic){
 					before = before + "\\i";
 					after = "\\i0" + after;
+				}
+				if(this.isStrike){
+					before = before + "\\strike";
+					after = "\\strike0" + after;
 				}
 				return before + " " + this.text + after + "";
 			case "beamer" : return this.toString("latex");
@@ -99,6 +116,10 @@ class TextExported{
 					before = before + "&lt;i&gt;";
 					after = "&lt;/i&gt;" + after;
 				}
+				if(this.isStrike){
+					before = before + "&lt;s&gt;";
+					after = "&lt;/s&gt;" + after;
+				}
 				return before + this.text + after;
 			default : return this.text;
 		}
@@ -106,24 +127,40 @@ class TextExported{
 };
 
 class mdSyntaxToList extends Array{
-	constructor(text, isUnderline, isBold, isItalic){
+	constructor(text, isUnderline, isBold, isItalic, isStrike){
     var list=[];
 		var bold = false;
     var italic=false;
-		var splitText = text.split(/([*_]+)/g);
+    var strike=false;
+		var splitText = text.split(/([*_~]+)/g);
     splitText.forEach(function(e,i){
-    	if(e.includes("***") || e.includes("___")){
-      	bold=!bold;
-      	italic=!italic;
-      }
-    	else if(e.includes("**") || e.includes("__")){
-      	bold=!bold;
-      }
-      else if(e.includes("*") || e.includes("_")){
-      	italic=!italic;
-      }
+			if(e.includes("*") || e.includes("_") || e.includes("~")){
+				if(e.includes("___")){
+	      	bold=!bold;
+	      	italic=!italic;
+	      }
+	    	else if(e.includes("__")){
+	      	bold=!bold;
+	      }
+	      else if(e.includes("_")){
+	      	italic=!italic;
+	      }
+				if(e.includes("***")){
+	      	bold=!bold;
+	      	italic=!italic;
+	      }
+	    	else if(e.includes("**")){
+	      	bold=!bold;
+	      }
+	      else if(e.includes("*")){
+	      	italic=!italic;
+	      }
+				if(e.includes("~")){
+					strike=!strike;
+				}
+			}
       else if(e!=""){
-      	list.push(new TextExported(e, isUnderline, bold, italic));
+      	list.push(new TextExported(e, isUnderline, bold, italic, strike));
       }
     });
     super(list);

@@ -27,6 +27,7 @@
 		this.isUnderline = isUnderline;
 		this.isBold = isBold;
 		this.isItalic = isItalic;
+		this.isStrike = false;
 	};
 
 	function elementToText(e){

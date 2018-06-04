@@ -402,7 +402,7 @@ var exportLib = function(nodes, options, title, email) {
 		return temp_regexFind;
 	}
 
-	var regexMdSyntax = /([_*].*[_*])/g;
+	var regexMdSyntax = /((?:_.*_)|(?:\*.*\*)|(?:~.*~))/g;
 
 	var regexCode=/`([^`]*)`/g;
 	function Code(text){
@@ -458,14 +458,14 @@ var exportLib = function(nodes, options, title, email) {
 	        while(match!=null){
 	          var i = match.index;
 	          if(i!=i_prev){
-							result.push(new TextExported(text.slice(i_prev, i), e.isUnderline, e.isBold, e.isItalic));
+							result.push(new TextExported(text.slice(i_prev, i), e.isUnderline, e.isBold, e.isItalic, e.isStrike));
 						}
 	          i_prev= regex.lastIndex;
-	          result.push(new Obj(...match.slice(1), e.isUnderline, e.isBold, e.isItalic));
+	          result.push(new Obj(...match.slice(1), e.isUnderline, e.isBold, e.isItalic, e.isStrike));
 	          match = regex.exec(text);
 	        }
 	        if(text.length!=i_prev){
-						result.push(new TextExported(text.slice(i_prev, text.length), e.isUnderline, e.isBold, e.isItalic));
+						result.push(new TextExported(text.slice(i_prev, text.length), e.isUnderline, e.isBold, e.isItalic, e.isStrike));
 					}
 	      }
 	      else{
@@ -509,8 +509,8 @@ var exportLib = function(nodes, options, title, email) {
 			text: "",
 			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEET.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
-			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n \\title{TEMP_TITLE}\n \\author{"+email+"}\n \\date{\\today}\n \\begin{document}\n \\maketitle",
-			beamer: "",
+			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{\\today}\n \\begin{document}\n \\maketitle",
+			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{\\today}\n \\begin{document}\n \\begin{frame}\n \\maketitle\n \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEET.toRTFstr()+"\n"+
@@ -522,7 +522,7 @@ var exportLib = function(nodes, options, title, email) {
 			markdown: "",
 			html: "  </body>\n</html>",
 			latex: "\\end{document}",
-			beamer: "",
+			beamer: "\\end{document}",
 			opml: "  </body>\n</opml>",
 			rtf: "}"
 		};
@@ -616,11 +616,11 @@ var exportLib = function(nodes, options, title, email) {
 				nodesStyle = copy(STYLESHEET[styleName]);
 
 			node.title.forEach(function(e, i) {
-				node.title[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
+				node.title[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic, e.isStrike));
 			});
 
 			node.note.forEach(function(e, i) {
-				node.note[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic));
+				node.note[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic, e.isStrike));
 			});
 
 			//find and Replace
@@ -802,10 +802,7 @@ var exportLib = function(nodes, options, title, email) {
 				}
 
 				else if (options.format == 'latex'){
-					if(node.level==0){
-						header = header.replace("TEMP_TITLE", text);
-					}
-					else if(node.styleName.includes("Heading")){
+					if(node.styleName.includes("Heading")){
 						switch (node.style.level){
 							case 1 :
 								output += indent + "\\begin{section}{"+text+"}";
