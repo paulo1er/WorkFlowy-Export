@@ -51,11 +51,17 @@ var popup2 = (function() {
 
 						$("#yourProfile-format").text(profileList[newkey].format);
 
-						if(profileList[newkey].defaultItemStyle=="None") $("#yourProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
-						else $("#yourProfile-defaultItemStyle").text(profileList[newkey].defaultItemStyle);
+						if(profileList[newkey].parentDefaultItemStyle=="None") $("#yourProfile-parentDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-parentDefaultItemStyle").text(profileList[newkey].parentDefaultItemStyle);
 
-						if(profileList[newkey].indent_chars=="" || profileList[newkey].defaultItemStyle!="Bullet") $("#yourProfile-indent_chars").html('<span class="text-muted">None</span>');
-						else $("#yourProfile-indent_chars").text(profileList[newkey].indent_chars);
+						if(profileList[newkey].childDefaultItemStyle=="None") $("#yourProfile-childDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-childDefaultItemStyle").text(profileList[newkey].childDefaultItemStyle);
+
+						if(profileList[newkey].parentIndent_chars=="" || profileList[newkey].parentDefaultItemStyle!="Bullet") $("#yourProfile-parentIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-parentIndent_chars").text(profileList[newkey].parentIndent_chars);
+
+						if(profileList[newkey].childIndent_chars=="" || profileList[newkey].childDefaultItemStyle!="Bullet") $("#yourProfile-childIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#yourProfile-childIndent_chars").text(profileList[newkey].childIndent_chars);
 
 						if(profileList[newkey].prefix_indent_chars=="\t")$("#yourProfile-prefix_indent_chars").text("Tab");
 						else if(profileList[newkey].prefix_indent_chars=="  ")$("#yourProfile-prefix_indent_chars").text("Space");
@@ -73,8 +79,8 @@ var popup2 = (function() {
 						if(profileList[newkey].ignore_tags) $("#yourProfile-ignore_tags").html(HTML_true);
 						else $("#yourProfile-ignore_tags").html(HTML_false);
 
-						if(profileList[newkey].escapeCharacter) $("#yourProfile-escapeCharacter").html(HTML_true);
-						else $("#yourProfile-escapeCharacter").html(HTML_false);
+						if(profileList[newkey].mdSyntax) $("#yourProfile-mdSyntax").html(HTML_true);
+						else $("#yourProfile-mdSyntax").html(HTML_false);
 
 						if(profileList[newkey].fragment) $("#yourProfile-fragment").html(HTML_true);
 						else $("#yourProfile-fragment").html(HTML_false);
@@ -84,11 +90,18 @@ var popup2 = (function() {
 
 						$("#newProfile-format").text(newProfile.format);
 
-						if(newProfile.defaultItemStyle=="None") $("#newProfile-defaultItemStyle").html('<span class="text-muted">None</span>');
-						else $("#newProfile-defaultItemStyle").text(newProfile.defaultItemStyle);
+						if(newProfile.parentDefaultItemStyle=="None") $("#newProfile-parentDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#newProfile-parentDefaultItemStyle").text(newProfile.parentDefaultItemStyle);
 
-						if(newProfile.indent_chars=="" || newProfile.defaultItemStyle!="Bullet") $("#newProfile-indent_chars").html('<span class="text-muted">None</span>');
-						else $("#newProfile-indent_chars").text(newProfile.indent_chars);
+						if(newProfile.childDefaultItemStyle=="None") $("#newProfile-childDefaultItemStyle").html('<span class="text-muted">None</span>');
+						else $("#newProfile-childDefaultItemStyle").text(newProfile.childDefaultItemStyle);
+
+
+						if(newProfile.parentIndent_chars=="" || newProfile.parentDefaultItemStyle!="Bullet") $("#newProfile-parentIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#newProfile-parentIndent_chars").text(newProfile.parentIndent_chars);
+
+						if(newProfile.childIndent_chars=="" || newProfile.childDefaultItemStyle!="Bullet") $("#newProfile-childIndent_chars").html('<span class="text-muted">None</span>');
+						else $("#newProfile-childIndent_chars").text(newProfile.childIndent_chars);
 
 						if(newProfile.prefix_indent_chars=="\t")$("#newProfile-prefix_indent_chars").text("Tab");
 						else if(newProfile.prefix_indent_chars=="  ")$("#newProfile-prefix_indent_chars").text("Space");
@@ -106,8 +119,8 @@ var popup2 = (function() {
 						if(newProfile.ignore_tags) $("#newProfile-ignore_tags").html(HTML_true);
 						else $("#newProfile-ignore_tags").html(HTML_false);
 
-						if(newProfile.escapeCharacter) $("#newProfile-escapeCharacter").html(HTML_true);
-						else $("#newProfile-escapeCharacter").html(HTML_false);
+						if(newProfile.mdSyntax) $("#newProfile-mdSyntax").html(HTML_true);
+						else $("#newProfile-mdSyntax").html(HTML_false);
 
 						if(newProfile.fragment) $("#newProfile-fragment").html(HTML_true);
 						else $("#newProfile-fragment").html(HTML_false);
@@ -126,6 +139,7 @@ var popup2 = (function() {
 								profileList[newkey]=copy(newProfileList[newkey]);
 								updateProfileChoice();
 						});
+						continueSolverConflictProfile();
 						console.log("conflictProfileList", conflictProfileList);
 					}
 
@@ -156,27 +170,35 @@ var popup2 = (function() {
 
 						document.getElementById(profile.format).checked = true;
 						if($("#opml").is(':checked')){
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-							$("#None").prop("checked", true);
-							$("#divBulletCaracter").hide();
+							$("#formDefaultItemStyle input").prop("disabled", true);
+							$("#parentNone").prop("checked", true);
+							$("#childNone").prop("checked", true);
+							$("#parentBulletCaracter").hide();
+							$("#childBulletCaracter").hide();
 							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 						}
 						else{
-							$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+							$("#formDefaultItemStyle input").prop("disabled", false);
 							$("[name=TxtDefaultItemStyle]").css('color', '');
 						}
 
-						document.getElementById(profile.defaultItemStyle).checked = true
-						if($("#Bullet").is(':checked'))
-							$("#divBulletCaracter").show();
+						document.getElementById("parent"+profile.parentDefaultItemStyle).checked = true
+						if($("#parentBullet").is(':checked'))
+							$("#parentBulletCaracter").show();
 						else
-							$("#divBulletCaracter").hide();
+							$("#parentBulletCaracter").hide();
+
+						document.getElementById("child"+profile.childDefaultItemStyle).checked = true
+						if($("#childBullet").is(':checked'))
+							$("#childBulletCaracter").show();
+						else
+							$("#childBulletCaracter").hide();
 
 
 						document.getElementById("wfeRules").checked = profile.applyWFERules;
 						document.getElementById("outputNotes").checked = profile.outputNotes;
 						document.getElementById("stripTags").checked =	profile.ignore_tags;
-						document.getElementById("escapeCharacter").checked = profile.escapeCharacter;
+						document.getElementById("mdSyntax").checked = profile.mdSyntax;
 						document.getElementById("fragment").checked = profile.fragment;
 						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
 						switch (profile.prefix_indent_chars) {
@@ -190,7 +212,8 @@ var popup2 = (function() {
 								document.getElementById('withoutIndent').checked = true;
 								break;
 						}
-						document.getElementById("indentOther").value = profile.indent_chars;
+						document.getElementById("parentIndentOther").value = profile.parentIndent_chars;
+						document.getElementById("childIndentOther").value = profile.childIndent_chars;
 
 						document.getElementById('findReplace').getElementsByTagName('tbody')[0].innerHTML = "";
 						profile.findReplace.forEach(function(e, id){
@@ -350,13 +373,8 @@ var popup2 = (function() {
 				    	}
 						}
 
-						var defaultItemStyle = document.getElementsByName('defaultItemStyle');
-						for ( var i = 0; i < defaultItemStyle.length; i++) {
-							if(defaultItemStyle[i].checked) {
-								curent_profile.defaultItemStyle = defaultItemStyle[i].value;
-								break;
-							}
-						}
+						curent_profile.parentDefaultItemStyle = $("input[name='parentDefaultItemStyle']:checked").val();
+						curent_profile.childDefaultItemStyle = $("input[name='childDefaultItemStyle']:checked").val();
 
 						var indentOptions = document.getElementsByName('indentOptions');
 						for ( var i = 0; i < indentOptions.length; i++) {
@@ -376,7 +394,15 @@ var popup2 = (function() {
 							}
 						}
 
-						curent_profile.indent_chars = document.getElementById("indentOther").value;
+						if(curent_profile.parentDefaultItemStyle == "Bullet")
+							curent_profile.parentIndent_chars = document.getElementById("parentIndentOther").value;
+						else
+							curent_profile.parentIndent_chars = "";
+
+						if(curent_profile.childIndent_chars == "Bullet")
+							curent_profile.childIndent_chars = document.getElementById("childIndentOther").value;
+						else
+							curent_profile.childIndent_chars = "";
 
 						if(document.getElementById("insertLine").checked)
 							curent_profile.item_sep = "\n\n";
@@ -387,7 +413,7 @@ var popup2 = (function() {
 						curent_profile.applyWFERules = document.getElementById("wfeRules").checked;
 						curent_profile.outputNotes = document.getElementById("outputNotes").checked;
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
-						curent_profile.escapeCharacter = document.getElementById("escapeCharacter").checked;
+						curent_profile.mdSyntax = document.getElementById("mdSyntax").checked;
 						curent_profile.fragment = document.getElementById("fragment").checked;
 					};
 
@@ -395,14 +421,13 @@ var popup2 = (function() {
 					function exportText(){
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $("#textArea");
-						text = exportLib(copy(g_nodes), curent_profile, g_email);
+						console.log("TEST", g_nodes);
+						text = exportLib(copy(g_nodes), copy(curent_profile), g_title, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
 						$("#url").attr("href",g_url).text(g_url);
-						chrome.storage.sync.set({'curent_profile' : curent_profile}, function() {
-							console.log("curent_profile init");
-						});
+						chrome.storage.sync.set({'curent_profile' : curent_profile});
 						if(refreshOptions["autoCopy"]){
 							copyToClipboard(text);
 						}
@@ -530,22 +555,32 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("input[type=radio][name=defaultItemStyle]").change("change", function() {
-							if($("#Bullet").is(':checked'))
-								$("#divBulletCaracter").show();
+						$("input[type=radio][name=parentDefaultItemStyle]").change("change", function() {
+							if($("#parentBullet").is(':checked'))
+								$("#parentBulletCaracter").show();
 							else
-								$("#divBulletCaracter").hide();
+								$("#parentBulletCaracter").hide();
 						});
 
-						$("input[type=radio][name=formatOptions]").change("change", function() {
+						$("input[type=radio][name=childDefaultItemStyle]").change("change", function() {
+							if($("#childBullet").is(':checked'))
+								$("#childBulletCaracter").show();
+							else
+								$("#childBulletCaracter").hide();
+						});
+
+
+						$("#formOutputFormat input").change("change", function() {
 							if($("#opml").is(':checked')){
-								$("input[type=radio][name=defaultItemStyle]").prop("disabled", true);
-								$("#None").prop("checked", true);
-								$("#divBulletCaracter").hide();
+								$("#formDefaultItemStyle input").prop("disabled", true);
+								$("#parentNone").prop("checked", true);
+								$("#childNone").prop("checked", true);
+								$("#parentBulletCaracter").hide();
+								$("#childBulletCaracter").hide();
 								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 							}
 							else{
-								$("input[type=radio][name=defaultItemStyle]").prop("disabled", false);
+								$("#formDefaultItemStyle input").prop("disabled", false);
 								$("[name=TxtDefaultItemStyle]").css('color', '');
 							}
 						});
@@ -635,9 +670,9 @@ var popup2 = (function() {
 
 
 						$("#importFile").change(function(){
+							console.log("#importFile change");
 							importFile($('#importFile').prop('files')[0]);
 							$("#importFile").val('');
-							continueSolverConflictProfile();
 						});
 
 						$("#renameNewProfile").change(function(e) {
@@ -733,7 +768,7 @@ var popup2 = (function() {
 					}
 					function initialization(){
 						profileList = initProfileList(storageS.profileList);
-						curent_profile = initCurentProfile(storageS.curent_profile);
+						curent_profile = initCurentProfile(storageS.curent_profile, profileList);
 						conflictProfileList=[];
 
 						textAreaStyle = initTextAreaStyle(storageL.textAreaStyle);

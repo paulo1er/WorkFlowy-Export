@@ -1,34 +1,48 @@
 (function(global) {
 
-	function elementsToArray(e) {
+	function elementsToArray(e, level) {
 		var list = [];
-		var i,j;
-		var text;
-		for (i = 0; i < e.length; i++){
-			console.log("element", e[i]);
-			text = e[i].children[0].children[1];
+		var nodeID;
+		e.each(function(){
 			list.push({
-				title: text.textContent,
 				type: 'node',
-				is_title: e[i].matches('div.selected'),
-				url: e[i].querySelector('a').href,
-				children: [],
-				note: ''
-			});
-			text = e[i].children[1].children[0];
-			list.push({
-				title: text.textContent.replace(/\n+$/g, ''),
-				type: 'note',
+				title: elementToText($(this).children(".name").children(".content")),
+				note: elementToText($(this).children(".notes").children(".content")),
+				url: $(this).children(".name").children("a").attr('href'),
+				level: level,
 				children: []
 			});
-			for (j = 0; j < e[i].children[2].children.length-1; j++){
-				list = list.concat(elementsToArray([e[i].children[2].children[j]]));
-			}
-			list.push({
-				title: '',
-				type: 'eoc'
+			console.log("Node", list[list.length-1]);
+			$(this).children(".children").children().each(function(){
+				if($(this).text()!= ""){
+					list = list.concat(elementsToArray($(this), level+1));
+				}
 			});
-		}
+		});
+		return list;
+	}
+
+	var TextExported = function(text, isUnderline, isBold, isItalic){
+		this.text = text;
+		this.isUnderline = isUnderline;
+		this.isBold = isBold;
+		this.isItalic = isItalic;
+		this.isStrike = false;
+	};
+
+	function elementToText(e){
+		var cloneE = e.clone();
+		cloneE.contents().contents().unwrap("a");
+		cloneE.contents().contents().unwrap(".contentTag");
+		cloneE.contents().contents().unwrap(".contentTagText");
+		cloneE.html(cloneE.html().replace(/\n+$/g, ''));
+		var elements = cloneE.contents();
+		var list = [];
+		elements.each( function( index ){
+			var text = $(this).text();
+			if(text != '')
+				list.push(new TextExported(text, $(this).hasClass("contentUnderline"), $(this).hasClass("contentBold"), $(this).hasClass("contentItalic")));
+		});
 		return list;
 	}
 
@@ -36,13 +50,13 @@
 		var url = location.href;
 		var title = document.title;
 
-		var nodeList = document.querySelectorAll('div.addedToSelection');
+		var nodeList = $('div.addedToSelection');
 		if (nodeList.length==0){
-			nodeList = [document.querySelector('div.selected')];
+			nodeList = $('div.selected');
 		}
 		var email = document.getElementById("userEmail").innerText;
 		chrome.storage.sync.set({'lastURL' : url}, function() {});
-		var content = elementsToArray(nodeList);
+		var content = elementsToArray(nodeList, 0);
 		var result = {
 			content: content,
 			url: url,
