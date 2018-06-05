@@ -422,7 +422,7 @@ var popup2 = (function() {
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $("#textArea");
 						console.log("TEST", g_nodes);
-						text = exportLib(copy(g_nodes), copy(curent_profile), g_title, g_email);
+						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), copy(curent_profile), g_title, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);

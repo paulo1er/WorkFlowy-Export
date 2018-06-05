@@ -167,14 +167,13 @@ class mdSyntaxToList extends Array{
 	}
 }
 
-function copy(o) {
-  var output, v, key;
-  output = Array.isArray(o) ? [] : {};
-  for (key in o) {
-    v = o[key];
-    output[key] = (typeof v === "object" && v !== null) ? copy(v) : v;
+function copy(obj) {
+  if (null == obj || "object" != typeof obj) return obj;
+  var c = new obj.constructor();
+  for (var attr in obj) {
+      if (obj.hasOwnProperty(attr)) c[attr] = obj[attr];
   }
-  return output;
+  return c;
 }
 
 function download(filename, text) {
@@ -391,4 +390,294 @@ function arrayToTree(nodes) {
 
 String.prototype.replaceAll = function(find, replace) {
     return this.split(find).join(replace);
+};
+
+class Style {
+	constructor(id, level){
+		this.id = id;
+		this.level = level;
+	}
+	toString(){
+		return "";
+	}
+}
+
+class Style_html extends Style{
+	constructor(id, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color, tag){
+		super(id, level);
+		this.aligement = aligement;
+		this.indentation_first_line = indentation_first_line;
+		this.indentation_left = indentation_left;
+		this.indentation_right = indentation_right;
+		this.spacing_before = spacing_before;
+		this.spacing_after = spacing_after;
+		this.font = font;
+		this.font_size = font_size;
+		this.bold = bold;
+		this.italic = italic;
+		this.underline = underline;
+		this.color = color;
+		this.background_color = background_color;
+		this.tag = tag;
+	}
+	toString(){
+			var str = "";
+			if(this.aligement!=null) str += {left:"text-align: left;  ", right:"text-align: right;  ", center:"text-align: center;  ", justified:"text-align: justify;  "}[this.aligement];
+			if(!isNaN(this.indentation_first_line)) str += "text-indent: "+this.indentation_first_line+"px;  ";
+			if(!isNaN(this.indentation_left)) str += "margin-left: "+this.indentation_left+"px;  ";
+			if(!isNaN(this.indentation_right)) str += "margin-right: "+this.indentation_right+"px;  ";
+			if(!isNaN(this.spacing_before)) str += "margin-top: "+this.spacing_before+"px;  ";
+			if(!isNaN(this.spacing_after)) str += "margin-bottom: "+this.spacing_after+"px;  ";
+			if(this.font!=null) str += "font-family: "+this.font+";  ";
+			if(!isNaN(this.font_size)) str += "font-size: "+(this.font_size)+"px;  ";
+			if(!isNaN(this.bold)){if(this.bold) str += "font-weight: bold;  "; else str += "font-weight: normal;";};
+			if(!isNaN(this.italic)){if(this.italic) str +="font-style: italic;  "; else str +="font-style: normal;  ";};
+			if(!isNaN(this.underline)){if(this.underline) str += "text-decoration: underline;  "; else str += "text-decoration: none;  ";};
+			if(this.color!=null) str += "color: "+COLORSHEET[this.color].toHTMLstr()+";  ";
+			if(this.background_color!=null) str += "background-color: "+COLORSHEET[this.background_color].toHTMLstr()+";  ";
+			return str;
+	}
+}
+
+class Style_rtf extends Style{
+	constructor(id, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color,  before, after){
+		super(id, level);
+		this.aligement = aligement;
+		this.indentation_first_line = indentation_first_line;
+		this.indentation_left = indentation_left;
+		this.indentation_right = indentation_right;
+		this.spacing_before = spacing_before;
+		this.spacing_after = spacing_after;
+		this.font = font;
+		this.font_size = font_size;
+		this.bold = bold;
+		this.italic = italic;
+		this.underline = underline;
+		this.color = color;
+		this.background_color = background_color;
+		this.before=before;
+		this.after=after;
+	}
+	toString(){
+		var str = this.before+
+						"\\s"+this.id+
+						{left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"}[this.aligement]+
+						"\\fi"+(20*Number(this.indentation_first_line))+
+						"\\li"+(20*Number(this.indentation_left))+
+						"\\ri"+(20*Number(this.indentation_right))+
+						"\\sb"+(20*Number(this.spacing_before))+
+						"\\sa"+(20*Number(this.spacing_after))+
+						"\\f"+FONTSHEET[this.font]+
+						"\\fs"+(2*this.font_size);
+		if(this.bold) str += "\\b";
+		if(this.italic) str +="\\i";
+		if(this.underline) str += "\\ul";
+		str += "\\cf"+COLORSHEET[this.color].Id +
+					 "\\highlight"+COLORSHEET[this.background_color].Id+
+					 this.after;
+		return str;
+	}
+}
+
+var defaultSTYLESHEET={
+	html : {
+		Normal : new Style_html(0, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
+		Note : new Style_html(1, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
+		Heading1 : new Style_html(2, 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White", "h1"),
+		Heading2 : new Style_html(3, 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White", "h2"),
+		Heading3 : new Style_html(4, 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White", "h3"),
+		Heading4 : new Style_html(5, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h4"),
+		Heading5 : new Style_html(6, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h5"),
+		Heading6 : new Style_html(7, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h6"),
+		Item :  new Style_html(8, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
+		Enumeration : new Style_html(14, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
+		Enumeration1 : "Enumeration",
+		Enumeration2 : "Enumeration",
+		Enumeration3 : "Enumeration",
+		Enumeration4 : "Enumeration",
+		Enumeration5 : "Enumeration",
+		Enumeration6 : "Enumeration"
+	},
+	rtf : {
+		Normal : new Style_rtf(0, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Note : new Style_rtf(1, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Heading1 : new Style_rtf(2, 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White", "", ""),
+		Heading2 : new Style_rtf(3, 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White", "", ""),
+		Heading3 : new Style_rtf(4, 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White", "", ""),
+		Heading4 : new Style_rtf(5, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "", ""),
+		Heading5 : new Style_rtf(6, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "", ""),
+		Heading6 : new Style_rtf(7, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "", ""),
+		Item : "Item1",
+		Item1 :  new Style_rtf(8, 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Item2 :  new Style_rtf(9, 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Item3 : new Style_rtf(10, 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Item4 : new Style_rtf(11, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Item5 : new Style_rtf(12, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Item6 : new Style_rtf(13, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Enumeration : "Enumeration1",
+		Enumeration1 : new Style_rtf(14, 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Enumeration2 : new Style_rtf(15, 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Enumeration3 : new Style_rtf(16, 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Enumeration4 : new Style_rtf(17, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Enumeration5 : new Style_rtf(18, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Enumeration6 : new Style_rtf(19, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", "")
+	},
+	latex : {
+		Normal : new Style(0, -1),
+		Note : new Style(1, -1),
+		Heading1 : new Style(2, 1),
+		Heading2 : new Style(3, 2),
+		Heading3 : new Style(4, 3),
+		Item : new Style(5, -1),
+		Enumeration : new Style(6, -1),
+		Enumeration1 : "Enumeration",
+		Enumeration2 : "Enumeration",
+		Enumeration3 : "Enumeration",
+		Enumeration4 : "Enumeration",
+		Enumeration5 : "Enumeration",
+		Enumeration6 : "Enumeration"
+	},
+	markdown : {
+		Normal : new Style(0, -1),
+		Note : new Style(1, -1),
+		Item : "Item1",
+		Item1 : new Style(2, 1),
+		Item2 : new Style(3, 2),
+		Item3 : new Style(4, 3),
+		Item4 : new Style(5, 4),
+		Item5 : new Style(6, 5),
+		Item6 : new Style(7, 6),
+		Enumeration : "Enumeration1",
+		Enumeration1 : new Style(8, 1),
+		Enumeration2 : new Style(9, 2),
+		Enumeration3 : new Style(10, 3),
+		Enumeration4 : new Style(11, 4),
+		Enumeration5 : new Style(12, 5),
+		Enumeration6 : new Style(13, 6)
+	},
+	beamer : {
+		Normal : new Style(0, -1),
+		Title : new Style(1, 0),
+		Section : new Style(2, 1),
+		Subsection : new Style(3, 2),
+		Frame : new Style(4, 3),
+		Item : new Style(5, -1),
+		Enumeration : new Style(6, -1)
+	},
+	text : {
+		Normal : new Style(0, -1),
+		Note : new Style(1, -1),
+		Item : new Style(2, -1),
+		Enumeration : "Enumeration1",
+		Enumeration1 : new Style(3, 1),
+		Enumeration2 : new Style(4, 2),
+		Enumeration3 : new Style(5, 3),
+		Enumeration4 : new Style(6, 4),
+		Enumeration5 : new Style(7, 5),
+		Enumeration6 : new Style(8, 6)
+	},
+	get : function(format){
+		var result;
+		if (this.hasOwnProperty(format)) result=this[format];
+		else result=this["text"];
+		result.get = function(styleName){
+			if(this.hasOwnProperty(styleName))
+				if(this[styleName] instanceof Style)
+					return copy(this[styleName]);
+				else
+					return copy(this[this[styleName]]);
+			else{
+				return copy(this["Normal"]);
+			}
+		}
+		result.getName = function(styleName){
+			if(this.hasOwnProperty(styleName))
+				if(this[styleName] instanceof Style)
+					return styleName;
+				else
+					return this[styleName];
+			else{
+				return "Normal";
+			}
+		}
+		return result;
+	}
+};
+
+var STYLESHEETtoString={
+	rtf : function(){
+		var str = "{\\stylesheet";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
+				str += "{" + this[key].toString() + " " + key + ";}";
+			}
+		}
+		str += "}";
+		return str;
+	},
+	html : function(){
+		var str = "";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
+				str += this[key].tag + "." + key + "{" + this[key].toString() + "}\n" ;
+			}
+		}
+		return str;
+	},
+	text : function(){
+		var str = "";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
+				str += this[key].toString();
+			}
+		}
+		return str;
+	},
+	get : function(format){
+		if (this.hasOwnProperty(format)) return this[format];
+		else return this["text"];
+	}
+}
+
+var FONTSHEET={
+	"Arial":0,
+	"Times New Roman":1,
+	"Courier":2,
+	"Symbol":3,
+	toRTFstr : function(){
+		var str = "{\\fonttbl";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && typeof(this[key])!="function") {
+				str += "{\\f" + this[key] + " " + key + ";}";
+			}
+		}
+		str += "}";
+		return str;
+	}
+};
+
+function Color(Id, Red, Green, Blue) {
+		this.Id = Id;
+		this.Red = Red;
+		this.Green = Green;
+		this.Blue = Blue;
+		this.toRTFstr = function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue};
+		this.toHTMLstr = function(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"};
+};
+var COLORSHEET={
+	White : new Color(1,255,255,255),
+	Black : new Color(2,0,0,0),
+	Blue : new Color(3,0,0,130),
+	DarkGrey : new Color(4,25,25,25),
+	LightGrey : new Color(5,180,180,180),
+	toRTFstr : function(){
+		var str = "{\\colortbl;";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
+				str += this[key].toRTFstr() + ";";
+			}
+		}
+		str += "}";
+		return str;
+	}
 };
