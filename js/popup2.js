@@ -399,7 +399,7 @@ var popup2 = (function() {
 						else
 							curent_profile.parentIndent_chars = "";
 
-						if(curent_profile.childIndent_chars == "Bullet")
+						if(curent_profile.childDefaultItemStyle == "Bullet")
 							curent_profile.childIndent_chars = document.getElementById("childIndentOther").value;
 						else
 							curent_profile.childIndent_chars = "";

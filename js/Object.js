@@ -392,19 +392,77 @@ String.prototype.replaceAll = function(find, replace) {
     return this.split(find).join(replace);
 };
 
+var FONTSHEET={
+	"Arial":0,
+	"Times New Roman":1,
+	"Courier":2,
+	"Symbol":3,
+	toRTFstr : function(){
+		var str = "{\\fonttbl";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && typeof(this[key])!="function") {
+				str += "{\\f" + this[key] + " " + key + ";}";
+			}
+		}
+		str += "}";
+		return str;
+	}
+};
+
+function Color(Id, Red, Green, Blue) {
+		this.Id = Id;
+		this.Red = Red;
+		this.Green = Green;
+		this.Blue = Blue;
+		this.toRTFstr = function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue};
+		this.toHTMLstr = function(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"};
+};
+var COLORSHEET={
+	White : new Color(1,255,255,255),
+	Black : new Color(2,0,0,0),
+	Blue : new Color(3,0,0,130),
+	DarkGrey : new Color(4,25,25,25),
+	LightGrey : new Color(5,180,180,180),
+	toRTFstr : function(){
+		var str = "{\\colortbl;";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
+				str += this[key].toRTFstr() + ";";
+			}
+		}
+		str += "}";
+		return str;
+	}
+};
+
 class Style {
-	constructor(id, level){
-		this.id = id;
+	constructor(name, level, before="", after=""){
+		this.name = name;
 		this.level = level;
+		this.before = before;
+		this.after = after;
 	}
 	toString(){
 		return "";
 	}
+	toExport(text){
+		return this.before + text + this.after;
+	}
+}
+
+class Style_Bullet  extends Style {
+	constructor(name, level, bullet="*. ", before="", after=""){
+		super(name, level, before, after);
+		this.bullet = bullet;
+	}
+	toExport(text){
+		return super.toExport(this.bullet + text);
+	}
 }
 
 class Style_html extends Style{
-	constructor(id, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color, tag){
-		super(id, level);
+	constructor(name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color, tag){
+		super(name, level);
 		this.aligement = aligement;
 		this.indentation_first_line = indentation_first_line;
 		this.indentation_left = indentation_left;
@@ -420,28 +478,34 @@ class Style_html extends Style{
 		this.background_color = background_color;
 		this.tag = tag;
 	}
-	toString(){
+	toString(defaultStyle){
 			var str = "";
-			if(this.aligement!=null) str += {left:"text-align: left;  ", right:"text-align: right;  ", center:"text-align: center;  ", justified:"text-align: justify;  "}[this.aligement];
-			if(!isNaN(this.indentation_first_line)) str += "text-indent: "+this.indentation_first_line+"px;  ";
-			if(!isNaN(this.indentation_left)) str += "margin-left: "+this.indentation_left+"px;  ";
-			if(!isNaN(this.indentation_right)) str += "margin-right: "+this.indentation_right+"px;  ";
-			if(!isNaN(this.spacing_before)) str += "margin-top: "+this.spacing_before+"px;  ";
-			if(!isNaN(this.spacing_after)) str += "margin-bottom: "+this.spacing_after+"px;  ";
-			if(this.font!=null) str += "font-family: "+this.font+";  ";
-			if(!isNaN(this.font_size)) str += "font-size: "+(this.font_size)+"px;  ";
-			if(!isNaN(this.bold)){if(this.bold) str += "font-weight: bold;  "; else str += "font-weight: normal;";};
-			if(!isNaN(this.italic)){if(this.italic) str +="font-style: italic;  "; else str +="font-style: normal;  ";};
-			if(!isNaN(this.underline)){if(this.underline) str += "text-decoration: underline;  "; else str += "text-decoration: none;  ";};
-			if(this.color!=null) str += "color: "+COLORSHEET[this.color].toHTMLstr()+";  ";
-			if(this.background_color!=null) str += "background-color: "+COLORSHEET[this.background_color].toHTMLstr()+";  ";
+			if(!defaultStyle || this.aligement!=defaultStyle.aligement) str += {left:"text-align: left;  ", right:"text-align: right; ", center:"text-align: center; ", justified:"text-align: justify; "}[this.aligement];
+			if(!defaultStyle || this.indentation_first_line!=defaultStyle.indentation_first_line) str += "text-indent: "+this.indentation_first_line+"px; ";
+			if(!defaultStyle || this.indentation_left!=defaultStyle.indentation_left) str += "margin-left: "+this.indentation_left+"px; ";
+			if(!defaultStyle || this.indentation_right!=defaultStyle.indentation_right) str += "margin-right: "+this.indentation_right+"px; ";
+			if(!defaultStyle || this.spacing_before!=defaultStyle.spacing_before) str += "margin-top: "+this.spacing_before+"px; ";
+			if(!defaultStyle || this.spacing_after!=defaultStyle.spacing_after) str += "margin-bottom: "+this.spacing_after+"px; ";
+			if(!defaultStyle || this.font!=defaultStyle.font) str += "font-family: "+this.font+"; ";
+			if(!defaultStyle || this.font_size!=defaultStyle.font_size) str += "font-size: "+(this.font_size)+"px; ";
+			if(!defaultStyle || this.bold!=defaultStyle.bold){if(this.bold) str += "font-weight: bold; "; else str += "font-weight: normal; ";};
+			if(!defaultStyle || this.italic!=defaultStyle.italic){if(this.italic) str +="font-style: italic; "; else str +="font-style: normal; ";};
+			if(!defaultStyle || this.underline!=defaultStyle.underline){if(this.underline) str += "text-decoration: underline;  "; else str += "text-decoration: none; ";};
+			if(!defaultStyle || this.color!=defaultStyle.color) str += "color: "+COLORSHEET[this.color].toHTMLstr()+"; ";
+			if(!defaultStyle || this.background_color!=defaultStyle.background_color) str += "background-color: "+COLORSHEET[this.background_color].toHTMLstr()+"; ";
 			return str;
+	}
+	toExport(text){
+		var style = this.toString(defaultSTYLESHEET.html[this.name]);
+		if(style!="")style = "style=\""+style+"\"";
+		return "<" + this.tag + " class=\"" + this.name+ "\" " + style+ ">" + text + "</" + this.tag + ">";
 	}
 }
 
 class Style_rtf extends Style{
-	constructor(id, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color,  before, after){
-		super(id, level);
+	constructor(id, name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color){
+		super(name, level);
+		this.id =id;
 		this.aligement = aligement;
 		this.indentation_first_line = indentation_first_line;
 		this.indentation_left = indentation_left;
@@ -455,12 +519,9 @@ class Style_rtf extends Style{
 		this.underline = underline;
 		this.color = color;
 		this.background_color = background_color;
-		this.before=before;
-		this.after=after;
 	}
 	toString(){
-		var str = this.before+
-						"\\s"+this.id+
+		var str = "\\s"+this.id+
 						{left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"}[this.aligement]+
 						"\\fi"+(20*Number(this.indentation_first_line))+
 						"\\li"+(20*Number(this.indentation_left))+
@@ -473,24 +534,32 @@ class Style_rtf extends Style{
 		if(this.italic) str +="\\i";
 		if(this.underline) str += "\\ul";
 		str += "\\cf"+COLORSHEET[this.color].Id +
-					 "\\highlight"+COLORSHEET[this.background_color].Id+
-					 this.after;
+					 "\\highlight"+COLORSHEET[this.background_color].Id;
 		return str;
+	}
+	toExport(text){
+		return "{\\pard " + this.toString() + "{" + text +"}\\par}\n";
 	}
 }
 
 var defaultSTYLESHEET={
 	html : {
-		Normal : new Style_html(0, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
-		Note : new Style_html(1, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
-		Heading1 : new Style_html(2, 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White", "h1"),
-		Heading2 : new Style_html(3, 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White", "h2"),
-		Heading3 : new Style_html(4, 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White", "h3"),
-		Heading4 : new Style_html(5, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h4"),
-		Heading5 : new Style_html(6, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h5"),
-		Heading6 : new Style_html(7, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h6"),
-		Item :  new Style_html(8, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
-		Enumeration : new Style_html(14, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
+		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
+		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
+		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White", "h1"),
+		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White", "h2"),
+		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White", "h3"),
+		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h4"),
+		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h5"),
+		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h6"),
+		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
+		Item1 : "Item",
+		Item2 : "Item",
+		Item3 : "Item",
+		Item4 : "Item",
+		Item5 : "Item",
+		Item6 : "Item",
+		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -499,37 +568,43 @@ var defaultSTYLESHEET={
 		Enumeration6 : "Enumeration"
 	},
 	rtf : {
-		Normal : new Style_rtf(0, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Note : new Style_rtf(1, -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Heading1 : new Style_rtf(2, 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White", "", ""),
-		Heading2 : new Style_rtf(3, 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White", "", ""),
-		Heading3 : new Style_rtf(4, 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White", "", ""),
-		Heading4 : new Style_rtf(5, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "", ""),
-		Heading5 : new Style_rtf(6, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "", ""),
-		Heading6 : new Style_rtf(7, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "", ""),
+		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Note : new Style_rtf(2, "Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Heading1 : new Style_rtf(3, "Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White"),
+		Heading2 : new Style_rtf(4, "Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White"),
+		Heading3 : new Style_rtf(5, "Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White"),
+		Heading4 : new Style_rtf(6, "Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White"),
+		Heading5 : new Style_rtf(7, "Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White"),
+		Heading6 : new Style_rtf(8, "Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White"),
 		Item : "Item1",
-		Item1 :  new Style_rtf(8, 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Item2 :  new Style_rtf(9, 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Item3 : new Style_rtf(10, 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Item4 : new Style_rtf(11, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Item5 : new Style_rtf(12, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Item6 : new Style_rtf(13, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
+		Item1 : new Style_rtf(9, "Item1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Item2 : new Style_rtf(10, "Item2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Item3 : new Style_rtf(11, "Item3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Item4 : new Style_rtf(12, "Item4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Item5 : new Style_rtf(13, "Item5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Item6 : new Style_rtf(14, "Item6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style_rtf(14, 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Enumeration2 : new Style_rtf(15, 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Enumeration3 : new Style_rtf(16, 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Enumeration4 : new Style_rtf(17, 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Enumeration5 : new Style_rtf(18, 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", ""),
-		Enumeration6 : new Style_rtf(19, 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "", "")
+		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White")
 	},
 	latex : {
-		Normal : new Style(0, -1),
-		Note : new Style(1, -1),
-		Heading1 : new Style(2, 1),
-		Heading2 : new Style(3, 2),
-		Heading3 : new Style(4, 3),
-		Item : new Style(5, -1),
-		Enumeration : new Style(6, -1),
+		Normal : new Style("Normal", -1, "", "\\\\"),
+		Note : new Style("Note", -1, "", "\\\\"),
+		Heading1 : new Style("Heading1", 1,"\\begin{section}{", "}"),
+		Heading2 : new Style("Heading2", 2, "\\begin{subsection}{", "}"),
+		Heading3 : new Style("Heading3", 3, "\\begin{subsubsection}{", "}"),
+		Item : new Style("Item", -1, "\\item ", ""),
+		Item1 : "Item",
+		Item2 : "Item",
+		Item3 : "Item",
+		Item4 : "Item",
+		Item5 : "Item",
+		Item6 : "Item",
+		Enumeration : new Style("Enumeration", -1, "\\item ", ""),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -538,43 +613,70 @@ var defaultSTYLESHEET={
 		Enumeration6 : "Enumeration"
 	},
 	markdown : {
-		Normal : new Style(0, -1),
-		Note : new Style(1, -1),
+		Normal : new Style("Normal", -1, "", "\n\n"),
+		Note : new Style("Note", -1, "", "\n\n"),
+		Heading1 : new Style("Heading1", 1, "# ", "\n\n"),
+		Heading2 : new Style("Heading2", 2, "## ", "\n\n"),
+		Heading3 : new Style("Heading3", 3, "### ", "\n\n"),
+		Heading4 : new Style("Heading4", 4, "#### ", "\n\n"),
+		Heading5 : new Style("Heading5", 5, "##### ", "\n\n"),
+		Heading6 : new Style("Heading6", 6, "###### ", "\n\n"),
 		Item : "Item1",
-		Item1 : new Style(2, 1),
-		Item2 : new Style(3, 2),
-		Item3 : new Style(4, 3),
-		Item4 : new Style(5, 4),
-		Item5 : new Style(6, 5),
-		Item6 : new Style(7, 6),
+		Item1 : new Style_Bullet("Item1", 1, "* ", "", "\n\n"),
+		Item2 : new Style_Bullet("Item2", 2, "* ", "\t", "\n\n"),
+		Item3 : new Style_Bullet("Item3", 3, "* ", "\t\t", "\n\n"),
+		Item4 : new Style_Bullet("Item4", 4, "* ", "\t\t\t", "\n\n"),
+		Item5 : new Style_Bullet("Item5", 5, "* ", "\t\t\t\t", "\n\n"),
+		Item6 : new Style_Bullet("Item6", 6, "* ", "\t\t\t\t\t", "\n\n"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style(8, 1),
-		Enumeration2 : new Style(9, 2),
-		Enumeration3 : new Style(10, 3),
-		Enumeration4 : new Style(11, 4),
-		Enumeration5 : new Style(12, 5),
-		Enumeration6 : new Style(13, 6)
+		Enumeration1 : new Style_Bullet("Enumeration1", "0. ", 1, "", "\n\n"),
+		Enumeration2 : new Style_Bullet("Enumeration2", "0. ", 2, "\t", "\n\n"),
+		Enumeration3 : new Style_Bullet("Enumeration3", "0. ", 3, "\t\t", "\n\n"),
+		Enumeration4 : new Style_Bullet("Enumeration4", "0. ", 4, "\t\t\t", "\n\n"),
+		Enumeration5 : new Style_Bullet("Enumeration5", "0. ", 5, "\t\t\t\t", "\n\n"),
+		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "\t\t\t\t\t", "\n\n")
 	},
 	beamer : {
-		Normal : new Style(0, -1),
-		Title : new Style(1, 0),
-		Section : new Style(2, 1),
-		Subsection : new Style(3, 2),
-		Frame : new Style(4, 3),
-		Item : new Style(5, -1),
-		Enumeration : new Style(6, -1)
+		Normal : new Style("Normal", -1, "", "\\\\"),
+		Title : new Style("Title", 0, "\\title{", "}"),
+		Section : new Style("Section", 1, "\\section{", "}"),
+		Subsection : new Style("Subsection", 2, "\\subsection{", "}"),
+		Frame : new Style("Frame", 3," \\begin{frame}{", "}"),
+		Item : new Style("Item", -1, "\\item ", ""),
+		Item1 : "Item",
+		Item2 : "Item",
+		Item3 : "Item",
+		Item4 : "Item",
+		Item5 : "Item",
+		Item6 : "Item",
+		Enumeration : new Style("Enumeration", -1, "\\item ", ""),
+		Enumeration1 : "Enumeration",
+		Enumeration2 : "Enumeration",
+		Enumeration3 : "Enumeration",
+		Enumeration4 : "Enumeration",
+		Enumeration5 : "Enumeration",
+		Enumeration6 : "Enumeration"
+	},
+	opml :{
+		Normal : new Style("Normal", -1)
 	},
 	text : {
-		Normal : new Style(0, -1),
-		Note : new Style(1, -1),
-		Item : new Style(2, -1),
+		Normal : new Style("Normal", -1, "", "\n"),
+		Note : new Style("Note", -1, "", "\n"),
+		Item : "Item1",
+		Item1 : new Style_Bullet("Item1", 1, "* ", "", "\n"),
+		Item2 : new Style_Bullet("Item2", 2, "* ", "\t", "\n"),
+		Item3 : new Style_Bullet("Item3", 3, "* ", "\t\t", "\n"),
+		Item4 : new Style_Bullet("Item4", 4, "* ", "\t\t\t", "\n"),
+		Item5 : new Style_Bullet("Item5", 5, "* ", "\t\t\t\t", "\n"),
+		Item6 : new Style_Bullet("Item6", 6, "* ", "\t\t\t\t\t", "\n"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style(3, 1),
-		Enumeration2 : new Style(4, 2),
-		Enumeration3 : new Style(5, 3),
-		Enumeration4 : new Style(6, 4),
-		Enumeration5 : new Style(7, 5),
-		Enumeration6 : new Style(8, 6)
+		Enumeration1 : new Style_Bullet("Enumeration1", "0. ", 1, "", "\n"),
+		Enumeration2 : new Style_Bullet("Enumeration2", "0. ", 2, "\t", "\n"),
+		Enumeration3 : new Style_Bullet("Enumeration3", "0. ", 3, "\t\t", "\n"),
+		Enumeration4 : new Style_Bullet("Enumeration4", "0. ", 4, "\t\t\t", "\n"),
+		Enumeration5 : new Style_Bullet("Enumeration5", "0. ", 5, "\t\t\t\t", "\n"),
+		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "\t\t\t\t\t", "\n")
 	},
 	get : function(format){
 		var result;
@@ -638,46 +740,3 @@ var STYLESHEETtoString={
 		else return this["text"];
 	}
 }
-
-var FONTSHEET={
-	"Arial":0,
-	"Times New Roman":1,
-	"Courier":2,
-	"Symbol":3,
-	toRTFstr : function(){
-		var str = "{\\fonttbl";
-		for(var key in this){
-			if (this.hasOwnProperty(key) && typeof(this[key])!="function") {
-				str += "{\\f" + this[key] + " " + key + ";}";
-			}
-		}
-		str += "}";
-		return str;
-	}
-};
-
-function Color(Id, Red, Green, Blue) {
-		this.Id = Id;
-		this.Red = Red;
-		this.Green = Green;
-		this.Blue = Blue;
-		this.toRTFstr = function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue};
-		this.toHTMLstr = function(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"};
-};
-var COLORSHEET={
-	White : new Color(1,255,255,255),
-	Black : new Color(2,0,0,0),
-	Blue : new Color(3,0,0,130),
-	DarkGrey : new Color(4,25,25,25),
-	LightGrey : new Color(5,180,180,180),
-	toRTFstr : function(){
-		var str = "{\\colortbl;";
-		for(var key in this){
-			if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
-				str += this[key].toRTFstr() + ";";
-			}
-		}
-		str += "}";
-		return str;
-	}
-};

@@ -9,7 +9,7 @@ var exportLib = function(nodes, options, title, email) {
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
-	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?\s/ig;
+	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?(?:\s|$)/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[0,0,0,0,0,0];
 	var styleName="Normal";
@@ -427,10 +427,22 @@ var exportLib = function(nodes, options, title, email) {
 			switch(options.format){
 				case "beamer" :
 					if(node.parent.type != "dummy" && node.parent.styleName=="Frame"){
-						styleName = "Normal";
+						if(node.styleName == "Bullet")
+							styleName = "Item";
+						else if(node.styleName == "Enumeration")
+							styleName = "Enumeration";
+						else
+							styleName = "Normal";
+						break;
 					}
 					else if(node.parent.type != "dummy" && node.parent.styleName=="Normal"){
-						styleName = "Normal";
+						if(node.styleName == "Bullet")
+							styleName = "Item";
+						else if(node.styleName == "Enumeration")
+							styleName = "Enumeration";
+						else
+							styleName = "Normal";
+						break;
 					}
 					else {
 						switch(node.level){
@@ -458,7 +470,7 @@ var exportLib = function(nodes, options, title, email) {
 					}
 					break
 				case "latex" :
-					if(node.styleName == "Heading" && node.level<2)
+					if(node.styleName == "Heading" && node.level<3)
 						styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
 						styleName = "Item";
@@ -487,10 +499,28 @@ var exportLib = function(nodes, options, title, email) {
 					else
 						styleName = "Normal";
 					break
+				case "markdown" :
+					if(node.styleName == "Heading")
+						styleName = "Heading"+(node.level+1)
+					else if(node.styleName == "Bullet")
+						styleName = "Item"+(node.level+1);
+					else if(node.styleName == "Enumeration")
+						styleName = "Enumeration"+(node.level+1);
+					else
+						styleName = "Normal";
+					break
+				case "text" :
+					if(node.styleName == "Bullet")
+						styleName = "Item"+(node.level+1);
+					else if(node.styleName == "Enumeration")
+						styleName = "Enumeration"+(node.level+1);
+					else
+						styleName = "Normal";
+					break
 				default :
 					styleName = "Normal";
 			}
-			
+
 			nodesStyle = allStyle.get(styleName);
 
 			node.title.forEach(function(e, i) {
@@ -571,31 +601,37 @@ var exportLib = function(nodes, options, title, email) {
 			STYLESHEETused[styleName] = allStyle.get(styleName);
 			STYLESHEETused["Note"] = allStyle["Note"];
 
-			switch (node.styleName) {
-				case "Enumeration1" :
-					counter_enumeration[1]++;
-					node.style.counter=counter_enumeration[1];
-					break;
-				case "Enumeration2" :
-					counter_enumeration[2]++;
-					node.style.counter=counter_enumeration[2];
-					break;
-				case "Enumeration3" :
-					counter_enumeration[3]++;
-					node.style.counter=counter_enumeration[3];
-					break;
-				case "Enumeration4" :
-					counter_enumeration[4]++;
-					node.style.counter=counter_enumeration[4];
-					break;
-				case "Enumeration5" :
-					counter_enumeration[5]++;
-					node.style.counter=counter_enumeration[5];
-					break;
-				case "Enumeration6" :
-					counter_enumeration[6]++;
-					node.style.counter=counter_enumeration[6];
-					break;
+			if(node.style instanceof Style_Bullet){
+				switch (node.style.name) {
+					case "Enumeration1" :
+						counter_enumeration[1]++;
+						node.style.bullet=counter_enumeration[1]+". ";
+						break;
+					case "Enumeration2" :
+						counter_enumeration[2]++;
+						node.style.bullet=counter_enumeration[2]+". ";
+						break;
+					case "Enumeration3" :
+						counter_enumeration[3]++;
+						node.style.bullet=counter_enumeration[3]+". ";
+						break;
+					case "Enumeration4" :
+						counter_enumeration[4]++;
+						node.style.bullet=counter_enumeration[4]+". ";
+						break;
+					case "Enumeration5" :
+						counter_enumeration[5]++;
+						node.style.bullet=counter_enumeration[5]+". ";
+						break;
+					case "Enumeration6" :
+						counter_enumeration[6]++;
+						node.style.bullet=counter_enumeration[6]+". ";
+						break;
+				}
+				if(node.style.name.includes("Item")){
+					console.log("Test ",  node, options);
+					node.style.bullet = node.indentChars + " ";
+				}
 			}
 
 			node.indent = Array(node.level+1).join(options.prefix_indent_chars);
@@ -639,24 +675,13 @@ var exportLib = function(nodes, options, title, email) {
 
 				// Update output
 				if(options.format == 'markdown'){
-					if(node.styleName.includes("Item"))
-						indent = "\t".repeat(node.style["level"]-1) + "* ";
-					else if(node.styleName.includes("Enumeration"))
-						indent = "\t".repeat(node.style["level"]-1) + node.style.counter +". ";
-					else if(node.styleName.includes("Heading"))
-						indent = "#".repeat(node.style["level"]) + " ";
-					else
-						indent = "";
-
-					output += indent + text + "\n\n";
-					if ((note !== "") && options.outputNotes) output = output + indent + note + "\n\n";
+					output += node.style.toExport(text);
+					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 				}
 
 				else if (options.format == 'html') {
 					text = text.replace(/--/g, "&ndash;");
 
-					var style = node.style.toString();
-					if(style!="")style = "style=\""+style+"\"";
 					if(node.styleName == "Item"){
 						var olderSibling = node.olderSibling();
 						var youngerSibling = node.youngerSibling();
@@ -673,9 +698,9 @@ var exportLib = function(nodes, options, title, email) {
 						if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
 							output_after_children += indent + "</ol>\n";
 					}
-					output += indent + "<" + node.style.tag + " class=\"" + node.styleName + "\" " + style + ">" + text + "</" + node.style.tag + ">";
+					output += indent + node.style.toExport(text);
 
-					if ((note !== "") && options.outputNotes) output = output + "\n" + indent + "<p class=\"Note\">" + note + "</p>";
+					if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
 
 					output = output + options.item_sep;
 					if (node.page_break)
@@ -683,33 +708,13 @@ var exportLib = function(nodes, options, title, email) {
 				}
 
 				else if (options.format == 'latex'){
-					if(node.styleName.includes("Heading")){
-						switch (node.style.level){
-							case 1 :
-								output += indent + "\\begin{section}{"+text+"}";
-								output_after_children = indent + "\\end{section}\n";
-								break;
-							case 2 :
-								output += indent + "\\begin{subsection}{"+text+"}";
-								output_after_children = indent + "\\end{subsection}\n";
-								break;
-							case 3 :
-								output += indent + "\\begin{subsubsection}{"+text+"}";
-								output_after_children = indent + "\\end{subsubsection}\n";
-								break;
-							default :
-								output += indent + text + "\\\\";
-								break;
-						}
-					}
-					else if (node.styleName == "Item"){
+					if (node.styleName == "Item"){
 						var olderSibling = node.olderSibling();
 						var youngerSibling = node.youngerSibling();
 						if(!olderSibling || !(olderSibling.styleName == "Item"))
 							output += indent + "\\begin{itemize}\n";
 						if(!youngerSibling || !(youngerSibling.styleName == "Item"))
 							output_after_children += indent + "\\end{itemize}\n";
-						output += indent+"\\item "+ text;
 					}
 					else if (node.styleName == "Enumeration"){
 						var olderSibling = node.olderSibling();
@@ -718,9 +723,17 @@ var exportLib = function(nodes, options, title, email) {
 							output += indent + "\\begin{enumerate}\n";
 						if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
 							output_after_children += indent + "\\end{enumerate}\n";
-						output += indent+"\\item "+ text;
 					}
-					else output += indent + text + "\\\\";
+					else if (node.styleName == "Heading1"){
+						output_after_children += indent + "\\end{section}\n";
+					}
+					else if (node.styleName == "Heading2"){
+						output_after_children += indent + "\\end{subsection}\n";
+					}
+					else if (node.styleName == "Heading3"){
+						output_after_children += indent + "\\end{subsubsection}\n";
+					}
+					output += indent + node.style.toExport(text);
 
 					if ((note !== "") && (options.outputNotes))
 						output += "\n" + indent + note + "\\\\";
@@ -731,46 +744,33 @@ var exportLib = function(nodes, options, title, email) {
 				}
 
 				else if (options.format == 'beamer'){
-					switch(node.styleName){
-						case "Title" :
-							output += indent + "\\title{" + text + "}" + options.item_sep;
-							break;
-						case "Section" :
-							output += indent + "\\section{" + text + "}" + options.item_sep;
-							break;
-						case "Subsection" :
-							output += indent + "\\subsection{" + text + "}" + options.item_sep;
-							break;
-						case "Frame" :
-							output += indent + "\\begin{frame}{" + text + "}" + options.item_sep;
-							output_after_children += indent + "\\end{frame}" +  options.item_sep;
-							break;
-						case "Item" :
-							var olderSibling = node.olderSibling();
-							var youngerSibling = node.youngerSibling();
-							if(!olderSibling || (olderSibling.styleName != "Item"))
-								output += indent + "\\begin{itemize}\n";
-							if(!youngerSibling || (youngerSibling.styleName != "Item"))
-								output_after_children += indent + "\\end{itemize}\n";
-							output += indent + "\\item " + text + options.item_sep;
-							break;
-						case "Enumeration" :
-							var olderSibling = node.olderSibling();
-							var youngerSibling = node.youngerSibling();
-							if(!olderSibling || (olderSibling.styleName != "Enumeration"))
-								output += indent + "\\begin{enumerate}\n";
-							if(!youngerSibling || (youngerSibling.styleName != "Enumeration"))
-								output_after_children += indent + "\\end{enumerate}\n";
-							output += indent + "\\item " + text + options.item_sep;
-							break;
-						default :
-							output += indent + text + "\\\\" + options.item_sep;
-							break;
+					if (node.styleName == "Item"){
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						if(!olderSibling || !(olderSibling.styleName == "Item"))
+							output += indent + "\\begin{itemize}\n";
+						if(!youngerSibling || !(youngerSibling.styleName == "Item"))
+							output_after_children += indent + "\\end{itemize}\n";
 					}
-					if ((note !== "") && options.outputNotes){
-						output = output  + indent + " " + note + options.item_sep;
+					else if (node.styleName == "Enumeration"){
+						var olderSibling = node.olderSibling();
+						var youngerSibling = node.youngerSibling();
+						if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
+							output += indent + "\\begin{enumerate}\n";
+						if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
+							output_after_children += indent + "\\end{enumerate}\n";
 					}
+					else if (node.styleName == "Frame"){
+						output_after_children += indent + "\\end{frame}\n";
+					}
+					output += indent + node.style.toExport(text);
 
+					if ((note !== "") && (options.outputNotes))
+						output += "\n" + indent + note + "\\\\";
+					if (node.page_break)
+						output += "\\pagebreak ";
+
+					output += options.item_sep;
 				}
 
 				else if (options.format == 'opml') {
@@ -781,46 +781,28 @@ var exportLib = function(nodes, options, title, email) {
 				}
 
 				else if (options.format == 'rtf') {
-
-					if(node.styleName.includes("Item")){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						node.style.after="{\\f3\\'B7}";
-						//if(!youngerSibling || !youngerSibling.styleName.includes("Item"))
-							//output_after_children += indent + "\\sect	\n";
-					}
-
-					if(node.styleName.includes("Enumeration")){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						node.style.after="{\\f3 "+node.style.counter+"}";
-						//if(!youngerSibling || !youngerSibling.styleName.includes("Enumeration"))
-							//output_after_children += indent + "\\sect	\n";
-					}
-
-
 					text = text.replace(/--/g, "\\endash ");
 
-					output = output + "{\\pard " + node.style.toString() + "{" + text + "}\\par}";
+					if(node.styleName.includes("Item")){
+						text = "{\\f3\\'B7}" + text;;
+					}
+
+					else if(node.styleName.includes("Enumeration")){
+						text = "{\\f3 "+node.style.counter+"}" + text;
+					}
+
+
+
+					output += node.style.toExport(text);
 
 					if (node.page_break)
 						output = output + "\\page";
-					if ((note !== "") && options.outputNotes) output = output + "\n" + "{\\pard" + STYLESHEETused["Note"].toString() + "{" + note + "}\\par}";
-					output = output + "\n";
+					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 				}
 
 				else {
-					if (node.styleName.includes("Item"))
-						output = output + indent + indent_chars + " " + text;
-					else if (node.styleName.includes("Heading"))
-						output = output + indent + text + "\n";
-					else if (node.styleName.includes("Enumeration"))
-						output = output + indent + node.style.counter+ " " + text;
-					else
-						output = output + indent + text
-
-					if ((note !== "") && (options.outputNotes))
-						output = output + "\n" + indent + "[" + note + "]";
+					output += node.style.toExport(text);
+					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 
 					output = output + options.item_sep;
 					if (node.page_break)
