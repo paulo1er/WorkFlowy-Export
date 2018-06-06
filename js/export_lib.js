@@ -162,7 +162,7 @@ var exportLib = function(nodes, options, title, email) {
         }
         c= '0x'+c.join('');
 
-				var newColorName = "newColor"+COLORSHEETused.length;
+				var newColorName = "Color"+c;
 				COLORSHEETused.addColor(newColorName, [(c>>16)&255, (c>>8)&255, c&255]);
 				nodesStyle[property] = newColorName;
 			}
@@ -179,7 +179,7 @@ var exportLib = function(nodes, options, title, email) {
         }
         c= '0x'+c.join('');
 
-				var newColorName = "newColor"+COLORSHEETused.length;
+				var newColorName = "Color"+c;
 				COLORSHEETused.addColor(newColorName, [(c>>16)&255, (c>>8)&255, c&255]);
 				nodesStyle[property] = newColorName;
 			}
