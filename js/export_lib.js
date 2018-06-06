@@ -154,20 +154,14 @@ var exportLib = function(nodes, options, title, email) {
 		},
 		"wfe-font-color":function(value="Black"){
 			var property ="color";
-			if(value.toUpperCase()=="WHITE") nodesStyle[property] = "White";
-			else if(value.toUpperCase()=="BLACK") nodesStyle[property] = "Black";
-			else if(value.toUpperCase()=="BLUE") nodesStyle[property] = "Blue";
-			else if(value.toUpperCase()=="DARKGREY") nodesStyle[property] = "DarkGrey";
-			else if(value.toUpperCase()=="LIGHTGREY") nodesStyle[property] = "LightGrey";
+			value = value.toUpperCase();
+			if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
 			return "";
 		},
 		"wfe-background":function(value="White"){
 			var property ="background_color";
-			if(value.toUpperCase()=="WHITE") nodesStyle[property] = "White";
-			else if(value.toUpperCase()=="BLACK") nodesStyle[property] = "Black";
-			else if(value.toUpperCase()=="BLUE") nodesStyle[property] = "Blue";
-			else if(value.toUpperCase()=="DARKGREY") nodesStyle[property] = "DarkGrey";
-			else if(value.toUpperCase()=="LIGHTGREY") nodesStyle[property] = "LightGrey";
+			value = value.toUpperCase();
+			if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
 			return "";
 		},
 
@@ -275,7 +269,7 @@ var exportLib = function(nodes, options, title, email) {
 		this.text=text;
 		this.toString = function(format = "text"){
 			switch(format){
-				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:grey;\">"+this.text+"</span>";
+				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:gray;\">"+this.text+"</span>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return this.toString("text"); //TODO
 				case "latex" : return "\\begin{figure}[t]\\includegraphics["+this.text+"]{"+this.link+"}\\centering \\end{figure}";
@@ -372,7 +366,7 @@ var exportLib = function(nodes, options, title, email) {
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEET.toRTFstr()+"\n"+
-			     COLORSHEET.toRTFstr()+"\n"+
+			     COLORSHEETused.toRTFstr()+"\n"+
 			     STYLESHEETused.toString()+"\n"
 		};
 		var FOOTER = {
@@ -407,6 +401,7 @@ var exportLib = function(nodes, options, title, email) {
 		counter_enumeration=[0,0,0,0,0,0];
 		allStyle = {};
 		STYLESHEETused = {};
+		COLORSHEETused = copy(COLORSHEET);
 		return header + body + footer;
 	}
 
@@ -600,6 +595,8 @@ var exportLib = function(nodes, options, title, email) {
 			console.log("style : ",styleName, allStyle);
 			STYLESHEETused[styleName] = allStyle.get(styleName);
 			STYLESHEETused["Note"] = allStyle["Note"];
+			COLORSHEETused.addColor(node.style.color);
+			COLORSHEETused.addColor(node.style.background_color);
 
 			if(node.style instanceof Style_Bullet){
 				switch (node.style.name) {
@@ -803,8 +800,6 @@ var exportLib = function(nodes, options, title, email) {
 				else {
 					output += node.style.toExport(text);
 					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
-
-					output = output + options.item_sep;
 					if (node.page_break)
 						output = output + "\n";
 				}

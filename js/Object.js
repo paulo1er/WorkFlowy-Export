@@ -409,20 +409,176 @@ var FONTSHEET={
 	}
 };
 
-function Color(Id, Red, Green, Blue) {
-		this.Id = Id;
-		this.Red = Red;
-		this.Green = Green;
-		this.Blue = Blue;
+function Color(args, id) {
+		this.Id = id;
+		this.Red = args[0];
+		this.Green = args[1];
+		this.Blue = args[2];
 		this.toRTFstr = function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue};
 		this.toHTMLstr = function(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"};
 };
+
+var allColor={
+	//Pink colors
+		PINK : [255,192,203],
+		LIGHTPINK : [255,182,193],
+		HOTPINK : [255,105,180],
+		DEEPPINK : [255,20,147],
+		PALEVIOLETRED : [219,112,147],
+		MEDIUMVIOLETRED : [199,21,133],
+	//Red colors
+		LIGHTSALMON : [255,160,122],
+		SALMON : [250,128,114],
+		DARKSALMON : [233,150,122],
+		LIGHTCORAL : [240,128,128],
+		INDIANRED : [205,92,92],
+		CRIMSON : [220,20,60],
+		FIREBRICK : [178,34,34],
+		DARKRED : [139,0,0],
+		RED : [255,0,0],
+	//Orange colors
+		ORANGERED : [255,69,0],
+		TOMATO : [255,99,71],
+		CORAL : [255,127,80],
+		DARKORANGE : [255,140,0],
+		ORANGE : [255,165,0],
+	//Yellow colors
+		YELLOW : [255,255,0],
+		LIGHTYELLOW : [255,255,224],
+		LEMONCHIFFON : [255,250,205],
+		LIGHTGOLDENRODYELLOW : [250,250,210],
+		PAPAYAWHIP : [255,239,213],
+		MOCCASIN : [255,228,181],
+		PEACHPUFF : [255,218,185],
+		PALEGOLDENROD : [238,232,170],
+		KHAKI : [240,230,140],
+		DARKKHAKI : [189,183,107],
+		GOLD : [255,215,0],
+	//Brown colors
+		CORNSILK : [255,248,220],
+		BLANCHEDALMOND : [255,235,205],
+		BISQUE : [255,228,196],
+		NAVAJOWHITE : [255,222,173],
+		WHEAT : [245,222,179],
+		BURLYWOOD : [222,184,135],
+		TAN : [210,180,140],
+		ROSYBROWN : [188,143,143],
+		SANDYBROWN : [244,164,96],
+		GOLDENROD : [218,165,32],
+		DARKGOLDENROD : [184,134,11],
+		PERU : [205,133,63],
+		CHOCOLATE : [210,105,30],
+		SADDLEBROWN : [139,69,19],
+		SIENNA : [160,82,45],
+		BROWN : [165,42,42],
+		MAROON : [128,0,0],
+	//Green colors
+		DARKOLIVEGREEN : [85,107,47],
+		OLIVE : [128,128,0],
+		OLIVEDRAB : [107,142,35],
+		YELLOWGREEN : [154,205,50],
+		LIMEGREEN : [50,205,50],
+		LIME : [0,255,0],
+		LAWNGREEN : [124,252,0],
+		CHARTREUSE : [127,255,0],
+		GREENYELLOW : [173,255,47],
+		SPRINGGREEN : [0,255,127],
+		MEDIUMSPRINGGREEN : [0,250,154],
+		LIGHTGREEN : [144,238,144],
+		PALEGREEN : [152,251,152],
+		DARKSEAGREEN : [143,188,143],
+		MEDIUMAQUAMARINE : [102,205,170],
+		MEDIUMSEAGREEN : [60,179,113],
+		SEAGREEN : [46,139,87],
+		FORESTGREEN : [34,139,34],
+		GREEN : [0,128,0],
+		DARKGREEN : [0,100,0],
+	//Cyan colors
+		AQUA : [0,255,255],
+		CYAN : [0,255,255],
+		LIGHTCYAN : [224,255,255],
+		PALETURQUOISE : [175,238,238],
+		AQUAMARINE : [127,255,212],
+		TURQUOISE : [64,224,208],
+		MEDIUMTURQUOISE : [72,209,204],
+		DARKTURQUOISE : [0,206,209],
+		LIGHTSEAGREEN : [32,178,170],
+		CADETBLUE : [95,158,160],
+		DARKCYAN : [0,139,139],
+		TEAL : [0,128,128],
+	//Blue colors
+		LIGHTSTEELBLUE : [176,196,222],
+		POWDERBLUE : [176,224,230],
+		LIGHTBLUE : [173,216,230],
+		SKYBLUE : [135,206,235],
+		LIGHTSKYBLUE : [135,206,250],
+		DEEPSKYBLUE : [0,191,255],
+		DODGERBLUE : [30,144,255],
+		CORNFLOWERBLUE : [100,149,237],
+		STEELBLUE : [70,130,180],
+		ROYALBLUE : [65,105,225],
+		BLUE : [0,0,255],
+		MEDIUMBLUE : [0,0,205],
+		DARKBLUE : [0,0,139],
+		NAVY : [0,0,128],
+		MIDNIGHTBLUE : [25,25,112],
+	//Purple, violet, and magenta colors
+		LAVENDER : [230,230,250],
+		THISTLE : [216,191,216],
+		PLUM : [221,160,221],
+		VIOLET : [238,130,238],
+		ORCHID : [218,112,214],
+		FUCHSIA : [255,0,255],
+		MAGENTA : [255,0,255],
+		MEDIUMORCHID : [186,85,211],
+		MEDIUMPURPLE : [147,112,219],
+		BLUEVIOLET : [138,43,226],
+		DARKVIOLET : [148,0,211],
+		DARKORCHID : [153,50,204],
+		DARKMAGENTA : [139,0,139],
+		PURPLE : [128,0,128],
+		INDIGO : [75,0,130],
+		DARKSLATEBLUE : [72,61,139],
+		SLATEBLUE : [106,90,205],
+		MEDIUMSLATEBLUE : [123,104,238],
+	//White colors
+		WHITE : [255,255,255],
+		SNOW : [255,250,250],
+		HONEYDEW : [240,255,240],
+		MINTCREAM : [245,255,250],
+		AZURE : [240,255,255],
+		ALICEBLUE : [240,248,255],
+		GHOSTWHITE : [248,248,255],
+		WHITESMOKE : [245,245,245],
+		SEASHELL : [255,245,238],
+		BEIGE : [245,245,220],
+		OLDLACE : [253,245,230],
+		FLORALWHITE : [255,250,240],
+		IVORY : [255,255,240],
+		ANTIQUEWHITE : [250,235,215],
+		LINEN : [250,240,230],
+		LAVENDERBLUSH : [255,240,245],
+		MISTYROSE : [255,228,225],
+	//Gray and black colors
+		GAINSBORO : [220,220,220],
+		LIGHTGRAY : [211,211,211],
+		SILVER : [192,192,192],
+		DARKGRAY : [169,169,169],
+		GRAY : [128,128,128],
+		DIMGRAY : [105,105,105],
+		LIGHTSLATEGRAY : [119,136,153],
+		SLATEGRAY : [112,128,144],
+		DARKSLATEGRAY : [47,79,79],
+		BLACK : [0,0,0]
+};
+
 var COLORSHEET={
-	White : new Color(1,255,255,255),
-	Black : new Color(2,0,0,0),
-	Blue : new Color(3,0,0,130),
-	DarkGrey : new Color(4,25,25,25),
-	LightGrey : new Color(5,180,180,180),
+	length : 5,
+	WHITE : new Color(allColor["WHITE"],1),
+	BLACK : new Color(allColor["BLACK"],2),
+	BLUE : new Color(allColor["BLUE"],3),
+	DARKSLATEGRAY : new Color(allColor["DARKSLATEGRAY"],4),
+	LIGHTGRAY : new Color(allColor["LIGHTGRAY"],5),
 	toRTFstr : function(){
 		var str = "{\\colortbl;";
 		for(var key in this){
@@ -432,9 +588,15 @@ var COLORSHEET={
 		}
 		str += "}";
 		return str;
+	},
+	addColor : function(colorName){
+		if(allColor.hasOwnProperty(colorName) && !this.hasOwnProperty(colorName)){
+			this.length++;
+			this[colorName] = new Color(allColor[colorName], this.length);
+		}
 	}
 };
-
+var COLORSHEETused = copy(COLORSHEET);
 class Style {
 	constructor(name, level, before="", after=""){
 		this.name = name;
@@ -491,8 +653,8 @@ class Style_html extends Style{
 			if(!defaultStyle || this.bold!=defaultStyle.bold){if(this.bold) str += "font-weight: bold; "; else str += "font-weight: normal; ";};
 			if(!defaultStyle || this.italic!=defaultStyle.italic){if(this.italic) str +="font-style: italic; "; else str +="font-style: normal; ";};
 			if(!defaultStyle || this.underline!=defaultStyle.underline){if(this.underline) str += "text-decoration: underline;  "; else str += "text-decoration: none; ";};
-			if(!defaultStyle || this.color!=defaultStyle.color) str += "color: "+COLORSHEET[this.color].toHTMLstr()+"; ";
-			if(!defaultStyle || this.background_color!=defaultStyle.background_color) str += "background-color: "+COLORSHEET[this.background_color].toHTMLstr()+"; ";
+			if(!defaultStyle || this.color!=defaultStyle.color) str += "color: "+COLORSHEETused[this.color].toHTMLstr()+"; ";
+			if(!defaultStyle || this.background_color!=defaultStyle.background_color) str += "background-color: "+COLORSHEETused[this.background_color].toHTMLstr()+"; ";
 			return str;
 	}
 	toExport(text){
@@ -533,8 +695,8 @@ class Style_rtf extends Style{
 		if(this.bold) str += "\\b";
 		if(this.italic) str +="\\i";
 		if(this.underline) str += "\\ul";
-		str += "\\cf"+COLORSHEET[this.color].Id +
-					 "\\highlight"+COLORSHEET[this.background_color].Id;
+		str += "\\cf"+COLORSHEETused[this.color].Id +
+					 "\\highlight"+COLORSHEETused[this.background_color].Id;
 		return str;
 	}
 	toExport(text){
@@ -544,22 +706,22 @@ class Style_rtf extends Style{
 
 var defaultSTYLESHEET={
 	html : {
-		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
-		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "p"),
-		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White", "h1"),
-		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White", "h2"),
-		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White", "h3"),
-		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h4"),
-		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h5"),
-		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White", "h6"),
-		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
+		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "p"),
+		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "p"),
+		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "BLACK", "WHITE", "h1"),
+		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "BLACK", "WHITE", "h2"),
+		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "BLACK", "WHITE", "h3"),
+		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE", "h4"),
+		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE", "h5"),
+		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE", "h6"),
+		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "li"),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White", "li"),
+		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "li"),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -568,28 +730,28 @@ var defaultSTYLESHEET={
 		Enumeration6 : "Enumeration"
 	},
 	rtf : {
-		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Note : new Style_rtf(2, "Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Heading1 : new Style_rtf(3, "Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "Black", "White"),
-		Heading2 : new Style_rtf(4, "Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "Black", "White"),
-		Heading3 : new Style_rtf(5, "Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "Black", "White"),
-		Heading4 : new Style_rtf(6, "Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White"),
-		Heading5 : new Style_rtf(7, "Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White"),
-		Heading6 : new Style_rtf(8, "Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "Black", "White"),
+		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Note : new Style_rtf(2, "Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Heading1 : new Style_rtf(3, "Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "BLACK", "WHITE"),
+		Heading2 : new Style_rtf(4, "Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "BLACK", "WHITE"),
+		Heading3 : new Style_rtf(5, "Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "BLACK", "WHITE"),
+		Heading4 : new Style_rtf(6, "Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE"),
+		Heading5 : new Style_rtf(7, "Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE"),
+		Heading6 : new Style_rtf(8, "Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE"),
 		Item : "Item1",
-		Item1 : new Style_rtf(9, "Item1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Item2 : new Style_rtf(10, "Item2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Item3 : new Style_rtf(11, "Item3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Item4 : new Style_rtf(12, "Item4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Item5 : new Style_rtf(13, "Item5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Item6 : new Style_rtf(14, "Item6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
+		Item1 : new Style_rtf(9, "Item1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Item2 : new Style_rtf(10, "Item2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Item3 : new Style_rtf(11, "Item3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Item4 : new Style_rtf(12, "Item4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Item5 : new Style_rtf(13, "Item5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Item6 : new Style_rtf(14, "Item6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White"),
-		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "Black", "White")
+		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE")
 	},
 	latex : {
 		Normal : new Style("Normal", -1, "", "\\\\"),
