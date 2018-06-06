@@ -392,30 +392,66 @@ String.prototype.replaceAll = function(find, replace) {
     return this.split(find).join(replace);
 };
 
+class Font{
+	constructor (id, name) {
+		this.id = id;
+		this.name=name;
+	}
+	toRTFstr(){return "{\\f" +this.id+ " " + this.name+ ";}"}
+	toHTMLstr(){return "font-family: "+this.name+"; "}
+};
+
+var allFont ={
+	"ARIAL" : "Arial",
+	"TIMES NEW ROMAN" :  "Times New Roman",
+	"COURIER" : "Courier New",
+	"SYMBOL" : "Symbol",
+	"GEORGIA" : "Georgia",
+	"PALATINO LINOTYPE" : "Palatino Linotype",
+	"ARIAL BLACK" : "Arial Black",
+	"COMIC SANS MS" : "Comic Sans MS",
+	"IMPACT" : "Impact",
+	"LUCIDA SANS UNICODE" : "Lucida Sans Unicode",
+	"TAHOMA" : "Tahoma",
+	"TREBUCHET MS" : "Trebuchet MS",
+	"VERDANA" : "Verdana",
+	"LUCIDA CONSOLE" : "Lucida Console"
+}
+
 var FONTSHEET={
-	"Arial":0,
-	"Times New Roman":1,
-	"Courier":2,
-	"Symbol":3,
+	length : 4,
+	"ARIAL": new Font(0, allFont["ARIAL"]),
+	"TIMES NEW ROMAN": new Font(1, allFont["TIMES NEW ROMAN"]),
+	"COURIER": new Font(2, allFont["COURIER"]),
+	"SYMBOL": new Font(3, allFont["SYMBOL"]),
 	toRTFstr : function(){
 		var str = "{\\fonttbl";
 		for(var key in this){
-			if (this.hasOwnProperty(key) && typeof(this[key])!="function") {
-				str += "{\\f" + this[key] + " " + key + ";}";
+			if(this[key] instanceof Font) {
+				str += this[key].toRTFstr();
 			}
 		}
 		str += "}";
 		return str;
+	},
+	addFont : function(fontName){
+		if((allFont.hasOwnProperty(fontName) > -1) && !this.hasOwnProperty(fontName)){
+			this[fontName] = new Font(this.length, allFont[fontName]);
+			this.length++;
+		}
 	}
 };
+var FONTSHEETused = copy(FONTSHEET);
 
-function Color(args, id) {
+class Color{
+	constructor(args, id){
 		this.Id = id;
 		this.Red = args[0];
 		this.Green = args[1];
 		this.Blue = args[2];
-		this.toRTFstr = function(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue};
-		this.toHTMLstr = function(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"};
+	}
+	toRTFstr(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue}
+	toHTMLstr(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"}
 };
 
 var allColor={
@@ -582,7 +618,7 @@ var COLORSHEET={
 	toRTFstr : function(){
 		var str = "{\\colortbl;";
 		for(var key in this){
-			if (this.hasOwnProperty(key) && typeof(this[key])=="object") {
+			if (this[key] instanceof Color) {
 				str += this[key].toRTFstr() + ";";
 			}
 		}
@@ -652,7 +688,7 @@ class Style_html extends Style{
 			if(!defaultStyle || this.indentation_right!=defaultStyle.indentation_right) str += "margin-right: "+this.indentation_right+"px; ";
 			if(!defaultStyle || this.spacing_before!=defaultStyle.spacing_before) str += "margin-top: "+this.spacing_before+"px; ";
 			if(!defaultStyle || this.spacing_after!=defaultStyle.spacing_after) str += "margin-bottom: "+this.spacing_after+"px; ";
-			if(!defaultStyle || this.font!=defaultStyle.font) str += "font-family: "+this.font+"; ";
+			if(!defaultStyle || this.font!=defaultStyle.font) str += FONTSHEETused[this.font].toHTMLstr();
 			if(!defaultStyle || this.font_size!=defaultStyle.font_size) str += "font-size: "+(this.font_size)+"px; ";
 			if(!defaultStyle || this.bold!=defaultStyle.bold){if(this.bold) str += "font-weight: bold; "; else str += "font-weight: normal; ";};
 			if(!defaultStyle || this.italic!=defaultStyle.italic){if(this.italic) str +="font-style: italic; "; else str +="font-style: normal; ";};
@@ -694,7 +730,7 @@ class Style_rtf extends Style{
 						"\\ri"+(20*Number(this.indentation_right))+
 						"\\sb"+(20*Number(this.spacing_before))+
 						"\\sa"+(20*Number(this.spacing_after))+
-						"\\f"+FONTSHEET[this.font]+
+						"\\f"+FONTSHEETused[this.font].id+
 						"\\fs"+(2*this.font_size);
 		if(this.bold) str += "\\b";
 		if(this.italic) str +="\\i";
@@ -710,22 +746,22 @@ class Style_rtf extends Style{
 
 var defaultSTYLESHEET={
 	html : {
-		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "p"),
-		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "p"),
-		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "BLACK", "WHITE", "h1"),
-		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "BLACK", "WHITE", "h2"),
-		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "BLACK", "WHITE", "h3"),
-		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE", "h4"),
-		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE", "h5"),
-		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE", "h6"),
-		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "li"),
+		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "p"),
+		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "p"),
+		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE", "h1"),
+		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h2"),
+		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE", "h3"),
+		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE", "h4"),
+		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE", "h5"),
+		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE", "h6"),
+		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "li"),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE", "li"),
+		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "li"),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -734,28 +770,28 @@ var defaultSTYLESHEET={
 		Enumeration6 : "Enumeration"
 	},
 	rtf : {
-		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Note : new Style_rtf(2, "Note", -1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Heading1 : new Style_rtf(3, "Heading1", 1, "left", 0, 0, 0, 0, 10, "Arial", 16, true, false, false, "BLACK", "WHITE"),
-		Heading2 : new Style_rtf(4, "Heading2", 2, "left", 0, 0, 0, 0, 10, "Arial", 14, true, false, false, "BLACK", "WHITE"),
-		Heading3 : new Style_rtf(5, "Heading3", 3, "left", 0, 0, 0, 0, 10, "Arial", 12, true, false, false, "BLACK", "WHITE"),
-		Heading4 : new Style_rtf(6, "Heading4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE"),
-		Heading5 : new Style_rtf(7, "Heading5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE"),
-		Heading6 : new Style_rtf(8, "Heading6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, true, false, false, "BLACK", "WHITE"),
+		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Note : new Style_rtf(2, "Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Heading1 : new Style_rtf(3, "Heading1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE"),
+		Heading2 : new Style_rtf(4, "Heading2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE"),
+		Heading3 : new Style_rtf(5, "Heading3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE"),
+		Heading4 : new Style_rtf(6, "Heading4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Heading5 : new Style_rtf(7, "Heading5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Heading6 : new Style_rtf(8, "Heading6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
 		Item : "Item1",
-		Item1 : new Style_rtf(9, "Item1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Item2 : new Style_rtf(10, "Item2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Item3 : new Style_rtf(11, "Item3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Item4 : new Style_rtf(12, "Item4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Item5 : new Style_rtf(13, "Item5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Item6 : new Style_rtf(14, "Item6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
+		Item1 : new Style_rtf(9, "Item1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item2 : new Style_rtf(10, "Item2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item3 : new Style_rtf(11, "Item3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item4 : new Style_rtf(12, "Item4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item5 : new Style_rtf(13, "Item5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item6 : new Style_rtf(14, "Item6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", 0, 0, 0, 0, 10, "Arial", 11, false, false, false, "BLACK", "WHITE")
+		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE")
 	},
 	latex : {
 		Normal : new Style("Normal", -1, "", "\\\\"),

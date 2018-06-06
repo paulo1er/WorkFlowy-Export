@@ -123,10 +123,8 @@ var exportLib = function(nodes, options, title, email) {
 		},
 		"wfe-font-face":function(value="Arial"){
 			var property ="font";
-			if(value.toUpperCase()=="ARIAL") nodesStyle[property] = "Arial";
-			else if(value.toUpperCase()=="TIMES_NEW_ROMAN") nodesStyle[property] = "Times New Roman";
-			else if(value.toUpperCase()=="COURIER") nodesStyle[property] = "Courier";
-			else if(value.toUpperCase()=="SYMBOL") nodesStyle[property] = "Symbol";
+			value = value.toUpperCase().replaceAll("_", " ");
+			if(allFont.hasOwnProperty(value) > -1) nodesStyle[property] = value;
 			return "";
 		},
 		"wfe-font-size":function(value=11){
@@ -387,7 +385,7 @@ var exportLib = function(nodes, options, title, email) {
 			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame}\n \\maketitle\n \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
-			     FONTSHEET.toRTFstr()+"\n"+
+			     FONTSHEETused.toRTFstr()+"\n"+
 			     COLORSHEETused.toRTFstr()+"\n"+
 			     STYLESHEETused.toString()+"\n"
 		};
@@ -423,6 +421,7 @@ var exportLib = function(nodes, options, title, email) {
 		counter_enumeration=[0,0,0,0,0,0];
 		allStyle = {};
 		STYLESHEETused = {};
+		FONTSHEETused = copy(FONTSHEET);
 		COLORSHEETused = copy(COLORSHEET);
 		return header + body + footer;
 	}
@@ -619,6 +618,7 @@ var exportLib = function(nodes, options, title, email) {
 			STYLESHEETused["Note"] = allStyle["Note"];
 			COLORSHEETused.addColor(node.style.color);
 			COLORSHEETused.addColor(node.style.background_color);
+			FONTSHEETused.addFont(node.style.font);
 
 			if(node.style instanceof Style_Bullet){
 				switch (node.style.name) {
