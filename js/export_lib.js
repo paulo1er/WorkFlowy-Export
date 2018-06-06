@@ -152,16 +152,38 @@ var exportLib = function(nodes, options, title, email) {
 			else if(value.toUpperCase()=="NORMAL") nodesStyle[property] = false;
 			return "";
 		},
-		"wfe-font-color":function(value="Black"){
+		"wfe-font-color":function(value="Black", hex){
 			var property ="color";
 			value = value.toUpperCase();
-			if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
+			if(value == "RGB" && /^([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+
+				var newColorName = "newColor"+COLORSHEETused.length;
+				COLORSHEETused.addColor(newColorName, [(c>>16)&255, (c>>8)&255, c&255]);
+				nodesStyle[property] = newColorName;
+			}
+			else if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
 			return "";
 		},
-		"wfe-background":function(value="White"){
+		"wfe-background":function(value="White", hex){
 			var property ="background_color";
 			value = value.toUpperCase();
-			if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
+			if(value == "RGB" && /^([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+
+				var newColorName = "newColor"+COLORSHEETused.length;
+				COLORSHEETused.addColor(newColorName, [(c>>16)&255, (c>>8)&255, c&255]);
+				nodesStyle[property] = newColorName;
+			}
+			else if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
 			return "";
 		},
 

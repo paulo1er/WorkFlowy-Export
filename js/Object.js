@@ -589,10 +589,14 @@ var COLORSHEET={
 		str += "}";
 		return str;
 	},
-	addColor : function(colorName){
+	addColor : function(colorName, args=[]){
 		if(allColor.hasOwnProperty(colorName) && !this.hasOwnProperty(colorName)){
 			this.length++;
 			this[colorName] = new Color(allColor[colorName], this.length);
+		}
+		if(!allColor.hasOwnProperty(colorName) && !this.hasOwnProperty(colorName) && args!=[]){
+			this.length++;
+			this[colorName] = new Color(args, this.length);
 		}
 	}
 };
