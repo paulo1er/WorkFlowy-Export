@@ -452,6 +452,7 @@ class Color{
 		this.Blue = args[2];
 	}
 	toRTFstr(){return "\\red"+this.Red+"\\green"+this.Green+"\\blue"+this.Blue}
+	toLATEXstr(){return "{" + this.Red+ ","+ this.Green + "," + this.Blue + "}"}
 	toHTMLstr(){return "rgb("+this.Red+","+this.Green+","+this.Blue+")"}
 };
 
@@ -626,6 +627,15 @@ var COLORSHEET={
 		str += "}";
 		return str;
 	},
+	toLATEXstr : function(){
+		var str = "";
+		for(var key in this){
+			if (this[key] instanceof Color) {
+				str +="\\definecolor{"+ key + "}{RGB}" + this[key].toLATEXstr() + "\n";
+			}
+		}
+		return str;
+	},
 	addColor : function(colorName, args=[]){
 		if(allColor.hasOwnProperty(colorName) && !this.hasOwnProperty(colorName)){
 			this.length++;
@@ -745,6 +755,32 @@ class Style_rtf extends Style{
 	}
 }
 
+class Style_latex extends Style{
+	constructor(name, level, before, after, color, background_color){
+		super(name, level, before, after);
+		this.color = color;
+		this.background_color = background_color;
+	}
+	toString(){
+		var str = ""
+		return str;
+	}
+	toExport(text){
+		var before="";
+		var after="";
+		if(this.background_color != "WHITE"){
+			before+= "\\begin{mdframed}[backgroundcolor="+this.background_color+ "]";
+			after = "\\end{mdframed}"+after;
+		}
+		if(this.color != "BLACK"){
+			before += "\\textcolor{"+ this.color + "}{";
+			after = "}"+after;
+		}
+		return super.toExport(before + text + after);
+
+	}
+}
+
 var defaultSTYLESHEET={
 	html : {
 		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p"),
@@ -794,27 +830,6 @@ var defaultSTYLESHEET={
 		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE")
 	},
-	latex : {
-		Normal : new Style("Normal", -1, "", "\\\\"),
-		Note : new Style("Note", -1, "", "\\\\"),
-		Heading1 : new Style("Heading1", 1,"\\begin{section}{", "}"),
-		Heading2 : new Style("Heading2", 2, "\\begin{subsection}{", "}"),
-		Heading3 : new Style("Heading3", 3, "\\begin{subsubsection}{", "}"),
-		Item : new Style("Item", -1, "\\item ", ""),
-		Item1 : "Item",
-		Item2 : "Item",
-		Item3 : "Item",
-		Item4 : "Item",
-		Item5 : "Item",
-		Item6 : "Item",
-		Enumeration : new Style("Enumeration", -1, "\\item ", ""),
-		Enumeration1 : "Enumeration",
-		Enumeration2 : "Enumeration",
-		Enumeration3 : "Enumeration",
-		Enumeration4 : "Enumeration",
-		Enumeration5 : "Enumeration",
-		Enumeration6 : "Enumeration"
-	},
 	markdown : {
 		Normal : new Style("Normal", -1, "", "\n\n"),
 		Note : new Style("Note", -1, "", "\n\n"),
@@ -839,20 +854,41 @@ var defaultSTYLESHEET={
 		Enumeration5 : new Style_Bullet("Enumeration5", "0. ", 5, "\t\t\t\t", "\n\n"),
 		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "\t\t\t\t\t", "\n\n")
 	},
-	beamer : {
-		Normal : new Style("Normal", -1, "", "\\\\"),
-		Title : new Style("Title", 0, "\\title{", "}"),
-		Section : new Style("Section", 1, "\\section{", "}"),
-		Subsection : new Style("Subsection", 2, "\\subsection{", "}"),
-		Frame : new Style("Frame", 3," \\begin{frame}{", "}"),
-		Item : new Style("Item", -1, "\\item ", ""),
+	latex : {
+		Normal : new Style_latex("Normal", -1, "", "\\\\", "BLACK", "WHITE"),
+		Note : new Style_latex("Note", -1, "", "\\\\", "BLACK", "WHITE"),
+		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}", "BLACK", "WHITE"),
+		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}", "BLACK", "WHITE"),
+		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}", "BLACK", "WHITE"),
+		Item : new Style_latex("Item", -1, "\\item ", "", "BLACK", "WHITE"),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style("Enumeration", -1, "\\item ", ""),
+		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "", "BLACK", "WHITE"),
+		Enumeration1 : "Enumeration",
+		Enumeration2 : "Enumeration",
+		Enumeration3 : "Enumeration",
+		Enumeration4 : "Enumeration",
+		Enumeration5 : "Enumeration",
+		Enumeration6 : "Enumeration"
+	},
+	beamer : {
+		Normal : new Style_latex("Normal", -1, "", "\\\\", "BLACK", "WHITE"),
+		Title : new Style_latex("Title", 0, "\\title{", "}", "BLACK", "WHITE"),
+		Section : new Style_latex("Section", 1, "\\section{", "}", "BLACK", "WHITE"),
+		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}", "BLACK", "WHITE"),
+		Frame : new Style_latex("Frame", 3," \\begin{frame}{", "}", "BLACK", "WHITE"),
+		Item : new Style_latex("Item", -1, "\\item ", "", "BLACK", "WHITE"),
+		Item1 : "Item",
+		Item2 : "Item",
+		Item3 : "Item",
+		Item4 : "Item",
+		Item5 : "Item",
+		Item6 : "Item",
+		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "", "BLACK", "WHITE"),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
