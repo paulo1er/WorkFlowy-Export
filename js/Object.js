@@ -769,8 +769,8 @@ class Style_latex extends Style{
 		var before="";
 		var after="";
 		if(this.background_color != "WHITE"){
-			before+= "\\begin{mdframed}[backgroundcolor="+this.background_color+ "]";
-			after = "\\end{mdframed}"+after;
+			before+= "\\colorbox{"+this.background_color+"}{\\parbox{0.9\\textwidth}{";
+			after = "}}"+after;
 		}
 		if(this.color != "BLACK"){
 			before += "\\textcolor{"+ this.color + "}{";
