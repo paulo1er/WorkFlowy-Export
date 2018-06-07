@@ -793,6 +793,12 @@ var exportLib = function(nodes, options, title, email) {
 
 				else if (options.format == 'rtf') {
 					text = text.replace(/--/g, "\\endash ");
+					var str="";
+					for (var i = 0; i < text.length; i++) {
+						 if(text.charCodeAt(i)>127) str += "{\\u"+ text.charCodeAt(i)+"}";
+						 else str+=text.charAt(i);
+					}
+					text = str;
 
 					if(node.styleName.includes("Item")){
 						text = "{\\f3\\'B7} " + text;
