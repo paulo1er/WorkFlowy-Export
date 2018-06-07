@@ -876,7 +876,7 @@ var defaultSTYLESHEET={
 		Enumeration6 : "Enumeration"
 	},
 	beamer : {
-		Normal : new Style_latex("Normal", -1, "", "\\\\", "BLACK", "WHITE"),
+		Normal : new Style_latex("Normal", -1, "", "", "BLACK", "WHITE"),
 		Title : new Style_latex("Title", 0, "\\title{", "}", "BLACK", "WHITE"),
 		Section : new Style_latex("Section", 1, "\\section{", "}", "BLACK", "WHITE"),
 		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}", "BLACK", "WHITE"),

@@ -793,8 +793,16 @@ var exportLib = function(nodes, options, title, email) {
 					}
 					output += indent + node.style.toExport(text);
 
+
 					if ((note !== "") && (options.outputNotes))
-						output += "\n" + indent + note + "\\\\";
+						output += "\\\\ \n" + indent + note;
+
+					if (node.styleName == "Normal"){
+						var youngerSibling = node.youngerSibling();
+						if(!youngerSibling || (youngerSibling.styleName == "Normal"))
+							output += "\\\\";
+					}
+					
 					if (node.page_break)
 						output += "\\pagebreak ";
 
