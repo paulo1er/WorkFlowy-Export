@@ -445,16 +445,7 @@ var exportLib = function(nodes, options, title, email) {
 
 			switch(options.format){
 				case "beamer" :
-					if(node.parent.type != "dummy" && node.parent.styleName=="Frame"){
-						if(node.styleName == "Bullet")
-							styleName = "Item";
-						else if(node.styleName == "Enumeration")
-							styleName = "Enumeration";
-						else
-							styleName = "Normal";
-						break;
-					}
-					else if(node.parent.type != "dummy" && node.parent.styleName=="Normal"){
+					if(node.parent.type != "dummy" && (node.parent.styleName=="Normal" || node.parent.styleName=="Item"|| node.parent.styleName=="Enumeration" || node.parent.styleName=="Frame")){
 						if(node.styleName == "Bullet")
 							styleName = "Item";
 						else if(node.styleName == "Enumeration")
@@ -464,28 +455,10 @@ var exportLib = function(nodes, options, title, email) {
 						break;
 					}
 					else {
-						switch(node.level){
-							case 0 :
-								styleName = "Title";
-								break;
-							case 1 :
-								styleName = "Section";
-								break;
-							case 2 :
-								styleName = "Subsection";
-								break;
-							case 3 :
-								styleName = "Frame";
-								break;
-							default :
-								if(node.styleName == "Bullet")
-									styleName = "Item";
-								else if(node.styleName == "Enumeration")
-									styleName = "Enumeration";
-								else
-									styleName = "Normal";
-								break;
-							}
+						if(node.level == 0 && node.children.length != 0)styleName = "Title";
+						else if (node.level == 1 && node.children.length != 0) styleName = "Section";
+						else if (node.level == 2 && node.children.length != 0) styleName = "Subsection";
+						else styleName = "Frame";
 					}
 					break
 				case "latex" :
