@@ -855,7 +855,7 @@ var defaultSTYLESHEET={
 		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "\t\t\t\t\t", "\n\n")
 	},
 	latex : {
-		Normal : new Style_latex("Normal", -1, "", "\\\\", "BLACK", "WHITE"),
+		Normal : new Style_latex("Normal", -1, "", "", "BLACK", "WHITE"),
 		Note : new Style_latex("Note", -1, "", "\\\\", "BLACK", "WHITE"),
 		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}", "BLACK", "WHITE"),
 		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}", "BLACK", "WHITE"),
