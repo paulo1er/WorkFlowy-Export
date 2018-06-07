@@ -101,7 +101,8 @@ class TextExported{
 					before = before + "\\strike";
 					after = "\\strike0" + after;
 				}
-				return before + " " + this.text + after + "";
+				if(before!="") before += " ";
+				return before + this.text + after;
 			case "beamer" : return this.toString("latex");
 			case "opml" :
 				if(this.isUnderline){
@@ -746,22 +747,22 @@ class Style_rtf extends Style{
 
 var defaultSTYLESHEET={
 	html : {
-		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "p"),
-		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "p"),
-		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE", "h1"),
-		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h2"),
-		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE", "h3"),
-		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE", "h4"),
-		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE", "h5"),
-		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE", "h6"),
-		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "li"),
+		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p"),
+		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p"),
+		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 20, 10, "ARIAL", 22, true, false, false, "BLACK", "WHITE", "h1"),
+		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 20, 10, "ARIAL", 20, true, false, false, "BLACK", "WHITE", "h2"),
+		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 20, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE", "h3"),
+		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 15, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h4"),
+		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 10, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h5"),
+		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 10, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h6"),
+		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "li"),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE", "li"),
+		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "li"),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -779,19 +780,19 @@ var defaultSTYLESHEET={
 		Heading5 : new Style_rtf(7, "Heading5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
 		Heading6 : new Style_rtf(8, "Heading6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
 		Item : "Item1",
-		Item1 : new Style_rtf(9, "Item1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item2 : new Style_rtf(10, "Item2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item3 : new Style_rtf(11, "Item3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item4 : new Style_rtf(12, "Item4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item5 : new Style_rtf(13, "Item5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item6 : new Style_rtf(14, "Item6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item1 : new Style_rtf(09, "Item1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item2 : new Style_rtf(10, "Item2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item3 : new Style_rtf(11, "Item3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item4 : new Style_rtf(12, "Item4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item5 : new Style_rtf(13, "Item5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item6 : new Style_rtf(14, "Item6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE")
+		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE")
 	},
 	latex : {
 		Normal : new Style("Normal", -1, "", "\\\\"),

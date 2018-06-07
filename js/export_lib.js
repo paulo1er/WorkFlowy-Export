@@ -11,7 +11,7 @@ var exportLib = function(nodes, options, title, email) {
 	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
 	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?(?:\s|$)/ig;
 	var counter_item=[0,0,0,0,0,0];
-	var counter_enumeration=[0,0,0,0,0,0];
+	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 	var styleName="Normal";
 	var nodesStyle;
 	var allStyle = {};
@@ -418,7 +418,7 @@ var exportLib = function(nodes, options, title, email) {
 
 		wfe_count={};
 		wfe_count_ID={};
-		counter_enumeration=[0,0,0,0,0,0];
+		counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 		allStyle = {};
 		STYLESHEETused = {};
 		FONTSHEETused = copy(FONTSHEET);
@@ -437,6 +437,7 @@ var exportLib = function(nodes, options, title, email) {
 				node.styleName = options.childDefaultItemStyle;
 				node.indentChars = options.childIndent_chars;
 			}
+			if(node.indentChars == "") node.indentChars = "-";
 
 			if(node.level>6) node.level=6;
 
@@ -620,35 +621,35 @@ var exportLib = function(nodes, options, title, email) {
 			COLORSHEETused.addColor(node.style.background_color);
 			FONTSHEETused.addFont(node.style.font);
 
-			if(node.style instanceof Style_Bullet){
+			if((node.style instanceof Style_Bullet) || (node.style instanceof Style_rtf)){
+				var i=-1;
 				switch (node.style.name) {
 					case "Enumeration1" :
-						counter_enumeration[1]++;
-						node.style.bullet=counter_enumeration[1]+". ";
+						i=0;
 						break;
 					case "Enumeration2" :
-						counter_enumeration[2]++;
-						node.style.bullet=counter_enumeration[2]+". ";
+						i=1;
 						break;
 					case "Enumeration3" :
-						counter_enumeration[3]++;
-						node.style.bullet=counter_enumeration[3]+". ";
+						i=2;
 						break;
 					case "Enumeration4" :
-						counter_enumeration[4]++;
-						node.style.bullet=counter_enumeration[4]+". ";
+						i=3;
 						break;
 					case "Enumeration5" :
-						counter_enumeration[5]++;
-						node.style.bullet=counter_enumeration[5]+". ";
+						i=4;
 						break;
 					case "Enumeration6" :
-						counter_enumeration[6]++;
-						node.style.bullet=counter_enumeration[6]+". ";
+						i=5;
 						break;
 				}
+				if(i!= -1){
+					if(counter_enumeration[i][1] != node.parent)	counter_enumeration[i]=[0, node.parent];
+					counter_enumeration[i][0]++;
+					if(node.style instanceof Style_Bullet) node.style.bullet=counter_enumeration[i][0]+". ";
+					else if (node.style instanceof Style_rtf) node.style.counter = counter_enumeration[i][0];
+				}
 				if(node.style.name.includes("Item")){
-					console.log("Test ",  node, options);
 					node.style.bullet = node.indentChars + " ";
 				}
 			}
@@ -686,6 +687,7 @@ var exportLib = function(nodes, options, title, email) {
 		var noteList = node.note;
 		var indent_chars = node.indentChars;
 		var level = node.level;
+		console.log("COUCOU"+text);
 
 
 		if(node.type != "dummy"){
@@ -803,14 +805,12 @@ var exportLib = function(nodes, options, title, email) {
 					text = text.replace(/--/g, "\\endash ");
 
 					if(node.styleName.includes("Item")){
-						text = "{\\f3\\'B7}" + text;;
+						text = "{\\f3\\'B7} " + text;
 					}
 
 					else if(node.styleName.includes("Enumeration")){
-						text = "{\\f3 "+node.style.counter+"}" + text;
+						text = "{\\f3 "+node.style.counter+"} " + text;
 					}
-
-
 
 					output += node.style.toExport(text);
 

@@ -183,13 +183,13 @@ var popup2 = (function() {
 						}
 
 						document.getElementById("parent"+profile.parentDefaultItemStyle).checked = true
-						if($("#parentBullet").is(':checked'))
+						if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
 							$("#parentBulletCaracter").show();
 						else
 							$("#parentBulletCaracter").hide();
 
 						document.getElementById("child"+profile.childDefaultItemStyle).checked = true
-						if($("#childBullet").is(':checked'))
+						if($("#childBullet").is(':checked') && $("#text").is(':checked'))
 							$("#childBulletCaracter").show();
 						else
 							$("#childBulletCaracter").hide();
@@ -555,22 +555,8 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("input[type=radio][name=parentDefaultItemStyle]").change("change", function() {
-							if($("#parentBullet").is(':checked'))
-								$("#parentBulletCaracter").show();
-							else
-								$("#parentBulletCaracter").hide();
-						});
+						$("#formOutputFormat input, #formDefaultItemStyle input").change("change", function() {
 
-						$("input[type=radio][name=childDefaultItemStyle]").change("change", function() {
-							if($("#childBullet").is(':checked'))
-								$("#childBulletCaracter").show();
-							else
-								$("#childBulletCaracter").hide();
-						});
-
-
-						$("#formOutputFormat input").change("change", function() {
 							if($("#opml").is(':checked')){
 								$("#formDefaultItemStyle input").prop("disabled", true);
 								$("#parentNone").prop("checked", true);
@@ -583,7 +569,18 @@ var popup2 = (function() {
 								$("#formDefaultItemStyle input").prop("disabled", false);
 								$("[name=TxtDefaultItemStyle]").css('color', '');
 							}
+
+							if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
+								$("#parentBulletCaracter").show();
+							else
+								$("#parentBulletCaracter").hide();
+
+							if($("#childBullet").is(':checked') && $("#text").is(':checked'))
+								$("#childBulletCaracter").show();
+							else
+								$("#childBulletCaracter").hide();
 						});
+
 
 						$("#addFindReplace").click(addFindReplace);
 
