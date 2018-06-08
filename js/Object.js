@@ -737,25 +737,25 @@ class Style_rtf extends Style{
 		this.color = color;
 		this.background_color = background_color;
 	}
-	toString(){
-		var str = "\\s"+this.id+
-						{left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"}[this.aligement]+
-						"\\fi"+(20*Number(this.indentation_first_line))+
-						"\\li"+(20*Number(this.indentation_left))+
-						"\\ri"+(20*Number(this.indentation_right))+
-						"\\sb"+(20*Number(this.spacing_before))+
-						"\\sa"+(20*Number(this.spacing_after))+
-						"\\f"+FONTSHEETused[this.font].id+
-						"\\fs"+(2*this.font_size);
+	toString(defaultStyle){
+    var str = "\\s"+this.id;
+    str += "\\f"+FONTSHEETused[this.font].id;
+    if(this.aligement != "left" || (defaultStyle && this.aligement!=defaultStyle.aligement)) str += {left:"\\ql", right:"\\qr", center:"\\qc", justified:"\\qj"}[this.aligement];
+    if(this.indentation_first_line != 0 || (defaultStyle && this.indentation_first_line!=defaultStyle.indentation_first_line)) str += "\\fi"+(20*Number(this.indentation_first_line));
+    if(this.indentation_left != 0 || (defaultStyle && this.indentation_left!=defaultStyle.indentation_left)) str += "\\li"+(20*Number(this.indentation_left));
+    if(this.indentation_right != 0 || (defaultStyle && this.indentation_right!=defaultStyle.indentation_right)) str += "\\ri"+(20*Number(this.indentation_right));
+    if(this.spacing_before != 0 || (defaultStyle && this.spacing_before!=defaultStyle.spacing_before)) str += "\\sb"+(20*Number(this.spacing_before));
+    if(this.spacing_after != 0 || (defaultStyle && this.spacing_after!=defaultStyle.spacing_after)) str += "\\sa"+(20*Number(this.spacing_after));
+    if(this.font_size != 12 || (defaultStyle && this.font_size!=defaultStyle.font_size)) str += "\\fs"+(2*this.font_size);
 		if(this.bold) str += "\\b";
 		if(this.italic) str +="\\i";
 		if(this.underline) str += "\\ul";
-		str += "\\cf"+COLORSHEETused[this.color].Id +
-					 "\\highlight"+COLORSHEETused[this.background_color].Id;
+		if(this.color != "BLACK" || (defaultStyle && this.color!=defaultStyle.color)) str += "\\cf"+COLORSHEETused[this.color].Id;
+		if(this.background_color != "WHITE" || (defaultStyle && this.background_color!=defaultStyle.background_color)) str += "\\highlight"+COLORSHEETused[this.background_color].Id;
 		return str;
 	}
 	toExport(text){
-		return "{\\pard " + this.toString() + "{" + text +"}\\par}\n";
+		return "{\\pard " + this.toString(defaultSTYLESHEET.rtf[this.name]) + "{" + text +"}\\par}\n";
 	}
 }
 
@@ -808,10 +808,12 @@ var defaultSTYLESHEET={
 		Enumeration3 : "Enumeration",
 		Enumeration4 : "Enumeration",
 		Enumeration5 : "Enumeration",
-		Enumeration6 : "Enumeration"
+		Enumeration6 : "Enumeration",
+		CodeBlock : new Style("CodeBlock", -1, "", ""),
+		Code : new Style("Code", -1, "", "")
 	},
 	rtf : {
-		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLUE", "WHITE"),
 		Note : new Style_rtf(2, "Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Heading1 : new Style_rtf(3, "Heading1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE"),
 		Heading2 : new Style_rtf(4, "Heading2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE"),
@@ -832,17 +834,17 @@ var defaultSTYLESHEET={
 		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE")
+		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 	},
 	markdown : {
 		Normal : new Style("Normal", -1, "", "\n\n"),
 		Note : new Style("Note", -1, "", "\n\n"),
-		Heading1 : new Style("Heading1", 1, "# ", "\n\n"),
-		Heading2 : new Style("Heading2", 2, "## ", "\n\n"),
-		Heading3 : new Style("Heading3", 3, "### ", "\n\n"),
-		Heading4 : new Style("Heading4", 4, "#### ", "\n\n"),
-		Heading5 : new Style("Heading5", 5, "##### ", "\n\n"),
-		Heading6 : new Style("Heading6", 6, "###### ", "\n\n"),
+		Heading1 : new Style("Heading1", -1, "# ", "\n\n"),
+		Heading2 : new Style("Heading2", -1, "## ", "\n\n"),
+		Heading3 : new Style("Heading3", -1, "### ", "\n\n"),
+		Heading4 : new Style("Heading4", -1, "#### ", "\n\n"),
+		Heading5 : new Style("Heading5", -1, "##### ", "\n\n"),
+		Heading6 : new Style("Heading6", -1, "###### ", "\n\n"),
 		Item : "Item1",
 		Item1 : new Style_Bullet("Item1", 1, "* ", "", "\n\n"),
 		Item2 : new Style_Bullet("Item2", 2, "* ", "\t", "\n\n"),
@@ -856,7 +858,9 @@ var defaultSTYLESHEET={
 		Enumeration3 : new Style_Bullet("Enumeration3", "0. ", 3, "\t\t", "\n\n"),
 		Enumeration4 : new Style_Bullet("Enumeration4", "0. ", 4, "\t\t\t", "\n\n"),
 		Enumeration5 : new Style_Bullet("Enumeration5", "0. ", 5, "\t\t\t\t", "\n\n"),
-		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "\t\t\t\t\t", "\n\n")
+		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "\t\t\t\t\t", "\n\n"),
+		CodeBlock: new Style("CodeBlock", -1, "```", "\n"),
+		Code : new Style("Code", -1, "", "\n")
 	},
 	latex : {
 		Normal : new Style_latex("Normal", -1, "", "", "BLACK", "WHITE"),

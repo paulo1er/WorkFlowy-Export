@@ -229,7 +229,8 @@ var exportLib = function(nodes, options, title, email) {
 		[/^###### /,"#wfe-style:Heading6 "],
 		[/^\* /,"#wfe-style:Item1 "],
 		[/^\- /,"#wfe-style:Item1 "],
-		[/^\+ /,"#wfe-style:Item1 "]
+		[/^\+ /,"#wfe-style:Item1 "],
+		[/^``` /,"#wfe-style:CodeBlock "]
 	];
 
 	var ESCAPE_CHARACTER = {
@@ -428,8 +429,9 @@ var exportLib = function(nodes, options, title, email) {
 		return header + body + footer;
 	}
 
-	function applyRulesNodesTree(node, options){
+	function applyRulesNodesTree(node, options, codeBlock=false){
 		if(node.type != "dummy"){
+			node.level=node.parent.level+1;
 			// Not a dummy node
 			if(node.children.length != 0){
 				node.styleName = options.parentDefaultItemStyle;
@@ -586,15 +588,26 @@ var exportLib = function(nodes, options, title, email) {
 				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
 
 			}
+			if(codeBlock){
+					nodesStyle = allStyle.get("Code");
+					styleName = allStyle.getName("Code");
+			}
 
-			node.styleName=styleName;
-			node.style=nodesStyle;
-			console.log("style : ",styleName, allStyle);
-			STYLESHEETused[styleName] = allStyle.get(styleName);
-			STYLESHEETused["Note"] = allStyle["Note"];
-			COLORSHEETused.addColor(node.style.color);
-			COLORSHEETused.addColor(node.style.background_color);
-			FONTSHEETused.addFont(node.style.font);
+			if(styleName == "CodeBlock"){
+				node.level=-1;
+				if(options.format == "html") node.type="CodeBlock";
+				codeBlock=true;
+			}
+			else{
+				node.styleName=styleName;
+				node.style=nodesStyle;
+				console.log("style :",styleName, allStyle);
+				STYLESHEETused[styleName] = allStyle.get(styleName);
+				STYLESHEETused["Note"] = allStyle["Note"];
+				COLORSHEETused.addColor(node.style.color);
+				COLORSHEETused.addColor(node.style.background_color);
+				FONTSHEETused.addFont(node.style.font);
+			}
 
 			if((node.style instanceof Style_Bullet) || (node.style instanceof Style_rtf)){
 				var i=-1;
@@ -624,7 +637,7 @@ var exportLib = function(nodes, options, title, email) {
 					if(node.style instanceof Style_Bullet) node.style.bullet=counter_enumeration[i][0]+". ";
 					else if (node.style instanceof Style_rtf) node.style.counter = counter_enumeration[i][0];
 				}
-				if(node.style.name.includes("Item")){
+				else if(node.style.name.includes("Item")){
 					node.style.bullet = node.indentChars + " ";
 				}
 			}
@@ -649,7 +662,7 @@ var exportLib = function(nodes, options, title, email) {
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
 				if(j>node.children[i].level) ALIASmdSyntax_enumList_index[j]=0;
 			})
-			applyRulesNodesTree(node.children[i], options);
+			applyRulesNodesTree(node.children[i], options, codeBlock);
 		}
 	}
 
@@ -662,16 +675,18 @@ var exportLib = function(nodes, options, title, email) {
 		var noteList = node.note;
 		var indent_chars = node.indentChars;
 		var level = node.level;
-		console.log("COUCOU"+text);
 
 
-		if(node.type != "dummy"){
+		if(node.type == "node"){
 			// Only process item if no rule specifies ignoring it
 			if (!node.ignore_item && !node.ignore_outline) {
 
 				// Update output
 				if(options.format == 'markdown'){
-					output += node.style.toExport(text);
+					indent = Array(node.style.level+1).join(options.prefix_indent_chars);
+					if(node.styleName == "Code") indent = Array(node.level+1).join(options.prefix_indent_chars);
+					if(node.styleName == "CodeBlock") output_after_children += "```\n\n";
+					output += indent + node.style.toExport(text);
 					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 				}
 
@@ -823,9 +838,14 @@ var exportLib = function(nodes, options, title, email) {
 				}
 			}
 		}
+		else if (node.type == "CodeBlock") {
+			if(options.format == 'html'){
+				output += indent + "<pre><code>\n";
+				output_after_children += indent + "</code></pre>\n";
+			}
+		}
 			//console.log(node.note);
 			console.log("Output: ", output);
-			// Reset item-local rules
 
 			if (!node.ignore_outline) {
 
