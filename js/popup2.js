@@ -183,13 +183,13 @@ var popup2 = (function() {
 						}
 
 						document.getElementById("parent"+profile.parentDefaultItemStyle).checked = true
-						if($("#parentBullet").is(':checked'))
+						if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
 							$("#parentBulletCaracter").show();
 						else
 							$("#parentBulletCaracter").hide();
 
 						document.getElementById("child"+profile.childDefaultItemStyle).checked = true
-						if($("#childBullet").is(':checked'))
+						if($("#childBullet").is(':checked') && $("#text").is(':checked'))
 							$("#childBulletCaracter").show();
 						else
 							$("#childBulletCaracter").hide();
@@ -399,7 +399,7 @@ var popup2 = (function() {
 						else
 							curent_profile.parentIndent_chars = "";
 
-						if(curent_profile.childIndent_chars == "Bullet")
+						if(curent_profile.childDefaultItemStyle == "Bullet")
 							curent_profile.childIndent_chars = document.getElementById("childIndentOther").value;
 						else
 							curent_profile.childIndent_chars = "";
@@ -422,7 +422,7 @@ var popup2 = (function() {
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $("#textArea");
 						console.log("TEST", g_nodes);
-						text = exportLib(copy(g_nodes), copy(curent_profile), g_title, g_email);
+						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), copy(curent_profile), g_title, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
@@ -555,22 +555,8 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("input[type=radio][name=parentDefaultItemStyle]").change("change", function() {
-							if($("#parentBullet").is(':checked'))
-								$("#parentBulletCaracter").show();
-							else
-								$("#parentBulletCaracter").hide();
-						});
+						$("#formOutputFormat input, #formDefaultItemStyle input").change("change", function() {
 
-						$("input[type=radio][name=childDefaultItemStyle]").change("change", function() {
-							if($("#childBullet").is(':checked'))
-								$("#childBulletCaracter").show();
-							else
-								$("#childBulletCaracter").hide();
-						});
-
-
-						$("#formOutputFormat input").change("change", function() {
 							if($("#opml").is(':checked')){
 								$("#formDefaultItemStyle input").prop("disabled", true);
 								$("#parentNone").prop("checked", true);
@@ -583,7 +569,18 @@ var popup2 = (function() {
 								$("#formDefaultItemStyle input").prop("disabled", false);
 								$("[name=TxtDefaultItemStyle]").css('color', '');
 							}
+
+							if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
+								$("#parentBulletCaracter").show();
+							else
+								$("#parentBulletCaracter").hide();
+
+							if($("#childBullet").is(':checked') && $("#text").is(':checked'))
+								$("#childBulletCaracter").show();
+							else
+								$("#childBulletCaracter").hide();
 						});
+
 
 						$("#addFindReplace").click(addFindReplace);
 
