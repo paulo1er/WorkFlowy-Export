@@ -760,10 +760,13 @@ class Style_rtf extends Style{
 }
 
 class Style_latex extends Style{
-	constructor(name, level, before, after, color, background_color){
+	constructor(name, level, before, after, color, background_color, bold, italic, underline){
 		super(name, level, before, after);
 		this.color = color;
 		this.background_color = background_color;
+    this.bold = bold;
+    this.italic = italic;
+    this.underline = underline;
 	}
 	toString(){
 		var str = ""
@@ -780,6 +783,18 @@ class Style_latex extends Style{
 			before += "\\textcolor{"+ this.color + "}{";
 			after = "}"+after;
 		}
+    if(this.bold){
+			before += "\\textbf{";
+			after = "}"+after;
+    }
+    if(this.italic){
+			before += "\\textit{";
+			after = "}"+after;
+    }
+    if(this.underline){
+			before += "\\underline{";
+			after = "}"+after;
+    }
 		return super.toExport(before + text + after);
 
 	}
@@ -863,19 +878,19 @@ var defaultSTYLESHEET={
 		Code : new Style("Code", -1, "", "\n")
 	},
 	latex : {
-		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE"),
-		Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE"),
-		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}\n", "BLACK", "WHITE"),
-		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}\n", "BLACK", "WHITE"),
-		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}\n", "BLACK", "WHITE"),
-		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE"),
+		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
+		Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
+		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}\n", "BLACK", "WHITE", false, false, false),
+		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}\n", "BLACK", "WHITE", false, false, false),
+		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}\n", "BLACK", "WHITE", false, false, false),
+		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "\n", "BLACK", "WHITE"),
+		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -884,13 +899,17 @@ var defaultSTYLESHEET={
 		Enumeration6 : "Enumeration"
 	},
 	beamer : {
-		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE"),
-  	Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE"),
-		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE"),
-		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE"),
-		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE"),
-		Frame : new Style_latex("Frame", 3," \\begin{frame}{", "}\n", "BLACK", "WHITE"),
-		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE"),
+		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
+  	Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
+  	Heading : new Style_latex("Heading", -1, "", "\n\n", "BLACK", "WHITE", true, false, false),
+		Heading1 : "Heading",
+		Heading2 : "Heading",
+		Heading3 : "Heading",
+		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE", false, false, false),
+		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE", false, false, false),
+		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false),
+		Frame : new Style_latex("Frame", 3," \\begin{frame}{", "}\n", "BLACK", "WHITE", false, false, false),
+		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
