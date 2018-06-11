@@ -28,8 +28,8 @@ var exportLib = function(nodes, options, title, email) {
 	console.log("nodesTree :", nodesTree);
 
 	function WFE(name, parameter=null){
-		this.name = name;
-		this.parameter = (parameter==null) ? null : parameter.split(":");
+		this.name = name.toLowerCase();
+		this.parameter = (parameter==null) ? null : parameter.toLowerCase().split(":");
 		this.toString = function(){
 			if(typeof WFE_FUNCTION["wfe-"+this.name] == "function"){
 				var args = this.parameter;
