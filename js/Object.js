@@ -720,9 +720,9 @@ class Style_html extends Style{
 }
 
 class Style_rtf extends Style{
-	constructor(id, name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color){
+	constructor(name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color){
 		super(name, level);
-		this.id =id;
+    this.id=0;
 		this.aligement = aligement;
 		this.indentation_first_line = indentation_first_line;
 		this.indentation_left = indentation_left;
@@ -813,28 +813,28 @@ var defaultSTYLESHEET={
 		Code : new Style("Code", -1, "", "")
 	},
 	rtf : {
-		Normal : new Style_rtf(1, "Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Note : new Style_rtf(2, "Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Heading1 : new Style_rtf(3, "Heading1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE"),
-		Heading2 : new Style_rtf(4, "Heading2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE"),
-		Heading3 : new Style_rtf(5, "Heading3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE"),
-		Heading4 : new Style_rtf(6, "Heading4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
-		Heading5 : new Style_rtf(7, "Heading5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
-		Heading6 : new Style_rtf(8, "Heading6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Normal : new Style_rtf("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Note : new Style_rtf("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Heading1 : new Style_rtf("Heading1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE"),
+		Heading2 : new Style_rtf("Heading2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE"),
+		Heading3 : new Style_rtf("Heading3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE"),
+		Heading4 : new Style_rtf("Heading4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Heading5 : new Style_rtf("Heading5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Heading6 : new Style_rtf("Heading6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
 		Item : "Item1",
-		Item1 : new Style_rtf(09, "Item1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item2 : new Style_rtf(10, "Item2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item3 : new Style_rtf(11, "Item3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item4 : new Style_rtf(12, "Item4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item5 : new Style_rtf(13, "Item5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item6 : new Style_rtf(14, "Item6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item1 : new Style_rtf("Item1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item2 : new Style_rtf("Item2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item3 : new Style_rtf("Item3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item4 : new Style_rtf("Item4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item5 : new Style_rtf("Item5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item6 : new Style_rtf("Item6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style_rtf(15, "Enumeration1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration2 : new Style_rtf(16, "Enumeration2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration3 : new Style_rtf(17, "Enumeration3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration4 : new Style_rtf(18, "Enumeration4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration5 : new Style_rtf(18, "Enumeration5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration6 : new Style_rtf(19, "Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration1 : new Style_rtf("Enumeration1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration2 : new Style_rtf("Enumeration2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration3 : new Style_rtf("Enumeration3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration4 : new Style_rtf("Enumeration4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration5 : new Style_rtf("Enumeration5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration6 : new Style_rtf("Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 	},
 	markdown : {
 		Normal : new Style("Normal", -1, "", "\n\n"),
@@ -954,8 +954,11 @@ var defaultSTYLESHEET={
 	}
 };
 
-var STYLESHEETtoString={
-	rtf : function(){
+var allStyle = {};
+
+var STYLESHEET = {
+  length : 0,
+	toRTFstr : function(){
 		var str = "{\\stylesheet";
 		for(var key in this){
 			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
@@ -965,7 +968,7 @@ var STYLESHEETtoString={
 		str += "}";
 		return str;
 	},
-	html : function(){
+	toHTMLstr : function(){
 		var str = "";
 		for(var key in this){
 			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
@@ -974,17 +977,14 @@ var STYLESHEETtoString={
 		}
 		return str;
 	},
-	text : function(){
-		var str = "";
-		for(var key in this){
-			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
-				str += this[key].toString();
-			}
+	addStyle : function(styleName){
+    var newStyle = allStyle.get(styleName);
+		if(newStyle && !this.hasOwnProperty(styleName)){
+      if(newStyle instanceof Style_rtf) newStyle.id = this.length;
+			this[styleName] = newStyle;
+			this.length++;
 		}
-		return str;
-	},
-	get : function(format){
-		if (this.hasOwnProperty(format)) return this[format];
-		else return this["text"];
 	}
-}
+};
+
+var STYLESHEETused = copy(STYLESHEET);

@@ -14,8 +14,6 @@ var exportLib = function(nodes, options, title, email) {
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 	var styleName="Normal";
 	var nodesStyle;
-	var allStyle = {};
-	var STYLESHEETused = {};
 
 	var ignore_item = false;
 	var ignore_outline = false;
@@ -80,7 +78,8 @@ var exportLib = function(nodes, options, title, email) {
 			return "";
 		},
 		"wfe-style":function(style="Normal"){
-			console.log("change style by WFE-style", style,allStyle);
+			console.log("change style by WFE-style", style, allStyle);
+			style = style.charAt(0).toUpperCase() + style.slice(1);
 			if(allStyle.hasOwnProperty(style)) {
 				nodesStyle = allStyle.get(style);
 				styleName = allStyle.getName(style);
@@ -368,7 +367,6 @@ var exportLib = function(nodes, options, title, email) {
 
 	exportNodesTree = function(nodesTree, options) {
 		allStyle = defaultSTYLESHEET.get(options.format);
-		STYLESHEETused.toString = STYLESHEETtoString.get(options.format);
 
 		options.findReplace.forEach(function(e) {
 			if(e!=null){
@@ -383,14 +381,14 @@ var exportLib = function(nodes, options, title, email) {
 		var HEADER = {
 			text: "",
 			markdown: "",
-			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toString() + "\n    </style>\n  </head>\n  <body>\n",
+			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
 			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame}\n \\maketitle\n \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEETused.toRTFstr()+"\n"+
 			     COLORSHEETused.toRTFstr()+"\n"+
-			     STYLESHEETused.toString()+"\n"
+			     STYLESHEETused.toRTFstr()+"\n"
 		};
 		var FOOTER = {
 			text: "",
@@ -423,7 +421,7 @@ var exportLib = function(nodes, options, title, email) {
 		wfe_count_ID={};
 		counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 		allStyle = {};
-		STYLESHEETused = {};
+		STYLESHEETused = copy(STYLESHEET);
 		FONTSHEETused = copy(FONTSHEET);
 		COLORSHEETused = copy(COLORSHEET);
 		return header + body + footer;
@@ -604,8 +602,9 @@ var exportLib = function(nodes, options, title, email) {
 				node.styleName=styleName;
 				node.style=nodesStyle;
 				console.log("style :",styleName, allStyle);
-				STYLESHEETused[styleName] = allStyle.get(styleName);
-				STYLESHEETused["Note"] = allStyle["Note"];
+				STYLESHEETused.addStyle(styleName);
+				if(node.note.length != 0) STYLESHEETused.addStyle("Note");
+				if((STYLESHEETused[styleName] instanceof Style_rtf) && (node.style instanceof Style_rtf)) node.style.id = STYLESHEETused[styleName].id;
 				COLORSHEETused.addColor(node.style.color);
 				COLORSHEETused.addColor(node.style.background_color);
 				FONTSHEETused.addFont(node.style.font);
