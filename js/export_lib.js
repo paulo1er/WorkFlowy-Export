@@ -19,7 +19,7 @@ var exportLib = function(nodes, options, title, email) {
 
 	var ignore_item = false;
 	var ignore_outline = false;
-	var escapeCharacter = true;
+	var verbatim = true;
 	var page_break = false;
 	var header = "";
 	var body = "";
@@ -190,7 +190,7 @@ var exportLib = function(nodes, options, title, email) {
 		},
 
 		"wfe-verbatim": function(){
-			escapeCharacter = false;
+			verbatim = false;
 			return "";
 		},
 
@@ -384,8 +384,8 @@ var exportLib = function(nodes, options, title, email) {
 			text: "",
 			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toString() + "\n    </style>\n  </head>\n  <body>\n",
-			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n" + COLORSHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
-			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n" + COLORSHEETused.toLATEXstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame}\n \\maketitle\n \\end{frame}\n",
+			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
+			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame}\n \\maketitle\n \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEETused.toRTFstr()+"\n"+
@@ -404,7 +404,7 @@ var exportLib = function(nodes, options, title, email) {
 		// Set default rules
 		ignore_item = false;
 		ignore_outline = false;
-		escapeCharacter= true;
+		verbatim= true;
 		page_break = false;
 
 		// Create header text
@@ -432,6 +432,8 @@ var exportLib = function(nodes, options, title, email) {
 	function applyRulesNodesTree(node, options, codeBlock=false){
 		if(node.type != "dummy"){
 			node.level=node.parent.level+1;
+
+			if(!options.outputNotes)node.note = [];
 			// Not a dummy node
 			if(node.children.length != 0){
 				node.styleName = options.parentDefaultItemStyle;
@@ -644,7 +646,7 @@ var exportLib = function(nodes, options, title, email) {
 
 			node.indent = Array(node.level+1).join(options.prefix_indent_chars);
 
-			if(escapeCharacter){
+			if(verbatim){
 				ESCAPE_CHARACTER[options.format].forEach(function(e) {
 					textListApply(node.title, "".replaceAll, [e[0], e[1]]);
 					textListApply(node.note, "".replaceAll, [e[0], e[1]]);
@@ -656,7 +658,7 @@ var exportLib = function(nodes, options, title, email) {
 		node.page_break = page_break;
 		ignore_item = false;
 		ignore_outline = false;
-		escapeCharacter = true;
+		verbatim = true;
 		page_break = false;
 		for (var i = 0; i < node.children.length; i++){
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
@@ -747,18 +749,10 @@ var exportLib = function(nodes, options, title, email) {
 					output += indent + node.style.toExport(text);
 
 					if ((note !== "") && (options.outputNotes))
-						output += "\\\\ \n" + indent + note;
-
-					if (node.styleName == "Normal"){
-						var youngerSibling = node.youngerSibling();
-						if(!youngerSibling || (youngerSibling.styleName == "Normal"))
-							output += "\\\\";
-					}
+						output += indent + STYLESHEETused["Note"].toExport(note);
 
 					if (node.page_break)
 						output += "\\pagebreak ";
-
-					output += options.item_sep;
 				}
 
 				else if (options.format == 'beamer'){
@@ -785,18 +779,10 @@ var exportLib = function(nodes, options, title, email) {
 
 
 					if ((note !== "") && (options.outputNotes))
-						output += "\\\\ \n" + indent + note;
-
-					if (node.styleName == "Normal"){
-						var youngerSibling = node.youngerSibling();
-						if(!youngerSibling || (youngerSibling.styleName == "Normal"))
-							output += "\\\\";
-					}
+						output += indent + STYLESHEETused["Note"].toExport(note);
 
 					if (node.page_break)
 						output += "\\pagebreak ";
-
-					output += options.item_sep;
 				}
 
 				else if (options.format == 'opml') {
