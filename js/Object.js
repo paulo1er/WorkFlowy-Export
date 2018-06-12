@@ -2,6 +2,18 @@ String.prototype.replaceAt=function(index, replacement) {
     return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
 }
 
+Array.prototype.remove = function(item) {
+  var index = this.indexOf(item);
+  if (index !== -1) this.splice(index, 1);
+}
+Array.prototype.replace = function(item, newItems) {
+  var index = this.indexOf(item);
+  if (index !== -1) this.splice(index, 1);
+  for(var i=newItems.length-1; i>=0; i--){
+    this.splice( index, 0, newItems[i] );
+  }
+}
+
 function Profile(name, format, parentDefaultItemStyle, childDefaultItemStyle, parentIndent_chars, childIndent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, mdSyntax, findReplace, fragment){
 	this.name= name,
 	this.format = format,

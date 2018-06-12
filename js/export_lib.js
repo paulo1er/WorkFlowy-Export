@@ -194,7 +194,7 @@ var exportLib = function(nodes, options, title, email) {
 		},
 
 		"wfe-beamer-slide": function(){
-			if(allStyle.hasOwnProperty("Frame")) {
+			if(allStyle.hasOwnProperty("Frame") && (styleName=="Title" || styleName=="Section" || styleName=="Subsection")) {
 				nodesStyle = allStyle.get("Frame");
 				styleName = allStyle.getName("Frame");
 			}
@@ -447,7 +447,7 @@ var exportLib = function(nodes, options, title, email) {
 
 			switch(options.format){
 				case "beamer" :
-					if(node.parent.type != "dummy" && (node.parent.styleName=="Normal" || node.parent.styleName=="Item"|| node.parent.styleName=="Enumeration" || node.parent.styleName=="Frame")){
+					if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
 						if(node.styleName == "Bullet")
 							styleName = "Item";
 						else if(node.styleName == "Enumeration")
@@ -459,9 +459,10 @@ var exportLib = function(nodes, options, title, email) {
 						break;
 					}
 					else {
-						if(node.level == 0 && node.children.length != 0)styleName = "Title";
-						else if (node.level == 1 && node.children.length != 0) styleName = "Section";
-						else if (node.level == 2 && node.children.length != 0) styleName = "Subsection";
+						var frameLevel=2;
+						if(frameLevel >= 3 && node.level == 0 && node.children.length != 0)styleName = "Title";
+						else if (frameLevel >= 2 && node.parent.type != "dummy" && node.parent.styleName=="Section"  && node.children.length != 0) styleName = "Subsection";
+						else if (frameLevel >= 1 && (node.parent.type == "dummy" || node.parent.styleName=="Title")  && node.children.length != 0) styleName = "Section";
 						else styleName = "Frame";
 					}
 					break
@@ -654,9 +655,18 @@ var exportLib = function(nodes, options, title, email) {
 				});
 			}
 		}
-		node.ignore_item = ignore_item;
-		node.ignore_outline = ignore_outline;
 		node.page_break = page_break;
+		if(ignore_item) {
+			for(var i=0; i<node.children.length; i++){
+		    node.children[i].parent = node.parent;
+		  }
+			node.parent.children.replace(node, node.children);
+		}
+		if(ignore_outline){
+			console.log("TEST ignore_outline", node.parent.children.toString());
+			node.parent.children.remove(node);
+			console.log("TEST ignore_outline", node.parent.children.toString());
+		}
 		ignore_item = false;
 		ignore_outline = false;
 		verbatim = true;
@@ -681,148 +691,144 @@ var exportLib = function(nodes, options, title, email) {
 
 
 		if(node.type == "node"){
-			// Only process item if no rule specifies ignoring it
-			if (!node.ignore_item && !node.ignore_outline) {
+			// Update output
+			if(options.format == 'markdown'){
+				indent = Array(node.style.level+1).join(options.prefix_indent_chars);
+				if(node.styleName == "Code") indent = Array(node.level+1).join(options.prefix_indent_chars);
+				if(node.styleName == "CodeBlock") output_after_children += "```\n\n";
+				output += indent + node.style.toExport(text);
+				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
+			}
 
-				// Update output
-				if(options.format == 'markdown'){
-					indent = Array(node.style.level+1).join(options.prefix_indent_chars);
-					if(node.styleName == "Code") indent = Array(node.level+1).join(options.prefix_indent_chars);
-					if(node.styleName == "CodeBlock") output_after_children += "```\n\n";
-					output += indent + node.style.toExport(text);
-					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
+			else if (options.format == 'html') {
+				text = text.replace(/--/g, "&ndash;");
+
+				if(node.styleName == "Item"){
+					var olderSibling = node.olderSibling();
+					var youngerSibling = node.youngerSibling();
+					if(!olderSibling || !(olderSibling.styleName == "Item"))
+						output += indent + "<ul>\n";
+					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
+						output_after_children += indent + "</ul>\n";
+				}
+				if(node.styleName == "Enumeration"){
+					var olderSibling = node.olderSibling();
+					var youngerSibling = node.youngerSibling();
+					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
+						output += indent + "<ol>\n";
+					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
+						output_after_children += indent + "</ol>\n";
+				}
+				output += indent + node.style.toExport(text);
+
+				if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
+
+				output = output + options.item_sep;
+				if (node.page_break)
+						output = output + "<div class=\"page-break\"></div>\n";
+			}
+
+			else if (options.format == 'latex'){
+				if (node.styleName == "Item"){
+					var olderSibling = node.olderSibling();
+					var youngerSibling = node.youngerSibling();
+					if(!olderSibling || !(olderSibling.styleName == "Item"))
+						output += indent + "\\begin{itemize}\n";
+					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
+						output_after_children += indent + "\\end{itemize}\n";
+				}
+				else if (node.styleName == "Enumeration"){
+					var olderSibling = node.olderSibling();
+					var youngerSibling = node.youngerSibling();
+					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
+						output += indent + "\\begin{enumerate}\n";
+					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
+						output_after_children += indent + "\\end{enumerate}\n";
+				}
+				else if (node.styleName == "Heading1"){
+					output_after_children += indent + "\\end{section}\n";
+				}
+				else if (node.styleName == "Heading2"){
+					output_after_children += indent + "\\end{subsection}\n";
+				}
+				else if (node.styleName == "Heading3"){
+					output_after_children += indent + "\\end{subsubsection}\n";
+				}
+				output += indent + node.style.toExport(text);
+
+				if ((note !== "") && (options.outputNotes))
+					output += indent + STYLESHEETused["Note"].toExport(note);
+
+				if (node.page_break)
+					output += "\\pagebreak ";
+			}
+
+			else if (options.format == 'beamer'){
+				if (node.styleName == "Item"){
+					var olderSibling = node.olderSibling();
+					var youngerSibling = node.youngerSibling();
+					if(!olderSibling || !(olderSibling.styleName == "Item"))
+						output += indent + "\\begin{itemize}\n";
+					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
+						output_after_children += indent + "\\end{itemize}\n";
+				}
+				else if (node.styleName == "Enumeration"){
+					var olderSibling = node.olderSibling();
+					var youngerSibling = node.youngerSibling();
+					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
+						output += indent + "\\begin{enumerate}\n";
+					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
+						output_after_children += indent + "\\end{enumerate}\n";
+				}
+				else if (node.styleName == "Frame"){
+					output_after_children += indent + "\\end{frame}\n";
+				}
+				output += indent + node.style.toExport(text);
+
+
+				if ((note !== "") && (options.outputNotes))
+					output += indent + STYLESHEETused["Note"].toExport(note);
+
+				if (node.page_break)
+					output += "\\pagebreak ";
+			}
+
+			else if (options.format == 'opml') {
+				output = output + indent + "<outline text=\"" + text + "\"";
+				if (options.outputNotes) output = output + " _note=\"" + note + "\"";
+				output = output + ">\n";
+				output_after_children += indent + "</outline>\n";
+			}
+
+			else if (options.format == 'rtf') {
+				text = text.replace(/--/g, "\\endash ");
+				var str="";
+				for (var i = 0; i < text.length; i++) {
+					 if(text.charCodeAt(i)>127) str += "{\\u"+ text.charCodeAt(i)+"}";
+					 else str+=text.charAt(i);
+				}
+				text = str;
+
+				if(node.styleName.includes("Item")){
+					text = "{\\f3\\'B7} " + text;
 				}
 
-				else if (options.format == 'html') {
-					text = text.replace(/--/g, "&ndash;");
-
-					if(node.styleName == "Item"){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						if(!olderSibling || !(olderSibling.styleName == "Item"))
-							output += indent + "<ul>\n";
-						if(!youngerSibling || !(youngerSibling.styleName == "Item"))
-							output_after_children += indent + "</ul>\n";
-					}
-					if(node.styleName == "Enumeration"){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-							output += indent + "<ol>\n";
-						if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
-							output_after_children += indent + "</ol>\n";
-					}
-					output += indent + node.style.toExport(text);
-
-					if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
-
-					output = output + options.item_sep;
-					if (node.page_break)
-							output = output + "<div class=\"page-break\"></div>\n";
+				else if(node.styleName.includes("Enumeration")){
+					text = "{\\f3 "+node.style.counter+"} " + text;
 				}
 
-				else if (options.format == 'latex'){
-					if (node.styleName == "Item"){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						if(!olderSibling || !(olderSibling.styleName == "Item"))
-							output += indent + "\\begin{itemize}\n";
-						if(!youngerSibling || !(youngerSibling.styleName == "Item"))
-							output_after_children += indent + "\\end{itemize}\n";
-					}
-					else if (node.styleName == "Enumeration"){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-							output += indent + "\\begin{enumerate}\n";
-						if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
-							output_after_children += indent + "\\end{enumerate}\n";
-					}
-					else if (node.styleName == "Heading1"){
-						output_after_children += indent + "\\end{section}\n";
-					}
-					else if (node.styleName == "Heading2"){
-						output_after_children += indent + "\\end{subsection}\n";
-					}
-					else if (node.styleName == "Heading3"){
-						output_after_children += indent + "\\end{subsubsection}\n";
-					}
-					output += indent + node.style.toExport(text);
+				output += node.style.toExport(text);
 
-					if ((note !== "") && (options.outputNotes))
-						output += indent + STYLESHEETused["Note"].toExport(note);
+				if (node.page_break)
+					output = output + "\\page";
+				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
+			}
 
-					if (node.page_break)
-						output += "\\pagebreak ";
-				}
-
-				else if (options.format == 'beamer'){
-					if (node.styleName == "Item"){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						if(!olderSibling || !(olderSibling.styleName == "Item"))
-							output += indent + "\\begin{itemize}\n";
-						if(!youngerSibling || !(youngerSibling.styleName == "Item"))
-							output_after_children += indent + "\\end{itemize}\n";
-					}
-					else if (node.styleName == "Enumeration"){
-						var olderSibling = node.olderSibling();
-						var youngerSibling = node.youngerSibling();
-						if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-							output += indent + "\\begin{enumerate}\n";
-						if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
-							output_after_children += indent + "\\end{enumerate}\n";
-					}
-					else if (node.styleName == "Frame"){
-						output_after_children += indent + "\\end{frame}\n";
-					}
-					output += indent + node.style.toExport(text);
-
-
-					if ((note !== "") && (options.outputNotes))
-						output += indent + STYLESHEETused["Note"].toExport(note);
-
-					if (node.page_break)
-						output += "\\pagebreak ";
-				}
-
-				else if (options.format == 'opml') {
-					output = output + indent + "<outline text=\"" + text + "\"";
-					if (options.outputNotes) output = output + " _note=\"" + note + "\"";
-					output = output + ">\n";
-					output_after_children += indent + "</outline>\n";
-				}
-
-				else if (options.format == 'rtf') {
-					text = text.replace(/--/g, "\\endash ");
-					var str="";
-					for (var i = 0; i < text.length; i++) {
-						 if(text.charCodeAt(i)>127) str += "{\\u"+ text.charCodeAt(i)+"}";
-						 else str+=text.charAt(i);
-					}
-					text = str;
-
-					if(node.styleName.includes("Item")){
-						text = "{\\f3\\'B7} " + text;
-					}
-
-					else if(node.styleName.includes("Enumeration")){
-						text = "{\\f3 "+node.style.counter+"} " + text;
-					}
-
-					output += node.style.toExport(text);
-
-					if (node.page_break)
-						output = output + "\\page";
-					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
-				}
-
-				else {
-					output += node.style.toExport(text);
-					if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
-					if (node.page_break)
-						output = output + "\n";
-				}
+			else {
+				output += node.style.toExport(text);
+				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
+				if (node.page_break)
+					output = output + "\n";
 			}
 		}
 		else if (node.type == "CodeBlock") {
@@ -833,15 +839,10 @@ var exportLib = function(nodes, options, title, email) {
 		}
 			//console.log(node.note);
 			console.log("Output: ", output);
-
-			if (!node.ignore_outline) {
-
-				console.log("Apply recursion to: ", node.children);
-				for (var i = 0; i < node.children.length; i++)
-				{
-					output += exportNodesTreeBody(node.children[i], options);
-				}
-
+			console.log("Apply recursion to: ", node.children);
+			for (var i = 0; i < node.children.length; i++)
+			{
+				output += exportNodesTreeBody(node.children[i], options);
 			}
 
 			output += output_after_children;
