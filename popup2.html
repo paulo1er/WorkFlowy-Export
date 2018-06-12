@@ -63,8 +63,9 @@
 								</div>
 								<div class="panel-body">
 									<div class="container-fluid" id="form">
-										<div class="row justify-content-around">
-											<div id="formOutputFormat" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
+										<div class="row">
+											<div class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formOutputFormat" class="well">
 												<p class="text-center">Output Format</p>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -110,7 +111,49 @@
 												</div>
 											</div>
 
-											<div id="formDefaultItemStyle" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formOptions" class="well">
+												<p class="text-center">Options</p>
+												<div class="input-group input-group-sm">
+												  <span class="input-group-addon">
+														<input type="checkbox" id="stripTags" class="form-check-input">
+													</span>
+												  <label class="form-control" for="stripTags">Strip Tags</label>
+												</div>
+												<div class="input-group input-group-sm" input-group-sm>
+												  <span class="input-group-addon">
+														<input type="checkbox" id="outputNotes" class="form-check-input">
+													</span>
+												  <label class="form-control" for="outputNotes">Include Notes</label>
+												</div>
+												<div class="input-group input-group-sm">
+												  <span class="input-group-addon">
+														<input type="checkbox" id="insertLine" class="form-check-input">
+													</span>
+												  <label class="form-control" for="insertLine">Additional Line Break</label>
+												</div>
+												<div class="input-group input-group-sm">
+												  <span class="input-group-addon">
+														<input type="checkbox" id="mdSyntax" class="form-check-input">
+													</span>
+												  <label class="form-control" for="mdSyntax">Parse Markdown syntax</label>
+												</div>
+												<div class="input-group input-group-sm">
+												  <span class="input-group-addon">
+														<input type="checkbox" id="wfeRules" class="form-check-input">
+													</span>
+												  <label class="form-control" for="wfeRules">Expert Mode</label>
+												</div>
+												<div class="input-group input-group-sm">
+													<span class="input-group-addon">
+														<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
+													</span>
+													<label class="form-control" for="fragment">Fragment</label>
+												</div>
+											</div>
+											</div>
+
+											<div class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formDefaultItemStyle" class="well">
 												<p class="text-center" name="TxtDefaultItemStyle">Default Item Style</p>
 												<div class="well">
 													<p class="text-center" name="TxtDefaultItemStyle">If item has nested items, use:</p>
@@ -179,10 +222,7 @@
 													</div>
 												</div>
 											</div>
-
-											<div class="clearfix visible-sm-block visible-lg-block"></div>
-
-											<div id="formIndentation" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="formIndentation" class="well">
 												<p class="text-center" name="TxtindentOptions">Indentation</p>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -203,47 +243,9 @@
 												  <label class="form-control" for="withoutIndent" name="TxtindentOptions">None</label>
 												</div>
 											</div>
-
-											<div id="formOptions" class="well col-xs-12 col-sm-6 col-md-12 col-lg-6">
-												<p class="text-center">Options</p>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="checkbox" id="stripTags" class="form-check-input">
-													</span>
-												  <label class="form-control" for="stripTags">Strip Tags</label>
-												</div>
-												<div class="input-group input-group-sm" input-group-sm>
-												  <span class="input-group-addon">
-														<input type="checkbox" id="outputNotes" class="form-check-input">
-													</span>
-												  <label class="form-control" for="outputNotes">Include Notes</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="checkbox" id="insertLine" class="form-check-input">
-													</span>
-												  <label class="form-control" for="insertLine">Additional Line Break</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="checkbox" id="mdSyntax" class="form-check-input">
-													</span>
-												  <label class="form-control" for="mdSyntax">Parse Markdown syntax</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="checkbox" id="wfeRules" class="form-check-input">
-													</span>
-												  <label class="form-control" for="wfeRules">Expert Mode</label>
-												</div>
-												<div class="input-group input-group-sm">
-													<span class="input-group-addon">
-														<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
-													</span>
-													<label class="form-control" for="fragment">Fragment</label>
-												</div>
 											</div>
-
+										</div>
+										<div class="row">
 											<div id="formFindAndReplace" class="well col-xs-12 col-sm-12 col-md-12 col-lg-12">
 												<p class="text-center">Find and Replace</p>
 												<div class="input-group input-group-sm">

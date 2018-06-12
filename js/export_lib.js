@@ -663,19 +663,21 @@ var exportLib = function(nodes, options, title, email) {
 			node.parent.children.replace(node, node.children);
 		}
 		if(ignore_outline){
-			console.log("TEST ignore_outline", node.parent.children.toString());
 			node.parent.children.remove(node);
-			console.log("TEST ignore_outline", node.parent.children.toString());
+			node.children = [];
 		}
 		ignore_item = false;
 		ignore_outline = false;
 		verbatim = true;
 		page_break = false;
-		for (var i = 0; i < node.children.length; i++){
+		var i = 0;
+		while(i < node.children.length){
+			var childNode = node.children[i];
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
-				if(j>node.children[i].level) ALIASmdSyntax_enumList_index[j]=0;
+				if(j>childNode.level) ALIASmdSyntax_enumList_index[j]=0;
 			})
-			applyRulesNodesTree(node.children[i], options, codeBlock);
+			applyRulesNodesTree(childNode, options, codeBlock);
+			if(childNode == node.children[i])i++;
 		}
 	}
 
@@ -783,6 +785,8 @@ var exportLib = function(nodes, options, title, email) {
 				else if (node.styleName == "Frame"){
 					output_after_children += indent + "\\end{frame}\n";
 				}
+
+				console.log("TEST ignore_outline", node);
 				output += indent + node.style.toExport(text);
 
 
