@@ -14,12 +14,10 @@ var exportLib = function(nodes, options, title, email) {
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 	var styleName="Normal";
 	var nodesStyle;
-	var allStyle = {};
-	var STYLESHEETused = {};
 
 	var ignore_item = false;
 	var ignore_outline = false;
-	var escapeCharacter = true;
+	var verbatim = true;
 	var page_break = false;
 	var header = "";
 	var body = "";
@@ -28,8 +26,8 @@ var exportLib = function(nodes, options, title, email) {
 	console.log("nodesTree :", nodesTree);
 
 	function WFE(name, parameter=null){
-		this.name = name;
-		this.parameter = (parameter==null) ? null : parameter.split(":");
+		this.name = name.toLowerCase();
+		this.parameter = (parameter==null) ? null : parameter.toLowerCase().split(":");
 		this.toString = function(){
 			if(typeof WFE_FUNCTION["wfe-"+this.name] == "function"){
 				var args = this.parameter;
@@ -80,7 +78,8 @@ var exportLib = function(nodes, options, title, email) {
 			return "";
 		},
 		"wfe-style":function(style="Normal"){
-			console.log("change style by WFE-style", style,allStyle);
+			console.log("change style by WFE-style", style, allStyle);
+			style = style.charAt(0).toUpperCase() + style.slice(1);
 			if(allStyle.hasOwnProperty(style)) {
 				nodesStyle = allStyle.get(style);
 				styleName = allStyle.getName(style);
@@ -190,7 +189,7 @@ var exportLib = function(nodes, options, title, email) {
 		},
 
 		"wfe-verbatim": function(){
-			escapeCharacter = false;
+			verbatim = false;
 			return "";
 		},
 
@@ -368,7 +367,6 @@ var exportLib = function(nodes, options, title, email) {
 
 	exportNodesTree = function(nodesTree, options) {
 		allStyle = defaultSTYLESHEET.get(options.format);
-		STYLESHEETused.toString = STYLESHEETtoString.get(options.format);
 
 		options.findReplace.forEach(function(e) {
 			if(e!=null){
@@ -383,14 +381,14 @@ var exportLib = function(nodes, options, title, email) {
 		var HEADER = {
 			text: "",
 			markdown: "",
-			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toString() + "\n    </style>\n  </head>\n  <body>\n",
-			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n" + COLORSHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
-			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n" + COLORSHEETused.toLATEXstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame}\n \\maketitle\n \\end{frame}\n",
+			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
+			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
+			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame} \\maketitle \\end{frame}\n \\begin{frame}{Table of Contents} \\tableofcontents \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEETused.toRTFstr()+"\n"+
 			     COLORSHEETused.toRTFstr()+"\n"+
-			     STYLESHEETused.toString()+"\n"
+			     STYLESHEETused.toRTFstr()+"\n"
 		};
 		var FOOTER = {
 			text: "",
@@ -404,7 +402,7 @@ var exportLib = function(nodes, options, title, email) {
 		// Set default rules
 		ignore_item = false;
 		ignore_outline = false;
-		escapeCharacter= true;
+		verbatim= true;
 		page_break = false;
 
 		// Create header text
@@ -423,7 +421,7 @@ var exportLib = function(nodes, options, title, email) {
 		wfe_count_ID={};
 		counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 		allStyle = {};
-		STYLESHEETused = {};
+		STYLESHEETused = copy(STYLESHEET);
 		FONTSHEETused = copy(FONTSHEET);
 		COLORSHEETused = copy(COLORSHEET);
 		return header + body + footer;
@@ -432,6 +430,8 @@ var exportLib = function(nodes, options, title, email) {
 	function applyRulesNodesTree(node, options, codeBlock=false){
 		if(node.type != "dummy"){
 			node.level=node.parent.level+1;
+
+			if(!options.outputNotes)node.note = [];
 			// Not a dummy node
 			if(node.children.length != 0){
 				node.styleName = options.parentDefaultItemStyle;
@@ -452,6 +452,8 @@ var exportLib = function(nodes, options, title, email) {
 							styleName = "Item";
 						else if(node.styleName == "Enumeration")
 							styleName = "Enumeration";
+						else if(node.styleName == "Heading")
+							styleName = "Heading";
 						else
 							styleName = "Normal";
 						break;
@@ -602,8 +604,9 @@ var exportLib = function(nodes, options, title, email) {
 				node.styleName=styleName;
 				node.style=nodesStyle;
 				console.log("style :",styleName, allStyle);
-				STYLESHEETused[styleName] = allStyle.get(styleName);
-				STYLESHEETused["Note"] = allStyle["Note"];
+				STYLESHEETused.addStyle(styleName);
+				if(node.note.length != 0) STYLESHEETused.addStyle("Note");
+				if((STYLESHEETused[styleName] instanceof Style_rtf) && (node.style instanceof Style_rtf)) node.style.id = STYLESHEETused[styleName].id;
 				COLORSHEETused.addColor(node.style.color);
 				COLORSHEETused.addColor(node.style.background_color);
 				FONTSHEETused.addFont(node.style.font);
@@ -644,7 +647,7 @@ var exportLib = function(nodes, options, title, email) {
 
 			node.indent = Array(node.level+1).join(options.prefix_indent_chars);
 
-			if(escapeCharacter){
+			if(verbatim){
 				ESCAPE_CHARACTER[options.format].forEach(function(e) {
 					textListApply(node.title, "".replaceAll, [e[0], e[1]]);
 					textListApply(node.note, "".replaceAll, [e[0], e[1]]);
@@ -656,7 +659,7 @@ var exportLib = function(nodes, options, title, email) {
 		node.page_break = page_break;
 		ignore_item = false;
 		ignore_outline = false;
-		escapeCharacter = true;
+		verbatim = true;
 		page_break = false;
 		for (var i = 0; i < node.children.length; i++){
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
@@ -747,18 +750,10 @@ var exportLib = function(nodes, options, title, email) {
 					output += indent + node.style.toExport(text);
 
 					if ((note !== "") && (options.outputNotes))
-						output += "\\\\ \n" + indent + note;
-
-					if (node.styleName == "Normal"){
-						var youngerSibling = node.youngerSibling();
-						if(!youngerSibling || (youngerSibling.styleName == "Normal"))
-							output += "\\\\";
-					}
+						output += indent + STYLESHEETused["Note"].toExport(note);
 
 					if (node.page_break)
 						output += "\\pagebreak ";
-
-					output += options.item_sep;
 				}
 
 				else if (options.format == 'beamer'){
@@ -785,18 +780,10 @@ var exportLib = function(nodes, options, title, email) {
 
 
 					if ((note !== "") && (options.outputNotes))
-						output += "\\\\ \n" + indent + note;
-
-					if (node.styleName == "Normal"){
-						var youngerSibling = node.youngerSibling();
-						if(!youngerSibling || (youngerSibling.styleName == "Normal"))
-							output += "\\\\";
-					}
+						output += indent + STYLESHEETused["Note"].toExport(note);
 
 					if (node.page_break)
 						output += "\\pagebreak ";
-
-					output += options.item_sep;
 				}
 
 				else if (options.format == 'opml') {
