@@ -283,6 +283,20 @@ var exportLib = function(nodes, options, title, email) {
 		}
 	}
 
+	var regexCodeLatex=/\$([^$]*)\$/g;
+	function CodeLatex(text){
+		this.text=text;
+		this.toString = function(format = "text"){
+			switch(format){
+				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
+				case "rtf" : return "{\\f2\\cf4\\highlight5 "+this.text+"}";
+				case "latex": return "$"+this.text+"$";
+				case "beamer" : return this.toString("latex");
+				default : return "`"+this.text+"`";
+			}
+		}
+	}
+
 	var regexImage = /!\[([^\]]*)\]\(([^\)]*)\)/g;
 	function Image(text, link){
 		this.link=link;
@@ -578,6 +592,9 @@ var exportLib = function(nodes, options, title, email) {
 				textListApply(node.title, "".replace, [WF_TAG_REGEXP, ""]);
 				textListApply(node.note, "".replace, [WF_TAG_REGEXP, ""]);
 			}
+			
+			node.title=insertObj(node.title, regexCodeLatex, CodeLatex);
+			node.note=insertObj(node.note, regexCodeLatex, CodeLatex);
 
 			if(options.mdSyntax){
 				node.title=insertObj(node.title, regexCode, Code);
