@@ -2,6 +2,18 @@ String.prototype.replaceAt=function(index, replacement) {
     return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
 }
 
+Array.prototype.remove = function(item) {
+  var index = this.indexOf(item);
+  if (index !== -1) this.splice(index, 1);
+}
+Array.prototype.replace = function(item, newItems) {
+  var index = this.indexOf(item);
+  if (index !== -1) this.splice(index, 1);
+  for(var i=newItems.length-1; i>=0; i--){
+    this.splice( index, 0, newItems[i] );
+  }
+}
+
 function Profile(name, format, parentDefaultItemStyle, childDefaultItemStyle, parentIndent_chars, childIndent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, mdSyntax, findReplace, fragment){
 	this.name= name,
 	this.format = format,
@@ -830,12 +842,12 @@ var defaultSTYLESHEET={
 	rtf : {
 		Normal : new Style_rtf("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Note : new Style_rtf("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Heading1 : new Style_rtf("Heading1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE"),
-		Heading2 : new Style_rtf("Heading2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE"),
-		Heading3 : new Style_rtf("Heading3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE"),
-		Heading4 : new Style_rtf("Heading4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
-		Heading5 : new Style_rtf("Heading5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
-		Heading6 : new Style_rtf("Heading6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Heading1 : new Style_rtf("Heading 1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE"),
+		Heading2 : new Style_rtf("Heading 2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE"),
+		Heading3 : new Style_rtf("Heading 3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE"),
+		Heading4 : new Style_rtf("Heading 4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Heading5 : new Style_rtf("Heading 5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Heading6 : new Style_rtf("Heading 6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
 		Item : "Item1",
 		Item1 : new Style_rtf("Item1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
 		Item2 : new Style_rtf("Item2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
@@ -981,7 +993,7 @@ var STYLESHEET = {
 		var str = "{\\stylesheet";
 		for(var key in this){
 			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
-				str += "{" + this[key].toString() + " " + key + ";}";
+				str += "{" + this[key].toString() + " " + this[key].name + ";}";
 			}
 		}
 		str += "}";
