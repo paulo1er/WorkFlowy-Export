@@ -43,10 +43,19 @@
 												<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
 												<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
 											</span>
-											<span class="input-group-btn pull-right">
-												<button id="update" type="button" class="btn btn-primary pull-right">Reload WorkFlowy <i class="glyphicon glyphicon-refresh"></i></button>
+
+
+										  <div class="btn-group pull-right" role="group">
+										    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+										      Reload <i class="glyphicon glyphicon-refresh"></i> <span class="caret"></span>
+										    </button>
+    										<ul class="dropdown-menu">
+													<li><a id="update">Reload WorkFlowy</a></li>
+													<li><a id="importOPML">Import OPML</a></li>
+										    </ul>
 												<div hidden id="fileName"></div>
-											</span>
+												<input type="file" id="fileOPML" style="display:none">
+										  </div>
 										</div>
 									</div>
 								</div>
@@ -509,6 +518,7 @@
 		<script type="text/javascript" src="js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="js/Object.js"></script>
 		<script type="text/javascript" src="js/popup2.js"></script>
+		<script type="text/javascript" src="js/import_OPML.js"></script>
 		<script type="text/javascript" src="js/export_lib.js"></script>
 	</body>
 </html>

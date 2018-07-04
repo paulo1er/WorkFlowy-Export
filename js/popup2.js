@@ -483,6 +483,26 @@ var popup2 = (function() {
 						});
 					}
 
+					function updateOPML(textOPML){
+						loading(function(callback){
+							var response = import_OPML(textOPML);
+							g_nodes = response.content;
+							g_title = response.title;
+							g_url = response.url;
+							g_email= response.email;
+							exportText();
+							return callback();
+						});
+					}
+
+					function readOPML(file){
+						var fr = new FileReader();
+						fr.onload = function(e) {
+							updateOPML(e.target.result);
+						}
+						fr.readAsText(file);
+					}
+
 					function replaceProfile(newProfileName, applyForAllNewProfile=false){
 						profileList[newProfileName] = copy(conflictProfileList[0][1]);
 						updateProfileChoice();
@@ -640,6 +660,9 @@ var popup2 = (function() {
 							$("#importFile").click();
 						});
 
+						$("#importOPML").click(function(){
+							$("#fileOPML").click();
+						});
 
 						$("#newProfileReplace").click(function(){
 							replaceProfile($("#renameNewProfile").val(), $("#applyForAllNewProfile").prop('checked'))
@@ -665,6 +688,10 @@ var popup2 = (function() {
 							conflictProfileList = [];
 						});
 
+						$("#fileOPML").change(function(){
+							readOPML($('#fileOPML').prop('files')[0]);
+							$("#fileOPML").val('');
+						});
 
 						$("#importFile").change(function(){
 							console.log("#importFile change");
