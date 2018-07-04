@@ -6,8 +6,8 @@ function import_OPML(textOPML) {
 		e.each(function(){
 			list.push({
 				type: 'node',
-				title: textToTextExportedList($(this).attr('text')),
-				note: textToTextExportedList($(this).attr('_note')),
+				title: textToTextExportedList(($(this).attr('text') || "")),
+				note: textToTextExportedList(($(this).attr('_note') || "")),
 				url: '',
 				level: level,
 				children: []
@@ -93,7 +93,6 @@ function import_OPML(textOPML) {
 		var doctype = document.implementation.createDocumentType( 'opml', '', '');
 		var dom = document.implementation.createDocument('', 'opml', doctype);
 		dom.documentElement.innerHTML = textOPML.replace('<?xml version="1.0"?>', '').replace('<opml version="2.0">', '').replace('</opml>', '');
-
 		return getContent(dom);
 	}
 
