@@ -136,7 +136,7 @@ var popup2 = (function() {
 								conflictProfileList.push([newkey, newProfileList[newkey]])
 							}
 							else
-								profileList[newkey]=copy(newProfileList[newkey]);
+								profileList[newkey]=new Profile(newProfileList[newkey]);
 								updateProfileChoice();
 						});
 						continueSolverConflictProfile();
@@ -163,7 +163,7 @@ var popup2 = (function() {
 				    	}
 						}
 						chrome.storage.sync.set({'profileList' : profileList}, function() {});
-						$("#profileList").val(curent_profile.name);
+						$("#profileName").val(curent_profile.name);
 					}
 
 					function updadeForm(profile){
@@ -223,7 +223,7 @@ var popup2 = (function() {
 
 					//save the form for create or update a preset of options
 					function saveProfile(newProfileName){
-						if(newProfileName != ""){
+						if(newProfileName != "" && newProfileName != "undifined"){
 							curent_profile.name = newProfileName;
 							changeFormat();
 							var idnull=curent_profile.findReplace.indexOf(null);
@@ -231,9 +231,9 @@ var popup2 = (function() {
 								curent_profile.findReplace.splice(idnull,1);
 								idnull=curent_profile.findReplace.indexOf(null);
 							};
-							profileList[curent_profile.name] = copy(curent_profile);
+							profileList[curent_profile.name] = new Profile(curent_profile);
 							updateProfileChoice();
-							$("#profileList").val(curent_profile.name);
+							$("#profileName").val(curent_profile.name);
 						}
 					}
 
@@ -242,8 +242,8 @@ var popup2 = (function() {
 						if(curent_profile.name!="list"){
 							delete profileList[curent_profile.name];
 							updateProfileChoice();
-							$("#profileList").val("list");
-							curent_profile = copy(profileList["list"]);
+							$("#profileName").val("list");
+							curent_profile = new Profile(profileList["list"]);
 							updadeForm(curent_profile);
 						}
 					}
@@ -415,6 +415,7 @@ var popup2 = (function() {
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 						curent_profile.mdSyntax = document.getElementById("mdSyntax").checked;
 						curent_profile.fragment = document.getElementById("fragment").checked;
+						console.log(curent_profile);
 					};
 
 					//export the nodes in the textArea in the popup
@@ -422,12 +423,18 @@ var popup2 = (function() {
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $("#textArea");
 						console.log("TEST", g_nodes);
-						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), copy(curent_profile), g_title, g_email);
+						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), new Profile(curent_profile), g_title, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
 						$("#url").attr("href",g_url).text(g_url);
 						chrome.storage.sync.set({'curent_profile' : curent_profile});
+						if(!isEqual(curent_profile, profileList[curent_profile.name])){
+							$("#profileName").val("undifined");
+						}
+						else{
+							$("#profileName").val(curent_profile.name);
+						}
 						if(refreshOptions["autoCopy"]){
 							copyToClipboard(text);
 						}
@@ -504,7 +511,7 @@ var popup2 = (function() {
 					}
 
 					function replaceProfile(newProfileName, applyForAllNewProfile=false){
-						profileList[newProfileName] = copy(conflictProfileList[0][1]);
+						profileList[newProfileName] = new Profile(conflictProfileList[0][1]);
 						updateProfileChoice();
 						conflictProfileList.shift();
 						if(applyForAllNewProfile){
@@ -522,12 +529,12 @@ var popup2 = (function() {
 							while(keys.includes(newkey + " " + i)){
 								i++;
 							}
-							profileList[newkey + " " + i] = copy(conflictProfileList[0][1]);
+							profileList[newkey + " " + i] = new Profile(conflictProfileList[0][1]);
 							updateProfileChoice();
 							conflictProfileList.shift();
 						}
 						else {
-							profileList[newkey] = copy(conflictProfileList[0][1]);
+							profileList[newkey] = new Profile(conflictProfileList[0][1]);
 							updateProfileChoice();
 							conflictProfileList.shift();
 						}
@@ -604,25 +611,41 @@ var popup2 = (function() {
 
 						$("#addFindReplace").click(addFindReplace);
 
-						$("#newProfile").click(function() {
-							$("#modalNewProfile").modal("show");
+						$("#saveProfile").click(function() {
+							$("#modalSaveProfile").modal("show");
+							var profileNameList = [];
+							for( var p in profileList) profileNameList.push(p);
+							autocomplete( $("#inputSaveProfile")[0], profileNameList);
 						});
 
-						$("#saveProfile").click(function() {
-							saveProfile($("#profileList").val());
+						$("#validateSaveProfile").click(function() {
+							var newProfileName = $("#inputSaveProfile").val();
+							if(newProfileName != "" && newProfileName != "undifined"){
+								$("#inputSaveProfile").parent().removeClass("has-error");
+								$("#modalSaveProfile").modal("hide");
+								saveProfile(newProfileName);
+							}
+							else{
+								$("#inputSaveProfile").parent().addClass("has-error");
+							}
+						});
+
+						$("#loadProfile").click(function() {
+							$("#modalLoadProfile").modal("show");
+						});
+
+						$("#validateLoadProfile").click(function() {
+							$("#modalLoadProfile").modal("hide");
+							$("#profileName").val($("#profileList").val());
+							curent_profile = new Profile(profileList[$("#profileList").val()]);
+							updadeForm(curent_profile);
+							autoReload();
 						});
 
 						$("#formOutputFormat input, #formDefaultItemStyle input, #formIndentation input, #formOptions input").change(autoReload);
 
-						$("#saveNewProfile").click(function() {
-							if(document.getElementById('inputNewProfile').value != ""){
-								$("#modalNewProfile").modal('hide');
-								saveProfile(document.getElementById('inputNewProfile').value);
-							}
-						});
-
 						$("#deleteProfile").click(function(){
-							if(curent_profile.name!="list"){
+							if(curent_profile.name!="list" && $("#profileName") != "undifined"){
 								$("#nameDeleteProfile").text(curent_profile.name);
 								$("#modalDeleteProfile").modal("show");
 							}
@@ -631,13 +654,6 @@ var popup2 = (function() {
 						$("#yesDeleteProfile").click(function(){
 							removeProfile();
 							$("#modalDeleteProfile").modal("hide");
-							autoReload();
-						});
-
-						$("#profileList").change(function(){
-							curent_profile.name = $("#profileList").val();
-							curent_profile = copy(profileList[curent_profile.name]);
-							updadeForm(curent_profile);
 							autoReload();
 						});
 
@@ -790,9 +806,10 @@ var popup2 = (function() {
 						setEventListers();
 
 					}
+
 					function initialization(){
 						profileList = initProfileList(storageS.profileList);
-						curent_profile = initCurentProfile(storageS.curent_profile, profileList);
+						curent_profile = initCurentProfile(storageS.curent_profile);
 						conflictProfileList=[];
 
 						textAreaStyle = initTextAreaStyle(storageL.textAreaStyle);
@@ -805,6 +822,7 @@ var popup2 = (function() {
 
 						initHTML();
 					}
+
 					var profileList, curent_profile, conflictProfileList;
 					var textAreaStyle, refreshOptions, windowSize, previusWindowWidth;
 					var hideForm, hideProfileList;

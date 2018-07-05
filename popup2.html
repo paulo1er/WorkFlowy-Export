@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>WorkFlowy Export</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/popup2.css" rel="stylesheet">
 	</head>
 	<body>
 		<div id="messages" class="container" style="min-width:100%; padding:0;">
@@ -314,9 +315,9 @@
 									<div class="container-fluid" id="divProfileList">
 										<div class="input-group">
 											<span class="input-group-addon">Profile Name</span>
-											<select id="profileList" class="form-control"></select>
+											<input type="text" id="profileName" class="form-control" readonly>
 											<span class="input-group-btn">
-												<button id="newProfile" type="button" class="btn btn-success">New</button>
+												<button id="loadProfile" type="button" class="btn btn-success">Load</button>
 												<button id="saveProfile" type="button"  class="btn btn-success">Save</button>
 												<button id="deleteProfile" type="button" class="btn btn-warning">Delete</button>
 											</span>
@@ -339,19 +340,38 @@
 					</div>
 				</div>
 			</div>
-			<div id="modalNewProfile" class="modal fade" role="dialog">
+			<div id="modalLoadProfile" class="modal fade" role="dialog">
 			  <div class="modal-dialog">
 					<div class="modal-content">
 			      <div class="modal-header">
-			        <button type="button" class="close" data-dismiss="modal" id="cancelNewProfile">&times;</button>
-			        <h4 class="modal-title">New profile</h4>
+			        <button type="button" class="close" data-dismiss="modal" id="cancelLoadProfile">&times;</button>
+			        <h4 class="modal-title">Load profile</h4>
 			      </div>
 			      <div class="modal-body">
 							<div class="input-group">
 								<span class="input-group-addon">Profile Name</span>
-								<input type="text" id="inputNewProfile" class="form-control">
+								<select id="profileList" class="form-control"></select>
 								<span class="input-group-btn">
-									<button id="saveNewProfile" type="button"  class="btn btn-success">Save</button>
+									<button id="validateLoadProfile" type="button"  class="btn btn-success">Validate</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="modalSaveProfile" class="modal fade" role="dialog">
+			  <div class="modal-dialog">
+					<div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" id="cancelNewProfile">&times;</button>
+			        <h4 class="modal-title">Save profile</h4>
+			      </div>
+			      <div class="modal-body">
+							<div class="input-group">
+								<span class="input-group-addon">Profile Name</span>
+								<input type="text" id="inputSaveProfile" class="form-control autocomplete">
+								<span class="input-group-btn">
+									<button id="validateSaveProfile" type="button"  class="btn btn-success">Save</button>
 								</span>
 							</div>
 						</div>
