@@ -35,7 +35,7 @@ var popup2 = (function() {
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
-			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize", "hideForm", "hideProfileList"], function(storageL) {
+			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize", "hideForm", "hideProfileList", "hideFindAndReplace"], function(storageL) {
 				chrome.storage.sync.get(['profileList', 'curent_profile'], function(storageS) {
 
 
@@ -168,31 +168,31 @@ var popup2 = (function() {
 
 					function updadeForm(profile){
 
-						document.getElementById(profile.format).checked = true;
-						if($("#opml").is(':checked')){
-							$("#formDefaultItemStyle input").prop("disabled", true);
-							$("#parentNone").prop("checked", true);
-							$("#childNone").prop("checked", true);
+						$("#formatOptions").val(profile.format);
+
+						if($("#formatOptions").val() == "opml"){
+							$("#formDefaultItemStyle select").prop("disabled", true);
+							$("#parentDefaultItemStyle").val("None");
+							$("#childDefaultItemStyle").val("None");
 							$("#parentBulletCaracter").hide();
 							$("#childBulletCaracter").hide();
-							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 						}
 						else{
-							$("#formDefaultItemStyle input").prop("disabled", false);
-							$("[name=TxtDefaultItemStyle]").css('color', '');
+							$("#formDefaultItemStyle select").prop("disabled", false);
 						}
 
-						document.getElementById("parent"+profile.parentDefaultItemStyle).checked = true
-						if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
+						$("#parentDefaultItemStyle").val(profile.parentDefaultItemStyle);
+						if(	($("#parentDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 							$("#parentBulletCaracter").show();
 						else
 							$("#parentBulletCaracter").hide();
 
-						document.getElementById("child"+profile.childDefaultItemStyle).checked = true
-						if($("#childBullet").is(':checked') && $("#text").is(':checked'))
+						$("#childDefaultItemStyle").val(profile.childDefaultItemStyle);
+						if( ($("#childDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 							$("#childBulletCaracter").show();
 						else
 							$("#childBulletCaracter").hide();
+
 
 
 						document.getElementById("wfeRules").checked = profile.applyWFERules;
@@ -201,15 +201,16 @@ var popup2 = (function() {
 						document.getElementById("mdSyntax").checked = profile.mdSyntax;
 						document.getElementById("fragment").checked = profile.fragment;
 						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
+
 						switch (profile.prefix_indent_chars) {
 							case "\t":
-								document.getElementById('tab').checked = true;
+								$('#indentOptions').val('tab');
 								break;
 							case "  ":
-								document.getElementById('space').checked = true;
+								$('#indentOptions').val('space');
 								break;
 							case "":
-								document.getElementById('withoutIndent').checked = true;
+								$('#indentOptions').val('none');
 								break;
 						}
 						document.getElementById("parentIndentOther").value = profile.parentIndent_chars;
@@ -238,9 +239,9 @@ var popup2 = (function() {
 					}
 
 					//delete a preset of option
-					function removeProfile(){
-						if(curent_profile.name!="list"){
-							delete profileList[curent_profile.name];
+					function removeProfile(name){
+						if(name!="list" && profileList.hasOwnProperty(name)){
+							delete profileList[name];
 							updateProfileChoice();
 							$("#profileName").val("list");
 							curent_profile = new Profile(profileList["list"]);
@@ -365,33 +366,21 @@ var popup2 = (function() {
 					// change curent_profile with the value enter in the form
 					function changeFormat() {
 
-						var formatOptions = document.getElementsByName('formatOptions');
-						for ( var i = 0; i < formatOptions.length; i++) {
-				    	if(formatOptions[i].checked) {
-								curent_profile.format = formatOptions[i].value;
-				        break;
-				    	}
-						}
+						curent_profile.format = $("#formatOptions").val();
 
-						curent_profile.parentDefaultItemStyle = $("input[name='parentDefaultItemStyle']:checked").val();
-						curent_profile.childDefaultItemStyle = $("input[name='childDefaultItemStyle']:checked").val();
+						curent_profile.parentDefaultItemStyle = $("#parentDefaultItemStyle").val();
+						curent_profile.childDefaultItemStyle = $("#childDefaultItemStyle").val();
 
-						var indentOptions = document.getElementsByName('indentOptions');
-						for ( var i = 0; i < indentOptions.length; i++) {
-							if(indentOptions[i].checked) {
-								switch (indentOptions[i].value) {
-									case "tab":
-										curent_profile.prefix_indent_chars = "\t";
-										break;
-									case "space":
-										curent_profile.prefix_indent_chars = "  ";
-										break;
-									case "withoutIndent":
-										curent_profile.prefix_indent_chars = "";
-										break;
-								}
+						switch ($("#indentOptions").val()) {
+							case "tab":
+								curent_profile.prefix_indent_chars = "\t";
 								break;
-							}
+							case "space":
+								curent_profile.prefix_indent_chars = "  ";
+								break;
+							case "none":
+								curent_profile.prefix_indent_chars = "";
+								break;
 						}
 
 						if(curent_profile.parentDefaultItemStyle == "Bullet")
@@ -429,11 +418,12 @@ var popup2 = (function() {
 						$("#title").text(g_title);
 						$("#url").attr("href",g_url).text(g_url);
 						chrome.storage.sync.set({'curent_profile' : curent_profile});
-						if(!isEqual(curent_profile, profileList[curent_profile.name])){
-							$("#profileName").val("undifined");
+						if(isEqual(curent_profile, profileList[curent_profile.name])){
+							$("#profileName").val(curent_profile.name);
 						}
 						else{
-							$("#profileName").val(curent_profile.name);
+							$("#profileName").val("undifined");
+							console.log('TTTTTTT', curent_profile, profileList[curent_profile.name]);
 						}
 						if(refreshOptions["autoCopy"]){
 							copyToClipboard(text);
@@ -582,27 +572,25 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("#formOutputFormat input, #formDefaultItemStyle input").change("change", function() {
+						$("#formOutputFormat select, #formDefaultItemStyle input, #formDefaultItemStyle select").change("change", function() {
 
-							if($("#opml").is(':checked')){
-								$("#formDefaultItemStyle input").prop("disabled", true);
-								$("#parentNone").prop("checked", true);
-								$("#childNone").prop("checked", true);
+							if($("#formatOptions").val() == "opml"){
+								$("#formDefaultItemStyle select").prop("disabled", true);
+								$("#parentDefaultItemStyle").val("None");
+								$("#childDefaultItemStyle").val("None");
 								$("#parentBulletCaracter").hide();
 								$("#childBulletCaracter").hide();
-								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 							}
 							else{
-								$("#formDefaultItemStyle input").prop("disabled", false);
-								$("[name=TxtDefaultItemStyle]").css('color', '');
+								$("#formDefaultItemStyle select").prop("disabled", false);
 							}
 
-							if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
+							if(	($("#parentDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 								$("#parentBulletCaracter").show();
 							else
 								$("#parentBulletCaracter").hide();
 
-							if($("#childBullet").is(':checked') && $("#text").is(':checked'))
+							if( ($("#childDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 								$("#childBulletCaracter").show();
 							else
 								$("#childBulletCaracter").hide();
@@ -642,17 +630,17 @@ var popup2 = (function() {
 							autoReload();
 						});
 
-						$("#formOutputFormat input, #formDefaultItemStyle input, #formIndentation input, #formOptions input").change(autoReload);
+						$("#formOutputFormat select, #formDefaultItemStyle input, #formDefaultItemStyle select, #formIndentation select, #formOptions input").change(autoReload);
 
 						$("#deleteProfile").click(function(){
-							if(curent_profile.name!="list" && $("#profileName") != "undifined"){
+							if(curent_profile.name!="list" && isEqual(curent_profile, profileList[curent_profile.name])){
 								$("#nameDeleteProfile").text(curent_profile.name);
 								$("#modalDeleteProfile").modal("show");
 							}
 						});
 
 						$("#yesDeleteProfile").click(function(){
-							removeProfile();
+							removeProfile(curent_profile.name);
 							$("#modalDeleteProfile").modal("hide");
 							autoReload();
 						});
@@ -732,11 +720,11 @@ var popup2 = (function() {
 						$("#hideForm").click(function(){
 							$("#form").slideToggle("slow", function(){
 								if($("#form").is(":visible")){
-									$("#hideForm").html('<i class="glyphicon glyphicon-minus"></i');
+									$("#hideForm").html('<i class="glyphicon glyphicon-triangle-top"></i');
 									hideForm = false;
 								}
 								else{
-									$("#hideForm").html('<i class="glyphicon glyphicon-plus"></i');
+									$("#hideForm").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 									hideForm = true;
 								}
 					      chrome.storage.local.set({'hideForm' : hideForm});
@@ -747,14 +735,29 @@ var popup2 = (function() {
 						$("#hideProfileList").click(function(){
 							$("#divProfileList").slideToggle("slow", function(){
 								if($("#divProfileList").is(":visible")){
-									$("#hideProfileList").html('<i class="glyphicon glyphicon-minus"></i');
+									$("#hideProfileList").html('<i class="glyphicon glyphicon-triangle-top"></i');
 									hideProfileList = false;
 								}
 								else{
-									$("#hideProfileList").html('<i class="glyphicon glyphicon-plus"></i');
+									$("#hideProfileList").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 									hideProfileList = true;
 								}
 					      chrome.storage.local.set({'hideProfileList' : hideProfileList});
+								sizeOfExportArea();
+							});
+						});
+
+						$("#hideFindAndReplace").click(function(){
+							$("#contentFindAndReplace").slideToggle("slow", function(){
+								if($("#contentFindAndReplace").is(":visible")){
+									$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-top"></i');
+									hideFindAndReplace = false;
+								}
+								else{
+									$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
+									hideFindAndReplace = true;
+								}
+					      chrome.storage.local.set({'hideFindAndReplace' : hideFindAndReplace});
 								sizeOfExportArea();
 							});
 						});
@@ -793,11 +796,15 @@ var popup2 = (function() {
 
 						if(hideForm){
 							$("#form").hide();
-							$("#hideForm").html('<i class="glyphicon glyphicon-plus"></i');
+							$("#hideForm").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 						}
 						if(hideProfileList){
 							$("#divProfileList").hide();
-							$("#hideProfileList").html('<i class="glyphicon glyphicon-plus"></i');
+							$("#hideProfileList").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
+						}
+						if(hideFindAndReplace){
+							$("#contentFindAndReplace").hide();
+							$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 						}
 
 						sizeOfExportArea();
@@ -809,7 +816,9 @@ var popup2 = (function() {
 
 					function initialization(){
 						profileList = initProfileList(storageS.profileList);
+						console.log("storageS.curent_profile", storageS.curent_profile);
 						curent_profile = initCurentProfile(storageS.curent_profile);
+						console.log("storageS.curent_profile", storageS.curent_profile, curent_profile);
 						conflictProfileList=[];
 
 						textAreaStyle = initTextAreaStyle(storageL.textAreaStyle);
@@ -819,13 +828,14 @@ var popup2 = (function() {
 
 						hideForm = initHideForm(storageL.hideForm);
 						hideProfileList = initHideProfileList(storageL.hideProfileList);
+						hideFindAndReplace = initHideFindAndReplace(storageL.hideFindAndReplace);
 
 						initHTML();
 					}
 
 					var profileList, curent_profile, conflictProfileList;
 					var textAreaStyle, refreshOptions, windowSize, previusWindowWidth;
-					var hideForm, hideProfileList;
+					var hideForm, hideProfileList, hideFindAndReplace;
 					var g_nodes = response.content;
 					var g_title = response.title;
 					var g_url = response.url;

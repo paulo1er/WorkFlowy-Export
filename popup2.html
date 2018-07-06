@@ -68,7 +68,7 @@
 
 							<div class="panel panel-info">
 								<div class="panel-heading text-center" style="padding:5px;">
-									<button id="hideForm" type="button" class="close"><i class="glyphicon glyphicon-minus"></i></button>
+									<button id="hideForm" type="button" class="close btn-sm"><i class="glyphicon glyphicon-triangle-top"></i></button>
 									<h5>Current profile</h5>
 								</div>
 								<div class="panel-body">
@@ -76,51 +76,65 @@
 										<div class="row">
 											<div class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
 											<div id="formOutputFormat" class="well">
-												<p class="text-center">Output Format</p>
 												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-													  <input type="radio" id="text" name="formatOptions" class="form-check-input with-gap" value="text">
-													</span>
-												  <label class="form-control" for="text">Text</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-													  <input type="radio" id="opml" name="formatOptions" class="form-check-input with-gap" value="opml">
-													</span>
-												  <label class="form-control" for="opml">OPML</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-												  	<input type="radio" id="html" name="formatOptions" class="form-check-input with-gap" value="html">
-													</span>
-												  <label class="form-control" for="html">HTML</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="radio" id="markdown" name="formatOptions" class="form-check-input with-gap" value="markdown">
-													</span>
-												  <label class="form-control" for="markdown">Markdown</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-													  <input type="radio" id="rtf" name="formatOptions" class="form-check-input with-gap" value="rtf">
-													</span>
-												  <label class="form-control" for="rtf">Rich Text (RTF)</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-													  <input type="radio" id="latex" name="formatOptions" class="form-check-input with-gap" value="latex">
-													</span>
-												  <label class="form-control" for="latex">LaTeX Report</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-												  	<input type="radio" id="beamer" name="formatOptions" class="form-check-input with-gap" value="beamer">
-													</span>
-												  <label class="form-control" for="beamer">LaTeX Beamer</label>
+													<label class="input-group-addon" for="formatOptions">Output Format</label>
+													<select id="formatOptions" class="form-control">
+												    <option value="text" label="Text"></option>
+												    <option value="opml" label="OPML"></option>
+														<option value="html" label="HTML"></option>
+												    <option value="markdown" label="Markdown"></option>
+														<option value="rtf" label="Rich Text (RTF)"></option>
+														<option value="latex" label="LaTeX Report"></option>
+												    <option value="beamer" label="LaTeX Beame"></option>
+													</select>
 												</div>
 											</div>
+											<div id="formIndentation" class="well">
+												<div class="input-group input-group-sm">
+													<label class="input-group-addon" for="indentOptions">Indentation</label>
+													<select id="indentOptions" class="form-control">
+												    <option value="tab" label="Tabulation"></option>
+												    <option value="space" label="Space"></option>
+														<option value="none" label="None"></option>
+													</select>
+												</div>
+											</div>
+											<div id="formDefaultItemStyle" class="well">
+												<p class="text-center" name="TxtDefaultItemStyle">Default Item Style</p>
+												<div class="input-group input-group-sm">
+													<label class="input-group-addon" for="parentDefaultItemStyle">Has nested items</label>
+													<select id="parentDefaultItemStyle" class="form-control">
+												    <option value="Heading" label="Heading"></option>
+												    <option value="Bullet" label="Bullet"></option>
+														<option value="Enumeration" label="Enumeration"></option>
+														<option value="None" label="None"></option>
+													</select>
+												</div>
+												<div class="input-group input-group-sm" id="parentBulletCaracter">
+													<span class="input-group-addon">
+														Bullet Character :
+													</span>
+													<input type="text" id="parentIndentOther" maxlength="1" class="form-control">
+												</div>
+												<div class="input-group input-group-sm">
+													<label class="input-group-addon" for="childDefaultItemStyle">Is terminal item&nbsp; &nbsp;</label>
+													<select id="childDefaultItemStyle" class="form-control">
+												    <option value="Heading" label="Heading"></option>
+												    <option value="Bullet" label="Bullet"></option>
+														<option value="Enumeration" label="Enumeration"></option>
+														<option value="None" label="None"></option>
+													</select>
+												</div>
+												<div class="input-group input-group-sm" id="childBulletCaracter">
+													<span class="input-group-addon">
+														Bullet Character :
+													</span>
+													<input type="text" id="childIndentOther" maxlength="1" class="form-control">
+												</div>
+											</div>
+											</div>
 
+											<div class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
 											<div id="formOptions" class="well">
 												<p class="text-center">Options</p>
 												<div class="input-group input-group-sm">
@@ -161,143 +175,55 @@
 												</div>
 											</div>
 											</div>
-
-											<div class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
-											<div id="formDefaultItemStyle" class="well">
-												<p class="text-center" name="TxtDefaultItemStyle">Default Item Style</p>
-												<div class="well">
-													<p class="text-center" name="TxtDefaultItemStyle">If item has nested items, use:</p>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-														  <input type="radio" id="parentHeading" name="parentDefaultItemStyle" class="form-check-input with-gap" value="Heading">
-														</span>
-													  <label class="form-control" for="parentHeading" name="TxtDefaultItemStyle">Heading</label>
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-													  	<input type="radio" id="parentBullet" name="parentDefaultItemStyle" class="form-check-input with-gap" value="Bullet">
-														</span>
-													  <label class="form-control" for="parentBullet" name="TxtDefaultItemStyle">Bullet</label>
-													</div>
-													<div class="input-group input-group-sm" id="parentBulletCaracter">
-														<span class="input-group-addon">
-															Bullet Character :
-														</span>
-														<input type="text" id="parentIndentOther" maxlength="1" class="form-control">
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-													  	<input type="radio" id="parentEnumeration" name="parentDefaultItemStyle" class="form-check-input with-gap" value="Enumeration">
-														</span>
-													  <label class="form-control" for="parentEnumeration" name="TxtDefaultItemStyle">Enumeration</label>
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-															<input type="radio" id="parentNone" name="parentDefaultItemStyle" class="form-check-input with-gap" value="None">
-														</span>
-													  <label class="form-control" for="parentNone" name="TxtDefaultItemStyle">None</label>
-													</div>
-												</div>
-												<div class="well">
-													<p class="text-center" name="TxtDefaultItemStyle">If item is terminal item, use:</p>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-														  <input type="radio" id="childHeading" name="childDefaultItemStyle" class="form-check-input with-gap" value="Heading">
-														</span>
-													  <label class="form-control" for="childHeading" name="TxtDefaultItemStyle">Heading</label>
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-													  	<input type="radio" id="childBullet" name="childDefaultItemStyle" class="form-check-input with-gap" value="Bullet">
-														</span>
-													  <label class="form-control" for="childBullet" name="TxtDefaultItemStyle">Bullet</label>
-													</div>
-													<div class="input-group input-group-sm" id="childBulletCaracter">
-														<span class="input-group-addon">
-															Bullet Character :
-														</span>
-														<input type="text" id="childIndentOther" maxlength="1" class="form-control">
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-													  	<input type="radio" id="childEnumeration" name="childDefaultItemStyle" class="form-check-input with-gap" value="Enumeration">
-														</span>
-													  <label class="form-control" for="childEnumeration" name="TxtDefaultItemStyle">Enumeration</label>
-													</div>
-													<div class="input-group input-group-sm">
-													  <span class="input-group-addon">
-															<input type="radio" id="childNone" name="childDefaultItemStyle" class="form-check-input with-gap" value="None">
-														</span>
-													  <label class="form-control" for="childNone" name="TxtDefaultItemStyle">None</label>
-													</div>
-												</div>
-											</div>
-											<div id="formIndentation" class="well">
-												<p class="text-center" name="TxtindentOptions">Indentation</p>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="radio" id="tab" name="indentOptions" class="form-check-input with-gap" value="tab">
-													</span>
-												  <label class="form-control" for="tab" name="TxtindentOptions">Tabulation</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="radio" id="space" name="indentOptions" class="form-check-input with-gap" value="space">
-													</span>
-												  <label class="form-control" for="space" name="TxtindentOptions">Space</label>
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="radio" id="withoutIndent" name="indentOptions" class="form-check-input with-gap" value="withoutIndent">
-													</span>
-												  <label class="form-control" for="withoutIndent" name="TxtindentOptions">None</label>
-												</div>
-											</div>
-											</div>
 										</div>
 										<div class="row">
-											<div id="formFindAndReplace" class="well col-xs-12 col-sm-12 col-md-12 col-lg-12">
-												<p class="text-center">Find and Replace</p>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">Find :</span>
-													<input type="text" id="find" class="form-control">
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														Replace :
-													</span>
-													<input type="text" id="replace" class="form-control">
-												</div>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="checkbox" id="regex" class="form-check-input">
-													</span>
-												  <label class="form-control" for="regex">Regex</label>
-												  <span class="input-group-addon">
-														<input type="checkbox" id="matchCase" class="form-check-input">
-													</span>
-												  <label class="form-control" for="matchCase">Match Case</label>
-													<div class="input-group-btn">
-														<button id="addFindReplace" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
+											<div id="formFindAndReplace" class="well col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-bottom:0;">
+												<p class="text-center">
+													Find and Replace
+										      <button type="button" class="close" id="hideFindAndReplace"><i class="glyphicon glyphicon-triangle-top"></i></button>
+												</p>
+												<div id="contentFindAndReplace">
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">Find :</span>
+														<input type="text" id="find" class="form-control">
 													</div>
-												</div>
-												</br>
-												<div class="table-responsive text-center small">
-													<table id="findReplace" class="table table-sm table-bordered table-striped" style"width:100%;">
-														<thead>
-															<tr>
-																<th scope="col">#</th>
-																<th scope="col">Find</th>
-																<th scope="col">Replace</th>
-																<th scope="col">Regex</th>
-																<th scope="col">Match Case</th>
-																<th scope="col">Modify</th>
-																<th scope="col">Delete</th>
-															</tr>
-														</thead>
-														<tbody>
-														</tbody>
-													</table>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+															Replace :
+														</span>
+														<input type="text" id="replace" class="form-control">
+													</div>
+													<div class="input-group input-group-sm">
+													  <span class="input-group-addon">
+															<input type="checkbox" id="regex" class="form-check-input">
+														</span>
+													  <label class="form-control" for="regex">Regex</label>
+													  <span class="input-group-addon">
+															<input type="checkbox" id="matchCase" class="form-check-input">
+														</span>
+													  <label class="form-control" for="matchCase">Match Case</label>
+														<div class="input-group-btn">
+															<button id="addFindReplace" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i></button>
+														</div>
+													</div>
+													</br>
+													<div class="table-responsive text-center small">
+														<table id="findReplace" class="table table-sm table-bordered table-striped" style"width:100%;">
+															<thead>
+																<tr>
+																	<th scope="col">#</th>
+																	<th scope="col">Find</th>
+																	<th scope="col">Replace</th>
+																	<th scope="col">Regex</th>
+																	<th scope="col">Match Case</th>
+																	<th scope="col">Modify</th>
+																	<th scope="col">Delete</th>
+																</tr>
+															</thead>
+															<tbody>
+															</tbody>
+														</table>
+													</div>
 												</div>
 											</div>
 										</div>
@@ -308,7 +234,7 @@
 				      <div class="panel panel-info" id='profileSelect'>
 								<input type="file" id="importFile" value="Import" style="display:none">
 				        <div class="panel-heading text-center" style="padding:5px;">
-									<button id="hideProfileList" type="button" class="close"><i class="glyphicon glyphicon-minus"></i></button>
+									<button id="hideProfileList" type="button" class="close btn-sm"><i class="glyphicon glyphicon-triangle-top"></i></button>
 									<h5>Profiles List</h5>
 				        </div>
 				        <div class="panel-body">

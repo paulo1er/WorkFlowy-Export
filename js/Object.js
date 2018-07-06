@@ -16,20 +16,20 @@ Array.prototype.replace = function(item, newItems) {
 
 class Profile{
   constructor(p){
-  	this.name= p.name || "undifined",
-  	this.format = p.format || "text",
-  	this.parentDefaultItemStyle = p.parentDefaultItemStyle || "None",
-  	this.childDefaultItemStyle = p.childDefaultItemStyle || "None",
-  	this.parentIndent_chars = p.parentIndent_chars || "",
-  	this.childIndent_chars = p.childIndent_chars || "",
-  	this.prefix_indent_chars = p.prefix_indent_chars || "\t",
-  	this.item_sep = p.item_sep || "\n",
-  	this.applyWFERules = p.applyWFERules || false,
-  	this.outputNotes = p.outputNotes || false,
-  	this.ignore_tags = p.ignore_tags || true,
-  	this.mdSyntax = p.mdSyntax || false,
-  	this.findReplace = copy(p.findReplace || []),
-  	this.fragment = p.fragment || false
+  	this.name= ((p.name!=null) ? p.name : "undifined"),
+  	this.format = ((p.format!=null) ? p.format : "text"),
+  	this.parentDefaultItemStyle = ((p.parentDefaultItemStyle!=null) ? p.parentDefaultItemStyle : "None"),
+  	this.childDefaultItemStyle = ((p.childDefaultItemStyle!=null) ? p.childDefaultItemStyle : "None"),
+  	this.parentIndent_chars = ((p.parentIndent_chars!=null) ? p.parentIndent_chars : ""),
+  	this.childIndent_chars = ((p.childIndent_chars!=null) ? p.childIndent_chars : ""),
+  	this.prefix_indent_chars = ((p.prefix_indent_chars!=null) ? p.prefix_indent_chars : "\t"),
+  	this.item_sep = ((p.item_sep!=null) ? p.item_sep : "\n"),
+  	this.applyWFERules = ((p.applyWFERules!=null) ? p.applyWFERules : false),
+  	this.outputNotes = ((p.outputNotes!=null) ? p.outputNotes : false),
+  	this.ignore_tags = ((p.ignore_tags!=null) ? p.ignore_tags : true),
+  	this.mdSyntax = ((p.mdSyntax!=null) ? p.mdSyntax : false),
+  	this.findReplace = copy(((p.findReplace!=null) ? p.findReplace : [])),
+  	this.fragment = ((p.fragment!=null) ? p.fragment : false)
   }
 }
 window.isEqual = function(a, b) {
@@ -38,17 +38,11 @@ window.isEqual = function(a, b) {
     if (typeof b[p] === 'undefined') {
       return false;
     }
-    if (b[p] && !a[p]) {
-      return false;
-    }
     t = typeof a[p];
     if (t === 'object' && !isEqual(a[p], b[p])) {
       return false;
     }
-    if (t === 'function' && (typeof b[p] === 'undefined' || a[p].toString() !== b[p].toString())) {
-      return false;
-    }
-    if (t !== 'object' &&  a[p] !== b[p]) {
+    if (t !== 'object' && t !== 'function' &&  a[p] !== b[p]) {
       return false;
     }
   }
@@ -373,6 +367,21 @@ function initHideProfileList(storageHideProfileList){
     r=false;
     chrome.storage.local.set({'hideProfileList' : r}, function() {
       console.log("hideProfileList init");
+    });
+  }
+	return r;
+}
+
+
+function initHideFindAndReplace(storageHideFindAndReplace){
+	var r;
+  if(storageHideFindAndReplace){
+    r = storageHideFindAndReplace;
+  }
+  else {
+    r=false;
+    chrome.storage.local.set({'hideFindAndReplace' : r}, function() {
+      console.log("hideFindAndReplace init");
     });
   }
 	return r;
