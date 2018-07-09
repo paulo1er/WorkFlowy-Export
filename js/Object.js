@@ -748,7 +748,34 @@ class Style_html extends Style{
 		this.tag = tag;
 	}
 	toString(defaultStyle){
-			var str = "";
+      if(!defaultStyle) {
+        switch (this.tag){
+          case "h1" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 9.38, 9.38, "ARIAL", 28, false, false, false, "BLACK", "WHITE", "h1");
+            break;
+          case "h2" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 11.62, 11.62, "ARIAL", 21, false, false, false, "BLACK", "WHITE", "h2");
+            break;
+          case "h3" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 16.38, false, false, false, "BLACK", "WHITE", "h3");
+            break;
+          case "h4" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 18.62, 18.62, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "h4");
+            break;
+          case "h5" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 23.38, 23.38, "ARIAL", 11.62, false, false, false, "BLACK", "WHITE", "h5");
+            break;
+          case "h6" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 32.62, 32.62, "ARIAL", 9.38, false, false, false, "BLACK", "WHITE", "h6");
+            break;
+          case "li" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "li");
+            break;
+          default :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p");
+        }
+		  }
+      var str = "";
 			if(!defaultStyle || this.aligement!=defaultStyle.aligement) str += {left:"text-align: left;  ", right:"text-align: right; ", center:"text-align: center; ", justified:"text-align: justify; "}[this.aligement];
 			if(!defaultStyle || this.indentation_first_line!=defaultStyle.indentation_first_line) str += "text-indent: "+this.indentation_first_line+"px; ";
 			if(!defaultStyle || this.indentation_left!=defaultStyle.indentation_left) str += "margin-left: "+this.indentation_left+"px; ";
