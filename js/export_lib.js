@@ -592,7 +592,7 @@ var exportLib = function(nodes, options, title, email) {
 				textListApply(node.title, "".replace, [WF_TAG_REGEXP, ""]);
 				textListApply(node.note, "".replace, [WF_TAG_REGEXP, ""]);
 			}
-			
+
 			node.title=insertObj(node.title, regexCodeLatex, CodeLatex);
 			node.note=insertObj(node.note, regexCodeLatex, CodeLatex);
 

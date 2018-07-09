@@ -14,23 +14,47 @@ Array.prototype.replace = function(item, newItems) {
   }
 }
 
-function Profile(name, format, parentDefaultItemStyle, childDefaultItemStyle, parentIndent_chars, childIndent_chars, prefix_indent_chars, item_sep, applyWFERules, outputNotes, ignore_tags, mdSyntax, findReplace, fragment){
-	this.name= name,
-	this.format = format,
-	this.parentDefaultItemStyle = parentDefaultItemStyle,
-	this.childDefaultItemStyle = childDefaultItemStyle,
-	this.parentIndent_chars = parentIndent_chars,
-	this.childIndent_chars = childIndent_chars,
-	this.prefix_indent_chars = prefix_indent_chars,
-	this.item_sep = item_sep,
-	this.applyWFERules = applyWFERules,
-	this.outputNotes = outputNotes,
-	this.ignore_tags = ignore_tags,
-	this.mdSyntax = mdSyntax,
-	this.findReplace = copy(findReplace),
-	this.fragment = fragment
+class Profile{
+  constructor(p){
+  	this.name= ((p.name!=null) ? p.name : "undifined"),
+  	this.format = ((p.format!=null) ? p.format : "text"),
+  	this.parentDefaultItemStyle = ((p.parentDefaultItemStyle!=null) ? p.parentDefaultItemStyle : "None"),
+  	this.childDefaultItemStyle = ((p.childDefaultItemStyle!=null) ? p.childDefaultItemStyle : "None"),
+  	this.parentIndent_chars = ((p.parentIndent_chars!=null) ? p.parentIndent_chars : ""),
+  	this.childIndent_chars = ((p.childIndent_chars!=null) ? p.childIndent_chars : ""),
+  	this.prefix_indent_chars = ((p.prefix_indent_chars!=null) ? p.prefix_indent_chars : "\t"),
+  	this.item_sep = ((p.item_sep!=null) ? p.item_sep : "\n"),
+  	this.applyWFERules = ((p.applyWFERules!=null) ? p.applyWFERules : false),
+  	this.outputNotes = ((p.outputNotes!=null) ? p.outputNotes : false),
+  	this.ignore_tags = ((p.ignore_tags!=null) ? p.ignore_tags : true),
+  	this.mdSyntax = ((p.mdSyntax!=null) ? p.mdSyntax : false),
+  	this.findReplace = copy(((p.findReplace!=null) ? p.findReplace : [])),
+  	this.fragment = ((p.fragment!=null) ? p.fragment : false)
+  }
+}
+window.isEqual = function(a, b) {
+  var p, t;
+  if((!a && b) || (a && !b))
+    return false;
+  for (p in a) {
+    if (typeof b[p] === 'undefined') {
+      return false;
+    }
+    t = typeof a[p];
+    if (t === 'object' && !isEqual(a[p], b[p])) {
+      return false;
+    }
+    if (t !== 'object' && t !== 'function' &&  a[p] !== b[p]) {
+      return false;
+    }
+  }
+  for (p in b) {
+    if (typeof a[p] === 'undefined') {
+      return false;
+    }
+  }
+  return true;
 };
-
 var FindReplace = function(txtFind, txtReplace, isRegex, isMatchCase){
 	this.txtReplace = txtReplace;
 	this.txtFind = txtFind;
@@ -228,17 +252,23 @@ function extensionFileName(format){
 
 function initProfileList(storageProfileList=null){
 	var r;
-	if(storageProfileList){
-		r=copy(storageProfileList);
+	if(storageProfileList && "object" == typeof storageProfileList){
+    r = {};
+    for (var attr in storageProfileList) {
+        if (storageProfileList.hasOwnProperty(attr)){
+          console.log(storageProfileList[attr]);
+         r[attr] = new Profile(storageProfileList[attr]);
+       }
+    }
 	}
 	else{
 		r = {
-			"list" : new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false),
-			"HTML doc" : new Profile("HTML doc", "html", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
-			"RTF doc" : new Profile("RTF doc", "rtf", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
-			"LaTeX Report" : new Profile("LaTeX Report", "latex", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
-			"OPML" : new Profile("OPML", "opml", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false),
-			"LaTeX Beamer" : new Profile("LaTeX Beamer", "beamer", "None", "None", "", "", "\t", "\n", true, false, true, true, [], false)
+			"list" : new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false}),
+			"HTML doc" : new Profile({name: "HTML doc", format: "html", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
+			"RTF doc" : new Profile({name: "RTF doc", format: "rtf", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
+			"LaTeX Report" : new Profile({name: "LaTeX Report", format: "latex", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
+			"OPML" : new Profile({name: "OPML", format: "opml", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
+			"LaTeX Beamer" : new Profile({name: "LaTeX Beamer", format: "beamer", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true,mdSyntax:  true, findReplace: [], fragment: false})
 		};
 		chrome.storage.sync.set({'profileList' : r}, function() {
 			console.log("profileList init");
@@ -247,16 +277,18 @@ function initProfileList(storageProfileList=null){
 	return r;
 }
 
-function initCurentProfile(storageCurentProfile=null, profileList=null){
+function initCurentProfile(storageCurentProfile=null){
 	var r;
-	if(storageCurentProfile && profileList && profileList[storageCurentProfile.name]){
-		r = copy(profileList[storageCurentProfile.name]);
-	}
-	else if(storageCurentProfile && !profileList){
-		r = storageCurentProfile;
+  if(storageCurentProfile){
+    var findReplace=[];
+    storageCurentProfile.findReplace.forEach(function(e, id){
+      if(e!=null) findReplace.push(e);
+    });
+    storageCurentProfile.findReplace=findReplace;
+		r = new Profile(storageCurentProfile);
 	}
 	else{
-		r = new Profile("list", "text", "None", "None", "", "", "\t", "\n", false, false, true, false, [], false),
+		r = new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false}),
 		chrome.storage.sync.set({'curent_profile' : r}, function() {
 			console.log("curent_profile init");
 		});
@@ -342,6 +374,21 @@ function initHideProfileList(storageHideProfileList){
     r=false;
     chrome.storage.local.set({'hideProfileList' : r}, function() {
       console.log("hideProfileList init");
+    });
+  }
+	return r;
+}
+
+
+function initHideFindAndReplace(storageHideFindAndReplace){
+	var r;
+  if(storageHideFindAndReplace){
+    r = storageHideFindAndReplace;
+  }
+  else {
+    r=false;
+    chrome.storage.local.set({'hideFindAndReplace' : r}, function() {
+      console.log("hideFindAndReplace init");
     });
   }
 	return r;
@@ -708,7 +755,34 @@ class Style_html extends Style{
 		this.tag = tag;
 	}
 	toString(defaultStyle){
-			var str = "";
+      if(!defaultStyle) {
+        switch (this.tag){
+          case "h1" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 9.38, 9.38, "ARIAL", 28, false, false, false, "BLACK", "WHITE", "h1");
+            break;
+          case "h2" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 11.62, 11.62, "ARIAL", 21, false, false, false, "BLACK", "WHITE", "h2");
+            break;
+          case "h3" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 16.38, false, false, false, "BLACK", "WHITE", "h3");
+            break;
+          case "h4" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 18.62, 18.62, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "h4");
+            break;
+          case "h5" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 23.38, 23.38, "ARIAL", 11.62, false, false, false, "BLACK", "WHITE", "h5");
+            break;
+          case "h6" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 32.62, 32.62, "ARIAL", 9.38, false, false, false, "BLACK", "WHITE", "h6");
+            break;
+          case "li" :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "li");
+            break;
+          default :
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p");
+        }
+		  }
+      var str = "";
 			if(!defaultStyle || this.aligement!=defaultStyle.aligement) str += {left:"text-align: left;  ", right:"text-align: right; ", center:"text-align: center; ", justified:"text-align: justify; "}[this.aligement];
 			if(!defaultStyle || this.indentation_first_line!=defaultStyle.indentation_first_line) str += "text-indent: "+this.indentation_first_line+"px; ";
 			if(!defaultStyle || this.indentation_left!=defaultStyle.indentation_left) str += "margin-left: "+this.indentation_left+"px; ";
@@ -1019,3 +1093,72 @@ var STYLESHEET = {
 };
 
 var STYLESHEETused = copy(STYLESHEET);
+
+
+
+
+function autocomplete(inp, arr) {
+  var currentFocus;
+  inp.addEventListener("input", function(e) {
+      var a, b, i, val = this.value;
+      closeAllLists();
+      if (!val) { return false;}
+      currentFocus = -1;
+      a = document.createElement("DIV");
+      a.setAttribute("id", this.id + "autocomplete-list");
+      a.setAttribute("class", "autocomplete-items");
+      this.parentNode.appendChild(a);
+      for (i = 0; i < arr.length; i++) {
+        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          b = document.createElement("DIV");
+          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+          b.innerHTML += arr[i].substr(val.length);
+          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+          b.addEventListener("click", function(e) {
+              inp.value = this.getElementsByTagName("input")[0].value;
+              closeAllLists();
+          });
+          a.appendChild(b);
+        }
+      }
+  });
+  inp.addEventListener("keydown", function(e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        currentFocus++;
+        addActive(x);
+      } else if (e.keyCode == 38) {
+        currentFocus--;
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        e.preventDefault();
+        if (currentFocus > -1) {
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+  function addActive(x) {
+    if (!x) return false;
+    removeActive(x);
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    x[currentFocus].classList.add("autocomplete-active");
+  }
+  function removeActive(x) {
+    for (var i = 0; i < x.length; i++) {
+      x[i].classList.remove("autocomplete-active");
+    }
+  }
+  function closeAllLists(elmnt) {
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+      if (elmnt != x[i] && elmnt != inp) {
+        x[i].parentNode.removeChild(x[i]);
+      }
+    }
+  }
+  document.addEventListener("click", function (e) {
+      closeAllLists(e.target);
+      });
+}

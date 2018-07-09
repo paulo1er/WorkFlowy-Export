@@ -35,7 +35,7 @@ var popup2 = (function() {
 		chrome.tabs.sendMessage(currentTabId, {
 			request: 'getTopic'
 		}, function(response) {
-			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize", "hideForm", "hideProfileList"], function(storageL) {
+			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize", "hideForm", "hideProfileList", "hideFindAndReplace"], function(storageL) {
 				chrome.storage.sync.get(['profileList', 'curent_profile'], function(storageS) {
 
 
@@ -136,7 +136,7 @@ var popup2 = (function() {
 								conflictProfileList.push([newkey, newProfileList[newkey]])
 							}
 							else
-								profileList[newkey]=copy(newProfileList[newkey]);
+								profileList[newkey]=new Profile(newProfileList[newkey]);
 								updateProfileChoice();
 						});
 						continueSolverConflictProfile();
@@ -163,36 +163,36 @@ var popup2 = (function() {
 				    	}
 						}
 						chrome.storage.sync.set({'profileList' : profileList}, function() {});
-						$("#profileList").val(curent_profile.name);
+						$("#profileName").val(curent_profile.name);
 					}
 
 					function updadeForm(profile){
 
-						document.getElementById(profile.format).checked = true;
-						if($("#opml").is(':checked')){
-							$("#formDefaultItemStyle input").prop("disabled", true);
-							$("#parentNone").prop("checked", true);
-							$("#childNone").prop("checked", true);
+						$("#formatOptions").val(profile.format);
+
+						if($("#formatOptions").val() == "opml"){
+							$("#formDefaultItemStyle select").prop("disabled", true);
+							$("#parentDefaultItemStyle").val("None");
+							$("#childDefaultItemStyle").val("None");
 							$("#parentBulletCaracter").hide();
 							$("#childBulletCaracter").hide();
-							$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 						}
 						else{
-							$("#formDefaultItemStyle input").prop("disabled", false);
-							$("[name=TxtDefaultItemStyle]").css('color', '');
+							$("#formDefaultItemStyle select").prop("disabled", false);
 						}
 
-						document.getElementById("parent"+profile.parentDefaultItemStyle).checked = true
-						if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
+						$("#parentDefaultItemStyle").val(profile.parentDefaultItemStyle);
+						if(	($("#parentDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 							$("#parentBulletCaracter").show();
 						else
 							$("#parentBulletCaracter").hide();
 
-						document.getElementById("child"+profile.childDefaultItemStyle).checked = true
-						if($("#childBullet").is(':checked') && $("#text").is(':checked'))
+						$("#childDefaultItemStyle").val(profile.childDefaultItemStyle);
+						if( ($("#childDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 							$("#childBulletCaracter").show();
 						else
 							$("#childBulletCaracter").hide();
+
 
 
 						document.getElementById("wfeRules").checked = profile.applyWFERules;
@@ -201,15 +201,16 @@ var popup2 = (function() {
 						document.getElementById("mdSyntax").checked = profile.mdSyntax;
 						document.getElementById("fragment").checked = profile.fragment;
 						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
+
 						switch (profile.prefix_indent_chars) {
 							case "\t":
-								document.getElementById('tab').checked = true;
+								$('#indentOptions').val('tab');
 								break;
 							case "  ":
-								document.getElementById('space').checked = true;
+								$('#indentOptions').val('space');
 								break;
 							case "":
-								document.getElementById('withoutIndent').checked = true;
+								$('#indentOptions').val('none');
 								break;
 						}
 						document.getElementById("parentIndentOther").value = profile.parentIndent_chars;
@@ -219,11 +220,14 @@ var popup2 = (function() {
 						profile.findReplace.forEach(function(e, id){
 							addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 						});
+
+						$("#panelForm").data("finalHeight",$("#panelForm").height());
+						sizeOfExportArea(false);
 					}
 
 					//save the form for create or update a preset of options
 					function saveProfile(newProfileName){
-						if(newProfileName != ""){
+						if(newProfileName != "" && newProfileName != "undifined"){
 							curent_profile.name = newProfileName;
 							changeFormat();
 							var idnull=curent_profile.findReplace.indexOf(null);
@@ -231,19 +235,19 @@ var popup2 = (function() {
 								curent_profile.findReplace.splice(idnull,1);
 								idnull=curent_profile.findReplace.indexOf(null);
 							};
-							profileList[curent_profile.name] = copy(curent_profile);
+							profileList[curent_profile.name] = new Profile(curent_profile);
 							updateProfileChoice();
-							$("#profileList").val(curent_profile.name);
+							$("#profileName").val(curent_profile.name);
 						}
 					}
 
 					//delete a preset of option
-					function removeProfile(){
-						if(curent_profile.name!="list"){
-							delete profileList[curent_profile.name];
+					function removeProfile(name){
+						if(name!="list" && profileList.hasOwnProperty(name)){
+							delete profileList[name];
 							updateProfileChoice();
-							$("#profileList").val("list");
-							curent_profile = copy(profileList["list"]);
+							$("#profileName").val("list");
+							curent_profile = new Profile(profileList["list"]);
 							updadeForm(curent_profile);
 						}
 					}
@@ -263,7 +267,9 @@ var popup2 = (function() {
 
 							document.getElementById("find").value = "";
 							document.getElementById("replace").value = "";
-							sizeOfExportArea();
+
+							$("#panelForm").data("finalHeight",$("#panelForm").height());
+							sizeOfExportArea(false);
 							autoReload();
 						}
 					}
@@ -344,7 +350,9 @@ var popup2 = (function() {
 						curent_profile.findReplace[index]=null;
 						document.getElementById("findReplace" + index).remove();
 						console.log("curent_profile.findReplace", curent_profile.findReplace);
-						sizeOfExportArea();
+
+						$("#panelForm").data("finalHeight",$("#panelForm").height());
+						sizeOfExportArea(false);
 						if(refreshOptions["autoReload"]){
 							changeFormat();
 							loading(function(callback){
@@ -365,33 +373,21 @@ var popup2 = (function() {
 					// change curent_profile with the value enter in the form
 					function changeFormat() {
 
-						var formatOptions = document.getElementsByName('formatOptions');
-						for ( var i = 0; i < formatOptions.length; i++) {
-				    	if(formatOptions[i].checked) {
-								curent_profile.format = formatOptions[i].value;
-				        break;
-				    	}
-						}
+						curent_profile.format = $("#formatOptions").val();
 
-						curent_profile.parentDefaultItemStyle = $("input[name='parentDefaultItemStyle']:checked").val();
-						curent_profile.childDefaultItemStyle = $("input[name='childDefaultItemStyle']:checked").val();
+						curent_profile.parentDefaultItemStyle = $("#parentDefaultItemStyle").val();
+						curent_profile.childDefaultItemStyle = $("#childDefaultItemStyle").val();
 
-						var indentOptions = document.getElementsByName('indentOptions');
-						for ( var i = 0; i < indentOptions.length; i++) {
-							if(indentOptions[i].checked) {
-								switch (indentOptions[i].value) {
-									case "tab":
-										curent_profile.prefix_indent_chars = "\t";
-										break;
-									case "space":
-										curent_profile.prefix_indent_chars = "  ";
-										break;
-									case "withoutIndent":
-										curent_profile.prefix_indent_chars = "";
-										break;
-								}
+						switch ($("#indentOptions").val()) {
+							case "tab":
+								curent_profile.prefix_indent_chars = "\t";
 								break;
-							}
+							case "space":
+								curent_profile.prefix_indent_chars = "  ";
+								break;
+							case "none":
+								curent_profile.prefix_indent_chars = "";
+								break;
 						}
 
 						if(curent_profile.parentDefaultItemStyle == "Bullet")
@@ -415,6 +411,7 @@ var popup2 = (function() {
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 						curent_profile.mdSyntax = document.getElementById("mdSyntax").checked;
 						curent_profile.fragment = document.getElementById("fragment").checked;
+						console.log(curent_profile);
 					};
 
 					//export the nodes in the textArea in the popup
@@ -422,12 +419,19 @@ var popup2 = (function() {
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $("#textArea");
 						console.log("TEST", g_nodes);
-						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), copy(curent_profile), g_title, g_email);
+						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), new Profile(curent_profile), g_title, g_email);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
 						$("#url").attr("href",g_url).text(g_url);
 						chrome.storage.sync.set({'curent_profile' : curent_profile});
+						if(isEqual(curent_profile, profileList[curent_profile.name])){
+							$("#profileName").val(curent_profile.name);
+						}
+						else{
+							$("#profileName").val("undifined");
+							console.log('TTTTTTT', curent_profile, profileList[curent_profile.name]);
+						}
 						if(refreshOptions["autoCopy"]){
 							copyToClipboard(text);
 						}
@@ -436,19 +440,25 @@ var popup2 = (function() {
 						}
 					};
 
-					function sizeOfExportArea(){
+					function sizeOfExportArea(animate){
 						if(window.innerWidth >= 992){
-
-							var textAreaSize = $("#panelForm").height() - $("#panelTextArea").outerHeight(true) + $("#panelTextArea").height() - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
+							console.log($("#panelForm").data("finalHeight") , "TEST");
+							var textAreaSize = $("#panelForm").data("finalHeight") - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
 							if(textAreaSize > 200)
-								$("#textArea").height(textAreaSize);
+								$("#textArea").animate({
+        					height: textAreaSize+'px'
+    						}, animate ? 500 : 0);
 							else
-								$("#textArea").height(200);
+								$("#textArea").animate({
+        					height: '200px'
+    						}, animate ? 500 : 0);
 
 							$("#textArea").css("resize", "none");
 						}
 						else{
-							$("#textArea").height(200);
+							$("#textArea").animate({
+								height: '200px'
+							}, animate ? 500 : 0);
 							$("#textArea").css("resize", "vertical");
 						}
 					}
@@ -483,8 +493,28 @@ var popup2 = (function() {
 						});
 					}
 
+					function updateOPML(textOPML){
+						loading(function(callback){
+							var response = import_OPML(textOPML);
+							g_nodes = response.content;
+							g_title = response.title;
+							g_url = response.url;
+							g_email= response.email;
+							exportText();
+							return callback();
+						});
+					}
+
+					function readOPML(file){
+						var fr = new FileReader();
+						fr.onload = function(e) {
+							updateOPML(e.target.result);
+						}
+						fr.readAsText(file);
+					}
+
 					function replaceProfile(newProfileName, applyForAllNewProfile=false){
-						profileList[newProfileName] = copy(conflictProfileList[0][1]);
+						profileList[newProfileName] = new Profile(conflictProfileList[0][1]);
 						updateProfileChoice();
 						conflictProfileList.shift();
 						if(applyForAllNewProfile){
@@ -502,12 +532,12 @@ var popup2 = (function() {
 							while(keys.includes(newkey + " " + i)){
 								i++;
 							}
-							profileList[newkey + " " + i] = copy(conflictProfileList[0][1]);
+							profileList[newkey + " " + i] = new Profile(conflictProfileList[0][1]);
 							updateProfileChoice();
 							conflictProfileList.shift();
 						}
 						else {
-							profileList[newkey] = copy(conflictProfileList[0][1]);
+							profileList[newkey] = new Profile(conflictProfileList[0][1]);
 							updateProfileChoice();
 							conflictProfileList.shift();
 						}
@@ -555,27 +585,25 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("#formOutputFormat input, #formDefaultItemStyle input").change("change", function() {
+						$("#formOutputFormat select, #formDefaultItemStyle input, #formDefaultItemStyle select").change("change", function() {
 
-							if($("#opml").is(':checked')){
-								$("#formDefaultItemStyle input").prop("disabled", true);
-								$("#parentNone").prop("checked", true);
-								$("#childNone").prop("checked", true);
+							if($("#formatOptions").val() == "opml"){
+								$("#formDefaultItemStyle select").prop("disabled", true);
+								$("#parentDefaultItemStyle").val("None");
+								$("#childDefaultItemStyle").val("None");
 								$("#parentBulletCaracter").hide();
 								$("#childBulletCaracter").hide();
-								$("[name=TxtDefaultItemStyle]").css('color', 'grey');
 							}
 							else{
-								$("#formDefaultItemStyle input").prop("disabled", false);
-								$("[name=TxtDefaultItemStyle]").css('color', '');
+								$("#formDefaultItemStyle select").prop("disabled", false);
 							}
 
-							if($("#parentBullet").is(':checked') && $("#text").is(':checked'))
+							if(	($("#parentDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 								$("#parentBulletCaracter").show();
 							else
 								$("#parentBulletCaracter").hide();
 
-							if($("#childBullet").is(':checked') && $("#text").is(':checked'))
+							if( ($("#childDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
 								$("#childBulletCaracter").show();
 							else
 								$("#childBulletCaracter").hide();
@@ -584,40 +612,49 @@ var popup2 = (function() {
 
 						$("#addFindReplace").click(addFindReplace);
 
-						$("#newProfile").click(function() {
-							$("#modalNewProfile").modal("show");
-						});
-
 						$("#saveProfile").click(function() {
-							saveProfile($("#profileList").val());
+							$("#modalSaveProfile").modal("show");
+							var profileNameList = [];
+							for( var p in profileList) profileNameList.push(p);
+							autocomplete( $("#inputSaveProfile")[0], profileNameList);
 						});
 
-						$("#formOutputFormat input, #formDefaultItemStyle input, #formIndentation input, #formOptions input").change(autoReload);
-
-						$("#saveNewProfile").click(function() {
-							if(document.getElementById('inputNewProfile').value != ""){
-								$("#modalNewProfile").modal('hide');
-								saveProfile(document.getElementById('inputNewProfile').value);
+						$("#validateSaveProfile").click(function() {
+							var newProfileName = $("#inputSaveProfile").val();
+							if(newProfileName != "" && newProfileName != "undifined"){
+								$("#inputSaveProfile").parent().removeClass("has-error");
+								$("#modalSaveProfile").modal("hide");
+								saveProfile(newProfileName);
+							}
+							else{
+								$("#inputSaveProfile").parent().addClass("has-error");
 							}
 						});
 
+						$("#loadProfile").click(function() {
+							$("#modalLoadProfile").modal("show");
+						});
+
+						$("#validateLoadProfile").click(function() {
+							$("#modalLoadProfile").modal("hide");
+							$("#profileName").val($("#profileList").val());
+							curent_profile = new Profile(profileList[$("#profileList").val()]);
+							updadeForm(curent_profile);
+							autoReload();
+						});
+
+						$("#formOutputFormat select, #formDefaultItemStyle input, #formDefaultItemStyle select, #formIndentation select, #formOptions input").change(autoReload);
+
 						$("#deleteProfile").click(function(){
-							if(curent_profile.name!="list"){
+							if(curent_profile.name!="list" && isEqual(curent_profile, profileList[curent_profile.name])){
 								$("#nameDeleteProfile").text(curent_profile.name);
 								$("#modalDeleteProfile").modal("show");
 							}
 						});
 
 						$("#yesDeleteProfile").click(function(){
-							removeProfile();
+							removeProfile(curent_profile.name);
 							$("#modalDeleteProfile").modal("hide");
-							autoReload();
-						});
-
-						$("#profileList").change(function(){
-							curent_profile.name = $("#profileList").val();
-							curent_profile = copy(profileList[curent_profile.name]);
-							updadeForm(curent_profile);
 							autoReload();
 						});
 
@@ -640,6 +677,9 @@ var popup2 = (function() {
 							$("#importFile").click();
 						});
 
+						$("#importOPML").click(function(){
+							$("#fileOPML").click();
+						});
 
 						$("#newProfileReplace").click(function(){
 							replaceProfile($("#renameNewProfile").val(), $("#applyForAllNewProfile").prop('checked'))
@@ -665,6 +705,10 @@ var popup2 = (function() {
 							conflictProfileList = [];
 						});
 
+						$("#fileOPML").change(function(){
+							readOPML($('#fileOPML').prop('files')[0]);
+							$("#fileOPML").val('');
+						});
 
 						$("#importFile").change(function(){
 							console.log("#importFile change");
@@ -687,33 +731,71 @@ var popup2 = (function() {
 						});
 
 						$("#hideForm").click(function(){
-							$("#form").slideToggle("slow", function(){
+
+							if($("#form").is(":visible")){
+								$("#panelForm").data("finalHeight",$("#panelForm").height() - $("#form").height());
+							}
+							else{
+								$("#panelForm").data("finalHeight",$("#panelForm").height() + $("#form").height());
+							}
+							$("#form").slideToggle(500, function(){
 								if($("#form").is(":visible")){
-									$("#hideForm").html('<i class="glyphicon glyphicon-minus"></i');
+									$("#hideForm").html('<i class="glyphicon glyphicon-triangle-top"></i');
 									hideForm = false;
 								}
 								else{
-									$("#hideForm").html('<i class="glyphicon glyphicon-plus"></i');
+									$("#hideForm").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 									hideForm = true;
 								}
 					      chrome.storage.local.set({'hideForm' : hideForm});
-								sizeOfExportArea();
 							});
+							sizeOfExportArea(true);
 						});
 
 						$("#hideProfileList").click(function(){
-							$("#divProfileList").slideToggle("slow", function(){
+
+							if($("#divProfileList").is(":visible")){
+								$("#panelForm").data("finalHeight",$("#panelForm").height() - $("#divProfileList").height());
+							}
+							else{
+								$("#panelForm").data("finalHeight",$("#panelForm").height() + $("#divProfileList").height());
+							}
+
+							$("#divProfileList").slideToggle(500, function(){
 								if($("#divProfileList").is(":visible")){
-									$("#hideProfileList").html('<i class="glyphicon glyphicon-minus"></i');
+									$("#hideProfileList").html('<i class="glyphicon glyphicon-triangle-top"></i');
 									hideProfileList = false;
 								}
 								else{
-									$("#hideProfileList").html('<i class="glyphicon glyphicon-plus"></i');
+									$("#hideProfileList").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 									hideProfileList = true;
 								}
 					      chrome.storage.local.set({'hideProfileList' : hideProfileList});
-								sizeOfExportArea();
 							});
+							sizeOfExportArea(true);
+						});
+
+						$("#hideFindAndReplace").click(function(){
+
+							if($("#contentFindAndReplace").is(":visible")){
+								$("#panelForm").data("finalHeight",$("#panelForm").height() - $("#contentFindAndReplace").height());
+							}
+							else{
+								$("#panelForm").data("finalHeight",$("#panelForm").height() + $("#contentFindAndReplace").height());
+							}
+
+							$("#contentFindAndReplace").slideToggle(500, function(){
+								if($("#contentFindAndReplace").is(":visible")){
+									$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-top"></i');
+									hideFindAndReplace = false;
+								}
+								else{
+									$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
+									hideFindAndReplace = true;
+								}
+					      chrome.storage.local.set({'hideFindAndReplace' : hideFindAndReplace});
+							});
+							sizeOfExportArea(true);
 						});
 
 						$(window).resize(function() {
@@ -724,10 +806,14 @@ var popup2 = (function() {
 				        console.log("save new windowSize");
 				      });
 
-							if(window.innerWidth>=992 && previusWindowWidth<992)
-  							sizeOfExportArea();
-							else if (window.innerWidth<992 && previusWindowWidth>=992)
-  							sizeOfExportArea();
+							if(window.innerWidth>=992 && previusWindowWidth<992){
+								$("#panelForm").data("finalHeight",$("#panelForm").height());
+  							sizeOfExportArea(false);
+							}
+							else if (window.innerWidth<992 && previusWindowWidth>=992){
+								$("#panelForm").data("finalHeight",$("#panelForm").height());
+  							sizeOfExportArea(false);
+							}
 							previusWindowWidth=window.innerWidth;
 						});
 
@@ -750,22 +836,30 @@ var popup2 = (function() {
 
 						if(hideForm){
 							$("#form").hide();
-							$("#hideForm").html('<i class="glyphicon glyphicon-plus"></i');
+							$("#hideForm").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 						}
 						if(hideProfileList){
 							$("#divProfileList").hide();
-							$("#hideProfileList").html('<i class="glyphicon glyphicon-plus"></i');
+							$("#hideProfileList").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
+						}
+						if(hideFindAndReplace){
+							$("#contentFindAndReplace").hide();
+							$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 						}
 
-						sizeOfExportArea();
+						$("#panelForm").data("finalHeight",$("#panelForm").height());
+						sizeOfExportArea(false);
 
 						exportText();
 						setEventListers();
 
 					}
+
 					function initialization(){
 						profileList = initProfileList(storageS.profileList);
-						curent_profile = initCurentProfile(storageS.curent_profile, profileList);
+						console.log("storageS.curent_profile", storageS.curent_profile);
+						curent_profile = initCurentProfile(storageS.curent_profile);
+						console.log("storageS.curent_profile", storageS.curent_profile, curent_profile);
 						conflictProfileList=[];
 
 						textAreaStyle = initTextAreaStyle(storageL.textAreaStyle);
@@ -775,12 +869,14 @@ var popup2 = (function() {
 
 						hideForm = initHideForm(storageL.hideForm);
 						hideProfileList = initHideProfileList(storageL.hideProfileList);
+						hideFindAndReplace = initHideFindAndReplace(storageL.hideFindAndReplace);
 
 						initHTML();
 					}
+
 					var profileList, curent_profile, conflictProfileList;
 					var textAreaStyle, refreshOptions, windowSize, previusWindowWidth;
-					var hideForm, hideProfileList;
+					var hideForm, hideProfileList, hideFindAndReplace;
 					var g_nodes = response.content;
 					var g_title = response.title;
 					var g_url = response.url;
