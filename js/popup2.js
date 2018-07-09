@@ -442,8 +442,16 @@ var popup2 = (function() {
 
 					function sizeOfExportArea(animate){
 						if(window.innerWidth >= 992){
-							console.log($("#panelForm").data("finalHeight") , "TEST");
-							var textAreaSize = $("#panelForm").data("finalHeight") - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
+							var $body = $("#body");
+
+							var $heading = $("#heading");
+							var $content = $("#content");
+							var $footer = $("#footer");
+							var contentHeight = window.innerHeight - $heading.outerHeight(true) - $content.outerHeight(true) + $content.height() - $footer.outerHeight(true);
+							$("#content").animate({
+								height : ((contentHeight>$("#panelForm").data("finalHeight")) ? contentHeight : $("#panelForm").data("finalHeight")) +"px"
+							}, animate ? 500 : 0);
+							var textAreaSize = ((contentHeight>$("#panelForm").data("finalHeight")) ? contentHeight : $("#panelForm").data("finalHeight")) - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
 							if(textAreaSize > 200)
 								$("#textArea").animate({
         					height: textAreaSize+'px'
@@ -460,6 +468,7 @@ var popup2 = (function() {
 								height: '200px'
 							}, animate ? 500 : 0);
 							$("#textArea").css("resize", "vertical");
+							$("#content").css("height","auto");
 						}
 					}
 
@@ -805,15 +814,8 @@ var popup2 = (function() {
 				      chrome.storage.local.set({'windowSize' : windowSize}, function() {
 				        console.log("save new windowSize");
 				      });
-
-							if(window.innerWidth>=992 && previusWindowWidth<992){
-								$("#panelForm").data("finalHeight",$("#panelForm").height());
-  							sizeOfExportArea(false);
-							}
-							else if (window.innerWidth<992 && previusWindowWidth>=992){
-								$("#panelForm").data("finalHeight",$("#panelForm").height());
-  							sizeOfExportArea(false);
-							}
+							$("#panelForm").data("finalHeight",$("#panelForm").height());
+							sizeOfExportArea(false);
 							previusWindowWidth=window.innerWidth;
 						});
 
@@ -890,7 +892,7 @@ var popup2 = (function() {
 
 	function loading(func){
 		var $loading = $("#loading");
-		var $content = $("#content");
+		var $content = $("#contentTextArea");
 		var $divTextArea = $("#divTextArea");
 		$divTextArea.height($divTextArea.height());
 		$content.hide();
