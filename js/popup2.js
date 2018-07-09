@@ -220,6 +220,9 @@ var popup2 = (function() {
 						profile.findReplace.forEach(function(e, id){
 							addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 						});
+
+						$("#panelForm").data("finalHeight",$("#panelForm").height());
+						sizeOfExportArea(false);
 					}
 
 					//save the form for create or update a preset of options
@@ -264,7 +267,9 @@ var popup2 = (function() {
 
 							document.getElementById("find").value = "";
 							document.getElementById("replace").value = "";
-							sizeOfExportArea();
+
+							$("#panelForm").data("finalHeight",$("#panelForm").height());
+							sizeOfExportArea(false);
 							autoReload();
 						}
 					}
@@ -345,7 +350,9 @@ var popup2 = (function() {
 						curent_profile.findReplace[index]=null;
 						document.getElementById("findReplace" + index).remove();
 						console.log("curent_profile.findReplace", curent_profile.findReplace);
-						sizeOfExportArea();
+
+						$("#panelForm").data("finalHeight",$("#panelForm").height());
+						sizeOfExportArea(false);
 						if(refreshOptions["autoReload"]){
 							changeFormat();
 							loading(function(callback){
@@ -433,19 +440,25 @@ var popup2 = (function() {
 						}
 					};
 
-					function sizeOfExportArea(){
+					function sizeOfExportArea(animate){
 						if(window.innerWidth >= 992){
-
-							var textAreaSize = $("#panelForm").height() - $("#panelTextArea").outerHeight(true) + $("#panelTextArea").height() - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
+							console.log($("#panelForm").data("finalHeight") , "TEST");
+							var textAreaSize = $("#panelForm").data("finalHeight") - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
 							if(textAreaSize > 200)
-								$("#textArea").height(textAreaSize);
+								$("#textArea").animate({
+        					height: textAreaSize+'px'
+    						}, animate ? 500 : 0);
 							else
-								$("#textArea").height(200);
+								$("#textArea").animate({
+        					height: '200px'
+    						}, animate ? 500 : 0);
 
 							$("#textArea").css("resize", "none");
 						}
 						else{
-							$("#textArea").height(200);
+							$("#textArea").animate({
+								height: '200px'
+							}, animate ? 500 : 0);
 							$("#textArea").css("resize", "vertical");
 						}
 					}
@@ -718,7 +731,14 @@ var popup2 = (function() {
 						});
 
 						$("#hideForm").click(function(){
-							$("#form").slideToggle("slow", function(){
+
+							if($("#form").is(":visible")){
+								$("#panelForm").data("finalHeight",$("#panelForm").height() - $("#form").height());
+							}
+							else{
+								$("#panelForm").data("finalHeight",$("#panelForm").height() + $("#form").height());
+							}
+							$("#form").slideToggle(500, function(){
 								if($("#form").is(":visible")){
 									$("#hideForm").html('<i class="glyphicon glyphicon-triangle-top"></i');
 									hideForm = false;
@@ -728,12 +748,20 @@ var popup2 = (function() {
 									hideForm = true;
 								}
 					      chrome.storage.local.set({'hideForm' : hideForm});
-								sizeOfExportArea();
 							});
+							sizeOfExportArea(true);
 						});
 
 						$("#hideProfileList").click(function(){
-							$("#divProfileList").slideToggle("slow", function(){
+
+							if($("#divProfileList").is(":visible")){
+								$("#panelForm").data("finalHeight",$("#panelForm").height() - $("#divProfileList").height());
+							}
+							else{
+								$("#panelForm").data("finalHeight",$("#panelForm").height() + $("#divProfileList").height());
+							}
+
+							$("#divProfileList").slideToggle(500, function(){
 								if($("#divProfileList").is(":visible")){
 									$("#hideProfileList").html('<i class="glyphicon glyphicon-triangle-top"></i');
 									hideProfileList = false;
@@ -743,12 +771,20 @@ var popup2 = (function() {
 									hideProfileList = true;
 								}
 					      chrome.storage.local.set({'hideProfileList' : hideProfileList});
-								sizeOfExportArea();
 							});
+							sizeOfExportArea(true);
 						});
 
 						$("#hideFindAndReplace").click(function(){
-							$("#contentFindAndReplace").slideToggle("slow", function(){
+
+							if($("#contentFindAndReplace").is(":visible")){
+								$("#panelForm").data("finalHeight",$("#panelForm").height() - $("#contentFindAndReplace").height());
+							}
+							else{
+								$("#panelForm").data("finalHeight",$("#panelForm").height() + $("#contentFindAndReplace").height());
+							}
+
+							$("#contentFindAndReplace").slideToggle(500, function(){
 								if($("#contentFindAndReplace").is(":visible")){
 									$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-top"></i');
 									hideFindAndReplace = false;
@@ -758,8 +794,8 @@ var popup2 = (function() {
 									hideFindAndReplace = true;
 								}
 					      chrome.storage.local.set({'hideFindAndReplace' : hideFindAndReplace});
-								sizeOfExportArea();
 							});
+							sizeOfExportArea(true);
 						});
 
 						$(window).resize(function() {
@@ -770,10 +806,14 @@ var popup2 = (function() {
 				        console.log("save new windowSize");
 				      });
 
-							if(window.innerWidth>=992 && previusWindowWidth<992)
-  							sizeOfExportArea();
-							else if (window.innerWidth<992 && previusWindowWidth>=992)
-  							sizeOfExportArea();
+							if(window.innerWidth>=992 && previusWindowWidth<992){
+								$("#panelForm").data("finalHeight",$("#panelForm").height());
+  							sizeOfExportArea(false);
+							}
+							else if (window.innerWidth<992 && previusWindowWidth>=992){
+								$("#panelForm").data("finalHeight",$("#panelForm").height());
+  							sizeOfExportArea(false);
+							}
 							previusWindowWidth=window.innerWidth;
 						});
 
@@ -807,7 +847,8 @@ var popup2 = (function() {
 							$("#hideFindAndReplace").html('<i class="glyphicon glyphicon-triangle-bottom"></i');
 						}
 
-						sizeOfExportArea();
+						$("#panelForm").data("finalHeight",$("#panelForm").height());
+						sizeOfExportArea(false);
 
 						exportText();
 						setEventListers();

@@ -34,6 +34,8 @@ class Profile{
 }
 window.isEqual = function(a, b) {
   var p, t;
+  if((!a && b) || (a && !b))
+    return false;
   for (p in a) {
     if (typeof b[p] === 'undefined') {
       return false;
@@ -278,6 +280,11 @@ function initProfileList(storageProfileList=null){
 function initCurentProfile(storageCurentProfile=null){
 	var r;
   if(storageCurentProfile){
+    var findReplace=[];
+    storageCurentProfile.findReplace.forEach(function(e, id){
+      if(e!=null) findReplace.push(e);
+    });
+    storageCurentProfile.findReplace=findReplace;
 		r = new Profile(storageCurentProfile);
 	}
 	else{
