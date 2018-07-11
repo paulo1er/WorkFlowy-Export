@@ -219,6 +219,8 @@ var exportLib = function(nodes, options, title, email) {
 		[/^\(i\) /, /^\(ii\) /, /^\(iii\) /, /^\(iv\) /, /^\(v\) /, /^\(vi\) /, /^\(vii\) /, /^\(viii\) /, /^\(ix\) /, /^\(x\) /, /^\(xi\) /, /^\(xii\) /, /^\(xiii\) /, /^\(xiv\) /, /^\(xv\) /, /^\(xvi\) /, /^\(xvii\) /, /^\(xviii\) /, /^\(xix\) /, /^\(xx\) /],
 	]
 	var ALIASmdSyntax_enumList_index = [0,0,0,0,0,0,0];
+	var ALIASmdSyntax_item = /^[\*|\-|\+] /;
+	var ALIASmdSyntax_item_index = 999;
 	var ALIASmdSyntax = [
 		[/^# /,"#wfe-style:Heading1 "],
 		[/^## /,"#wfe-style:Heading2 "],
@@ -226,9 +228,6 @@ var exportLib = function(nodes, options, title, email) {
 		[/^#### /,"#wfe-style:Heading4 "],
 		[/^##### /,"#wfe-style:Heading5 "],
 		[/^###### /,"#wfe-style:Heading6 "],
-		[/^\* /,"#wfe-style:Item1 "],
-		[/^\- /,"#wfe-style:Item1 "],
-		[/^\+ /,"#wfe-style:Item1 "],
 		[/^``` /,"#wfe-style:CodeBlock "]
 	];
 
@@ -569,6 +568,13 @@ var exportLib = function(nodes, options, title, email) {
 							}
 						}
 					});
+		      if(node.title[0] instanceof TextExported){
+		        if(ALIASmdSyntax_item.test(node.title[0].text)){
+							if(ALIASmdSyntax_item_index > node.level) ALIASmdSyntax_item_index = node.level;
+							node.title[0].text = node.title[0].text.replace(ALIASmdSyntax_item, "#wfe-style:Item"+(node.level+1 - ALIASmdSyntax_item_index)+" ");
+						}
+						else ALIASmdSyntax_item_index=999;
+					}
 					if(ALIASmdSyntax_enumList[0])
 					ALIASmdSyntax.forEach(function(e) {
 						textListApply(node.title, "".replace, [e[0], e[1]]);
@@ -715,6 +721,7 @@ var exportLib = function(nodes, options, title, email) {
 				indent = Array(node.style.level+1).join(options.prefix_indent_chars);
 				if(node.styleName == "Code") indent = Array(node.level+1).join(options.prefix_indent_chars);
 				if(node.styleName == "CodeBlock") output_after_children += "```\n\n";
+				console.log(indent, "WWWWWWWW", Array(node.level+1));
 				output += indent + node.style.toExport(text);
 				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 			}

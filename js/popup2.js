@@ -859,9 +859,6 @@ var popup2 = (function() {
 						$("#panelForm").data("finalHeight",$("#panelForm").height());
 						sizeOfExportArea(false);
 
-						exportText();
-						setEventListers();
-
 					}
 
 					function initialization(){
@@ -881,6 +878,8 @@ var popup2 = (function() {
 						hideFindAndReplace = initHideFindAndReplace(storageL.hideFindAndReplace);
 
 						initHTML();
+						exportText();
+						setEventListers();
 					}
 
 					var profileList, curent_profile, conflictProfileList;
