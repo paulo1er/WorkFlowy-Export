@@ -227,7 +227,7 @@ var popup2 = (function() {
 
 					//save the form for create or update a preset of options
 					function saveProfile(newProfileName){
-						if(newProfileName != "" && newProfileName != "undifined"){
+						if(newProfileName != "" && newProfileName != "undefined"){
 							curent_profile.name = newProfileName;
 							changeFormat();
 							var idnull=curent_profile.findReplace.indexOf(null);
@@ -429,7 +429,7 @@ var popup2 = (function() {
 							$("#profileName").val(curent_profile.name);
 						}
 						else{
-							$("#profileName").val("undifined");
+							$("#profileName").val("undefined");
 							console.log('TTTTTTT', curent_profile, profileList[curent_profile.name]);
 						}
 						if(refreshOptions["autoCopy"]){
@@ -442,8 +442,6 @@ var popup2 = (function() {
 
 					function sizeOfExportArea(animate){
 						if(window.innerWidth >= 992){
-							var $body = $("#body");
-
 							var $heading = $("#heading");
 							var $content = $("#content");
 							var $footer = $("#footer");
@@ -630,7 +628,7 @@ var popup2 = (function() {
 
 						$("#validateSaveProfile").click(function() {
 							var newProfileName = $("#inputSaveProfile").val();
-							if(newProfileName != "" && newProfileName != "undifined"){
+							if(newProfileName != "" && newProfileName != "undefined"){
 								$("#inputSaveProfile").parent().removeClass("has-error");
 								$("#modalSaveProfile").modal("hide");
 								saveProfile(newProfileName);
@@ -817,6 +815,15 @@ var popup2 = (function() {
 							$("#panelForm").data("finalHeight",$("#panelForm").height());
 							sizeOfExportArea(false);
 							previusWindowWidth=window.innerWidth;
+						});
+
+						$("#pasteOPML").click(function() {
+							$("#modalPasteOPML").modal("show");
+						})
+
+						$("#validatePasteOPML").click(function() {
+							updateOPML($("#textAreaPasteOPML").val());
+							$("#modalPasteOPML").modal("hide");
 						});
 
 						$("#reset").click(function() {

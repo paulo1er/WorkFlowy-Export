@@ -53,6 +53,7 @@
     										<ul class="dropdown-menu">
 													<li><a id="update">Reload WorkFlowy</a></li>
 													<li><a id="importOPML">Import OPML</a></li>
+													<li><a id="pasteOPML">Paste OPML</a></li>
 										    </ul>
 												<div hidden id="fileName"></div>
 												<input type="file" id="fileOPML" style="display:none">
@@ -352,6 +353,26 @@
 									<button type="button" class="btn btn-default" data-dismiss="modal">No Cancel</button>
 								</div>
 							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modalPasteOPML" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Paste your OPML here</h4>
+					</div>
+					<div class="modal-body">
+						<div class="input-group" style="width:100%">
+							<textarea id="textAreaPasteOPML" style="resize:vertical;width:100%;min-height:200px;" class="form-control"></textarea>
+						</div>
+						<div class="text-center">
+							<span class="input-group-btn">
+								<button id="validatePasteOPML" type="button"  class="btn btn-success">Validate</button>
+							</span>
+						</div>
 					</div>
 				</div>
 			</div>

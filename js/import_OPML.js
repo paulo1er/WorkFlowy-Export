@@ -74,7 +74,7 @@ function import_OPML(textOPML) {
 	function getContent(dom) {
 		var url = '';
 		var title = $('body > outline:first-child', dom).attr('text');
-
+		if(title == undefined) title ="";
 		var nodeList = $('body', dom).children();
 		var email = $('head', dom).children('ownerEmail').text();
 
@@ -92,7 +92,8 @@ function import_OPML(textOPML) {
 	function main(textOPML) {
 		var doctype = document.implementation.createDocumentType( 'opml', '', '');
 		var dom = document.implementation.createDocument('', 'opml', doctype);
-		dom.documentElement.innerHTML = textOPML.replace('<?xml version="1.0"?>', '').replace('<opml version="2.0">', '').replace('</opml>', '');
+		try{$(dom.documentElement).html( textOPML.replace(/<\?xml([^>])*>/gmi, '').replace(/<opml([^>])*>/gmi, '').replace(/<\/opml([^>])*>/gmi, ''));}
+		catch{$(dom.documentElement).html('');}
 		return getContent(dom);
 	}
 
