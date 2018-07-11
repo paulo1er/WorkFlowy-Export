@@ -1018,18 +1018,18 @@ var defaultSTYLESHEET={
 		Note : new Style("Note", -1, "", "\n"),
 		Item : "Item1",
 		Item1 : new Style_Bullet("Item1", 1, "* ", "", "\n"),
-		Item2 : new Style_Bullet("Item2", 2, "* ", "\t", "\n"),
-		Item3 : new Style_Bullet("Item3", 3, "* ", "\t\t", "\n"),
-		Item4 : new Style_Bullet("Item4", 4, "* ", "\t\t\t", "\n"),
-		Item5 : new Style_Bullet("Item5", 5, "* ", "\t\t\t\t", "\n"),
-		Item6 : new Style_Bullet("Item6", 6, "* ", "\t\t\t\t\t", "\n"),
+		Item2 : new Style_Bullet("Item2", 2, "* ", "", "\n"),
+		Item3 : new Style_Bullet("Item3", 3, "* ", "", "\n"),
+		Item4 : new Style_Bullet("Item4", 4, "* ", "", "\n"),
+		Item5 : new Style_Bullet("Item5", 5, "* ", "", "\n"),
+		Item6 : new Style_Bullet("Item6", 6, "* ", "", "\n"),
 		Enumeration : "Enumeration1",
 		Enumeration1 : new Style_Bullet("Enumeration1", "0. ", 1, "", "\n"),
-		Enumeration2 : new Style_Bullet("Enumeration2", "0. ", 2, "\t", "\n"),
-		Enumeration3 : new Style_Bullet("Enumeration3", "0. ", 3, "\t\t", "\n"),
-		Enumeration4 : new Style_Bullet("Enumeration4", "0. ", 4, "\t\t\t", "\n"),
-		Enumeration5 : new Style_Bullet("Enumeration5", "0. ", 5, "\t\t\t\t", "\n"),
-		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "\t\t\t\t\t", "\n")
+		Enumeration2 : new Style_Bullet("Enumeration2", "0. ", 2, "", "\n"),
+		Enumeration3 : new Style_Bullet("Enumeration3", "0. ", 3, "", "\n"),
+		Enumeration4 : new Style_Bullet("Enumeration4", "0. ", 4, "", "\n"),
+		Enumeration5 : new Style_Bullet("Enumeration5", "0. ", 5, "", "\n"),
+		Enumeration6 : new Style_Bullet("Enumeration6", "0. ", 6, "", "\n")
 	},
 	get : function(format){
 		var result;

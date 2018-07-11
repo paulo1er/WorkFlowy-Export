@@ -846,7 +846,7 @@ var exportLib = function(nodes, options, title, email) {
 			}
 
 			else {
-				output += node.style.toExport(text);
+				output += indent + node.style.toExport(text);
 				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 				if (node.page_break)
 					output = output + "\n";
