@@ -501,6 +501,7 @@ var popup2 = (function() {
 					}
 
 					function updateOPML(textOPML){
+						changeFormat();
 						loading(function(callback){
 							var response = import_OPML(textOPML);
 							g_nodes = response.content;

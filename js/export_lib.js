@@ -9,7 +9,7 @@ var exportLib = function(nodes, options, title, email) {
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
-	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?(?:\s|$)/ig;
+	var WFE_TAG_REGEXP = /(?:^|\s)#wfe-([\w-]*)(?::([\w-:]*))?/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 	var styleName="Normal";
@@ -87,7 +87,7 @@ var exportLib = function(nodes, options, title, email) {
 			return "";
 		},
 
-		"wfe-text-align":function(value=0){
+		"wfe-text-align":function(value="left"){
 			var property ="aligement";
 			if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") nodesStyle[property] = "left";
 			else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") nodesStyle[property] = "right";
@@ -560,6 +560,21 @@ var exportLib = function(nodes, options, title, email) {
 				});
 
 				if(options.mdSyntax){
+
+					textListApply(node.title, "".replace, [/\\(.)/ig, function(e,$1){
+						var r = $1.charCodeAt(0).toString(16);
+						r = Array(5-r.length).join("0")+r;
+						return "\\u"+r;
+					}]);
+
+					textListApply(node.note, "".replace, [/\\(.)/ig, function(e,$1){
+						var r = $1.charCodeAt(0).toString(16);
+						r = Array(5-r.length).join("0")+r;
+						return "\\u"+r;
+					}]);
+
+
+
 					ALIASmdSyntax_enumList.forEach(function(e,i){
 			      if(node.title[0] instanceof TextExported){
 			        if(e[ALIASmdSyntax_enumList_index[node.level]].test(node.title[0].text)){
@@ -575,7 +590,6 @@ var exportLib = function(nodes, options, title, email) {
 						}
 						else ALIASmdSyntax_item_index=999;
 					}
-					if(ALIASmdSyntax_enumList[0])
 					ALIASmdSyntax.forEach(function(e) {
 						textListApply(node.title, "".replace, [e[0], e[1]]);
 						textListApply(node.note, "".replace, [e[0], e[1]]);
@@ -613,6 +627,14 @@ var exportLib = function(nodes, options, title, email) {
 				node.note=insertObj(node.note, regexLink, Link);
 				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
 
+
+				textListApply(node.title, "".replace, [/\\u([\dA-F]{4})/gi, function(e,$1){
+					return String.fromCharCode(parseInt($1, 16));
+				}]);
+
+				textListApply(node.note, "".replace, [/\\u([\dA-F]{4})/gi, function(e,$1){
+					return String.fromCharCode(parseInt($1, 16));
+				}]);
 			}
 			if(codeBlock){
 					nodesStyle = allStyle.get("Code");
