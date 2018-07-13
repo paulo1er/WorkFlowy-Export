@@ -9,7 +9,7 @@ var exportLib = function(nodes, options, title, email) {
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
 	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
-	var WFE_TAG_REGEXP = /#wfe-([\w-]*)(?::([\w-:]*))?(?:\s|$)/ig;
+	var WFE_TAG_REGEXP = /(?:^|\s)#wfe-([\w-]*)(?::([\w-:]*))?/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 	var styleName="Normal";
@@ -87,7 +87,7 @@ var exportLib = function(nodes, options, title, email) {
 			return "";
 		},
 
-		"wfe-text-align":function(value=0){
+		"wfe-text-align":function(value="left"){
 			var property ="aligement";
 			if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") nodesStyle[property] = "left";
 			else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") nodesStyle[property] = "right";
@@ -219,6 +219,8 @@ var exportLib = function(nodes, options, title, email) {
 		[/^\(i\) /, /^\(ii\) /, /^\(iii\) /, /^\(iv\) /, /^\(v\) /, /^\(vi\) /, /^\(vii\) /, /^\(viii\) /, /^\(ix\) /, /^\(x\) /, /^\(xi\) /, /^\(xii\) /, /^\(xiii\) /, /^\(xiv\) /, /^\(xv\) /, /^\(xvi\) /, /^\(xvii\) /, /^\(xviii\) /, /^\(xix\) /, /^\(xx\) /],
 	]
 	var ALIASmdSyntax_enumList_index = [0,0,0,0,0,0,0];
+	var ALIASmdSyntax_item = /^[\*|\-|\+] /;
+	var ALIASmdSyntax_item_index = 999;
 	var ALIASmdSyntax = [
 		[/^# /,"#wfe-style:Heading1 "],
 		[/^## /,"#wfe-style:Heading2 "],
@@ -226,9 +228,6 @@ var exportLib = function(nodes, options, title, email) {
 		[/^#### /,"#wfe-style:Heading4 "],
 		[/^##### /,"#wfe-style:Heading5 "],
 		[/^###### /,"#wfe-style:Heading6 "],
-		[/^\* /,"#wfe-style:Item1 "],
-		[/^\- /,"#wfe-style:Item1 "],
-		[/^\+ /,"#wfe-style:Item1 "],
 		[/^``` /,"#wfe-style:CodeBlock "]
 	];
 
@@ -561,6 +560,21 @@ var exportLib = function(nodes, options, title, email) {
 				});
 
 				if(options.mdSyntax){
+
+					textListApply(node.title, "".replace, [/\\(.)/ig, function(e,$1){
+						var r = $1.charCodeAt(0).toString(16);
+						r = Array(5-r.length).join("0")+r;
+						return "\\u"+r;
+					}]);
+
+					textListApply(node.note, "".replace, [/\\(.)/ig, function(e,$1){
+						var r = $1.charCodeAt(0).toString(16);
+						r = Array(5-r.length).join("0")+r;
+						return "\\u"+r;
+					}]);
+
+
+
 					ALIASmdSyntax_enumList.forEach(function(e,i){
 			      if(node.title[0] instanceof TextExported){
 			        if(e[ALIASmdSyntax_enumList_index[node.level]].test(node.title[0].text)){
@@ -569,7 +583,13 @@ var exportLib = function(nodes, options, title, email) {
 							}
 						}
 					});
-					if(ALIASmdSyntax_enumList[0])
+		      if(node.title[0] instanceof TextExported){
+		        if(ALIASmdSyntax_item.test(node.title[0].text)){
+							if(ALIASmdSyntax_item_index > node.level) ALIASmdSyntax_item_index = node.level;
+							node.title[0].text = node.title[0].text.replace(ALIASmdSyntax_item, "#wfe-style:Item"+(node.level+1 - ALIASmdSyntax_item_index)+" ");
+						}
+						else ALIASmdSyntax_item_index=999;
+					}
 					ALIASmdSyntax.forEach(function(e) {
 						textListApply(node.title, "".replace, [e[0], e[1]]);
 						textListApply(node.note, "".replace, [e[0], e[1]]);
@@ -607,6 +627,14 @@ var exportLib = function(nodes, options, title, email) {
 				node.note=insertObj(node.note, regexLink, Link);
 				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
 
+
+				textListApply(node.title, "".replace, [/\\u([\dA-F]{4})/gi, function(e,$1){
+					return String.fromCharCode(parseInt($1, 16));
+				}]);
+
+				textListApply(node.note, "".replace, [/\\u([\dA-F]{4})/gi, function(e,$1){
+					return String.fromCharCode(parseInt($1, 16));
+				}]);
 			}
 			if(codeBlock){
 					nodesStyle = allStyle.get("Code");
@@ -715,6 +743,7 @@ var exportLib = function(nodes, options, title, email) {
 				indent = Array(node.style.level+1).join(options.prefix_indent_chars);
 				if(node.styleName == "Code") indent = Array(node.level+1).join(options.prefix_indent_chars);
 				if(node.styleName == "CodeBlock") output_after_children += "```\n\n";
+				console.log(indent, "WWWWWWWW", Array(node.level+1));
 				output += indent + node.style.toExport(text);
 				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 			}
@@ -846,7 +875,7 @@ var exportLib = function(nodes, options, title, email) {
 			}
 
 			else {
-				output += node.style.toExport(text);
+				output += indent + node.style.toExport(text);
 				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 				if (node.page_break)
 					output = output + "\n";

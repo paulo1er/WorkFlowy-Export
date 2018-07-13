@@ -9,14 +9,14 @@
 	<body>
 		<div id="messages" class="container" style="min-width:100%; padding:0;">
 		</div>
-		<div class="panel panel-info position-absolute" style="min-width:100%; min-height:100%; margin:0;">
-			<div class="panel-heading" id="popupTitle" style="padding:0;">
+		<div id="body" class="panel panel-info position-absolute" style="min-width:100%; min-height:100%; margin:0;">
+			<div id="heading" class="panel-heading" style="padding:0;">
 				<h4 style="margin:0;">
 					<img src="image/icon48.png" style="float: none; margin-right:10px;">
 					<span id="title"></span> : <a id="url" href="" target="_blank"></a>
 				</h4>
 			</div>
-			<div class="panel-body">
+			<div id="content" class="panel-body">
 
 				<div class="container-fluid">
     			<div class="row">
@@ -25,7 +25,7 @@
 	    			<div class="col-md-6 col-md-push-6">
 							<div id="panelTextArea" class="panel panel-primary" style="margin-bottom: 0px;">
 								<div id="divTextArea" class="panel-body" style="position:relative; min-height:220px;">
-									<div id="content">
+									<div id="contentTextArea">
 										<textarea id="textArea" class="form-control" style="position:relative; resize:vertical; min-height:200px;" readonly></textarea>
 									</div>
 									<div id="loading" style="position:absolute;	left:50%; top:50%;" hidden>
@@ -53,6 +53,7 @@
     										<ul class="dropdown-menu">
 													<li><a id="update">Reload WorkFlowy</a></li>
 													<li><a id="importOPML">Import OPML</a></li>
+													<li><a id="pasteOPML">Paste OPML</a></li>
 										    </ul>
 												<div hidden id="fileName"></div>
 												<input type="file" id="fileOPML" style="display:none">
@@ -267,197 +268,217 @@
 					</div>
 				</div>
 			</div>
-			<div id="modalLoadProfile" class="modal fade" role="dialog">
-			  <div class="modal-dialog">
-					<div class="modal-content">
-			      <div class="modal-header">
-			        <button type="button" class="close" data-dismiss="modal" id="cancelLoadProfile">&times;</button>
-			        <h4 class="modal-title">Load profile</h4>
-			      </div>
-			      <div class="modal-body">
-							<div class="input-group">
-								<span class="input-group-addon">Profile Name</span>
-								<select id="profileList" class="form-control"></select>
-								<span class="input-group-btn">
-									<button id="validateLoadProfile" type="button"  class="btn btn-success">Validate</button>
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="modalSaveProfile" class="modal fade" role="dialog">
-			  <div class="modal-dialog">
-					<div class="modal-content">
-			      <div class="modal-header">
-			        <button type="button" class="close" data-dismiss="modal" id="cancelNewProfile">&times;</button>
-			        <h4 class="modal-title">Save profile</h4>
-			      </div>
-			      <div class="modal-body">
-							<div class="input-group">
-								<span class="input-group-addon">Profile Name</span>
-								<input type="text" id="inputSaveProfile" class="form-control autocomplete">
-								<span class="input-group-btn">
-									<button id="validateSaveProfile" type="button"  class="btn btn-success">Save</button>
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="modalDeleteProfile" class="modal fade" role="dialog">
-			  <div class="modal-dialog">
-					<div class="modal-content">
-			      <div class="modal-header">
-			        <button type="button" class="close" data-dismiss="modal">&times;</button>
-			        <h4 class="modal-title">Delete Profile : <span id="nameDeleteProfile"></span></h4>
-			      </div>
-			      <div class="modal-body">
-							<p>Are you sure you want to delete this profile ?</p>
-								<div class="text-center">
-									<div class="btn-group" role="group">
-										<button id="yesDeleteProfile" type="button" class="btn btn-danger">Yes delete it</button>
-									</div>
-									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-default" data-dismiss="modal">No Cancel</button>
-									</div>
-								</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="modalReset" class="modal fade" role="dialog">
-			  <div class="modal-dialog">
-					<div class="modal-content">
-			      <div class="modal-header">
-			        <button type="button" class="close" data-dismiss="modal">&times;</button>
-			        <h4 class="modal-title">Reset the profile list</h4>
-			      </div>
-			      <div class="modal-body">
-							<p>Are you sure you want to reset your profile list ?</p>
-								<div class="text-center">
-									<div class="btn-group" role="group">
-										<button id="yesReset" type="button" class="btn btn-danger">Yes reset it</button>
-									</div>
-									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-default" data-dismiss="modal">No Cancel</button>
-									</div>
-								</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="myModal" class="modal fade" role="dialog">
-			  <div class="modal-dialog">
-			    <!-- Modal content-->
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <button type="button" class="close" data-dismiss="modal" id="closeModal">&times;</button>
-			        <h4 class="modal-title">Replace profile</h4>
-			      </div>
-			      <div class="modal-body">
-			        <p>One of your profile have the same name <span class="label label-primary" id="newNameProfile"></span></p>
-							<div class="container-fluid">
-								<div class="row">
-	    							<div class="col-sm-4"></div>
-	    							<div class="col-sm-4 bg-primary text-center">Your Profile</div>
-	    							<div class="col-sm-4 bg-primary text-center">New Profile</div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">format</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-format"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-format"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">parentDefaultItemStyle</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-parentDefaultItemStyle"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-parentDefaultItemStyle"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">childDefaultItemStyle</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-childDefaultItemStyle"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-childDefaultItemStyle"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">parent indent chars</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-parentIndent_chars"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-parentIndent_chars"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">child indent chars</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-childIndent_chars"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-childIndent_chars"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">Indentation</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-prefix_indent_chars"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-prefix_indent_chars"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">Add line break</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-item_sep"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-item_sep"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">Export Mode</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-applyWFERules"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-applyWFERules"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">output Notes</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-outputNotes"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-outputNotes"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">ignore tags</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-ignore_tags"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-ignore_tags"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">Parse Markdown syntax</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-mdSyntax"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-mdSyntax"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">Fragment</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-fragment"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-fragment"></div>
-								</div>
-								<div class="row">
-	    							<div class="col-sm-4 bg-primary">Nb Find and Replace</div>
-	    							<div class="col-sm-4 bg-info text-center" id="yourProfile-findReplace"></div>
-	    							<div class="col-sm-4 bg-info text-center" id="newProfile-findReplace"></div>
-								</div>
-							</div>
-							<br>
-							<div class="input-group">
-								<span class="input-group-addon">Rename the new profile</span>
-								<input type="text" id="renameNewProfile" class="form-control">
-							</div>
-							<div class="input-group">
-								<span class="input-group-addon">
-									<input type="checkbox" id="applyForAllNewProfile" class="form-check-input">
-								</span>
-								<label class="form-control" id="labelApplyForAllNewProfile" for="applyForAllNewProfile">Apply this action to all imported profile</label>
-							</div>
-			      </div>
-			      <div class="modal-footer">
-							<div class="btn-toolbar" role="toolbar">
-								<button id="newProfileReplace" class="btn btn-success">Replace</button>
-								<button id="newProfileAutoRename" class="btn btn-success">Auto-Rename</button>
-								<button id="newProfileIgnore" class="btn btn-warning">Ignore</button>
-								<button id="newProfileCancel" class="btn btn-danger pull-right">Cancel</button>
-							</div>
-			      </div>
-			    </div>
-			  </div>
-			</div>
-			<div class="panel-footer" style="padding:0;">
+			<div id="footer" class="panel-footer" style="padding:0;">
 				<div class="text-center" style="padding:10px;">
 					<a href="options.html" role="button" class="btn btn-info" target="_blank">WorkFlowy Export Settings</a>
 					<a href="https://github.com/paulo1er/WorkFlowy-Export" role="button" class="btn btn-info" target="_blank">Source code</a>
 					<a href="README.md" role="button" class="btn btn-info" target="_blank">README</a>
 					<a href="LICENSE" role="button" class="btn btn-info" target="_blank">LICENSE</a>
+				</div>
+			</div>
+		</div>
+		<div id="modalLoadProfile" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" id="cancelLoadProfile">&times;</button>
+						<h4 class="modal-title">Load profile</h4>
+					</div>
+					<div class="modal-body">
+						<div class="input-group">
+							<span class="input-group-addon">Profile Name</span>
+							<select id="profileList" class="form-control"></select>
+							<span class="input-group-btn">
+								<button id="validateLoadProfile" type="button"  class="btn btn-success">Validate</button>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modalSaveProfile" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" id="cancelNewProfile">&times;</button>
+						<h4 class="modal-title">Save profile</h4>
+					</div>
+					<div class="modal-body">
+						<div class="input-group">
+							<span class="input-group-addon">Profile Name</span>
+							<input type="text" id="inputSaveProfile" class="form-control autocomplete">
+							<span class="input-group-btn">
+								<button id="validateSaveProfile" type="button"  class="btn btn-success">Save</button>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modalDeleteProfile" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Delete Profile : <span id="nameDeleteProfile"></span></h4>
+					</div>
+					<div class="modal-body">
+						<p>Are you sure you want to delete this profile ?</p>
+							<div class="text-center">
+								<div class="btn-group" role="group">
+									<button id="yesDeleteProfile" type="button" class="btn btn-danger">Yes delete it</button>
+								</div>
+								<div class="btn-group" role="group">
+									<button type="button" class="btn btn-default" data-dismiss="modal">No Cancel</button>
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modalReset" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Reset the profile list</h4>
+					</div>
+					<div class="modal-body">
+						<p>Are you sure you want to reset your profile list ?</p>
+							<div class="text-center">
+								<div class="btn-group" role="group">
+									<button id="yesReset" type="button" class="btn btn-danger">Yes reset it</button>
+								</div>
+								<div class="btn-group" role="group">
+									<button type="button" class="btn btn-default" data-dismiss="modal">No Cancel</button>
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modalPasteOPML" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Paste your OPML here</h4>
+					</div>
+					<div class="modal-body">
+						<div class="input-group" style="width:100%">
+							<textarea id="textAreaPasteOPML" style="resize:vertical;width:100%;min-height:200px;" class="form-control"></textarea>
+						</div>
+						<div class="text-center">
+							<span class="input-group-btn">
+								<button id="validatePasteOPML" type="button"  class="btn btn-success">Validate</button>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" id="closeModal">&times;</button>
+						<h4 class="modal-title">Replace profile</h4>
+					</div>
+					<div class="modal-body">
+						<p>One of your profile have the same name <span class="label label-primary" id="newNameProfile"></span></p>
+						<div class="container-fluid">
+							<div class="row">
+									<div class="col-sm-4"></div>
+									<div class="col-sm-4 bg-primary text-center">Your Profile</div>
+									<div class="col-sm-4 bg-primary text-center">New Profile</div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">format</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-format"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-format"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">parentDefaultItemStyle</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-parentDefaultItemStyle"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-parentDefaultItemStyle"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">childDefaultItemStyle</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-childDefaultItemStyle"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-childDefaultItemStyle"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">parent indent chars</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-parentIndent_chars"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-parentIndent_chars"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">child indent chars</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-childIndent_chars"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-childIndent_chars"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Indentation</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-prefix_indent_chars"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-prefix_indent_chars"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Add line break</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-item_sep"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-item_sep"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Export Mode</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-applyWFERules"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-applyWFERules"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">output Notes</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-outputNotes"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-outputNotes"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">ignore tags</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-ignore_tags"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-ignore_tags"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Parse Markdown syntax</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-mdSyntax"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-mdSyntax"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Fragment</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-fragment"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-fragment"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Nb Find and Replace</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-findReplace"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-findReplace"></div>
+							</div>
+						</div>
+						<br>
+						<div class="input-group">
+							<span class="input-group-addon">Rename the new profile</span>
+							<input type="text" id="renameNewProfile" class="form-control">
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon">
+								<input type="checkbox" id="applyForAllNewProfile" class="form-check-input">
+							</span>
+							<label class="form-control" id="labelApplyForAllNewProfile" for="applyForAllNewProfile">Apply this action to all imported profile</label>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<div class="btn-toolbar" role="toolbar">
+							<button id="newProfileReplace" class="btn btn-success">Replace</button>
+							<button id="newProfileAutoRename" class="btn btn-success">Auto-Rename</button>
+							<button id="newProfileIgnore" class="btn btn-warning">Ignore</button>
+							<button id="newProfileCancel" class="btn btn-danger pull-right">Cancel</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

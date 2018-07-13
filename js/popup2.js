@@ -227,7 +227,7 @@ var popup2 = (function() {
 
 					//save the form for create or update a preset of options
 					function saveProfile(newProfileName){
-						if(newProfileName != "" && newProfileName != "undifined"){
+						if(newProfileName != "" && newProfileName != "undefined"){
 							curent_profile.name = newProfileName;
 							changeFormat();
 							var idnull=curent_profile.findReplace.indexOf(null);
@@ -429,7 +429,7 @@ var popup2 = (function() {
 							$("#profileName").val(curent_profile.name);
 						}
 						else{
-							$("#profileName").val("undifined");
+							$("#profileName").val("undefined");
 							console.log('TTTTTTT', curent_profile, profileList[curent_profile.name]);
 						}
 						if(refreshOptions["autoCopy"]){
@@ -442,8 +442,14 @@ var popup2 = (function() {
 
 					function sizeOfExportArea(animate){
 						if(window.innerWidth >= 992){
-							console.log($("#panelForm").data("finalHeight") , "TEST");
-							var textAreaSize = $("#panelForm").data("finalHeight") - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
+							var $heading = $("#heading");
+							var $content = $("#content");
+							var $footer = $("#footer");
+							var contentHeight = window.innerHeight - $heading.outerHeight(true) - $content.outerHeight(true) + $content.height() - $footer.outerHeight(true);
+							$("#content").animate({
+								height : ((contentHeight>$("#panelForm").data("finalHeight")) ? contentHeight : $("#panelForm").data("finalHeight")) +"px"
+							}, animate ? 500 : 0);
+							var textAreaSize = ((contentHeight>$("#panelForm").data("finalHeight")) ? contentHeight : $("#panelForm").data("finalHeight")) - $("#footerTextArea").outerHeight(true) - $("#divTextArea").outerHeight(true) + $("#divTextArea").height() - $("#textArea").outerHeight(true) + $("#textArea").height();
 							if(textAreaSize > 200)
 								$("#textArea").animate({
         					height: textAreaSize+'px'
@@ -460,6 +466,7 @@ var popup2 = (function() {
 								height: '200px'
 							}, animate ? 500 : 0);
 							$("#textArea").css("resize", "vertical");
+							$("#content").css("height","auto");
 						}
 					}
 
@@ -494,6 +501,7 @@ var popup2 = (function() {
 					}
 
 					function updateOPML(textOPML){
+						changeFormat();
 						loading(function(callback){
 							var response = import_OPML(textOPML);
 							g_nodes = response.content;
@@ -621,7 +629,7 @@ var popup2 = (function() {
 
 						$("#validateSaveProfile").click(function() {
 							var newProfileName = $("#inputSaveProfile").val();
-							if(newProfileName != "" && newProfileName != "undifined"){
+							if(newProfileName != "" && newProfileName != "undefined"){
 								$("#inputSaveProfile").parent().removeClass("has-error");
 								$("#modalSaveProfile").modal("hide");
 								saveProfile(newProfileName);
@@ -805,16 +813,18 @@ var popup2 = (function() {
 				      chrome.storage.local.set({'windowSize' : windowSize}, function() {
 				        console.log("save new windowSize");
 				      });
-
-							if(window.innerWidth>=992 && previusWindowWidth<992){
-								$("#panelForm").data("finalHeight",$("#panelForm").height());
-  							sizeOfExportArea(false);
-							}
-							else if (window.innerWidth<992 && previusWindowWidth>=992){
-								$("#panelForm").data("finalHeight",$("#panelForm").height());
-  							sizeOfExportArea(false);
-							}
+							$("#panelForm").data("finalHeight",$("#panelForm").height());
+							sizeOfExportArea(false);
 							previusWindowWidth=window.innerWidth;
+						});
+
+						$("#pasteOPML").click(function() {
+							$("#modalPasteOPML").modal("show");
+						})
+
+						$("#validatePasteOPML").click(function() {
+							updateOPML($("#textAreaPasteOPML").val());
+							$("#modalPasteOPML").modal("hide");
 						});
 
 						$("#reset").click(function() {
@@ -850,9 +860,6 @@ var popup2 = (function() {
 						$("#panelForm").data("finalHeight",$("#panelForm").height());
 						sizeOfExportArea(false);
 
-						exportText();
-						setEventListers();
-
 					}
 
 					function initialization(){
@@ -872,6 +879,8 @@ var popup2 = (function() {
 						hideFindAndReplace = initHideFindAndReplace(storageL.hideFindAndReplace);
 
 						initHTML();
+						exportText();
+						setEventListers();
 					}
 
 					var profileList, curent_profile, conflictProfileList;
@@ -890,7 +899,7 @@ var popup2 = (function() {
 
 	function loading(func){
 		var $loading = $("#loading");
-		var $content = $("#content");
+		var $content = $("#contentTextArea");
 		var $divTextArea = $("#divTextArea");
 		$divTextArea.height($divTextArea.height());
 		$content.hide();
