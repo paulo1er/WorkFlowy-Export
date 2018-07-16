@@ -1,6 +1,15 @@
 var popup2 = (function() {
 	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
 
+  function shortcut(e) {
+      e = e || window.event;
+      if (e.keyCode == '27') {
+				window.close();
+      }
+  };
+	document.addEventListener('keyup', shortcut, false);
+
+
 	chrome.storage.onChanged.addListener(function(changes, namespace) {
 		for (key in changes) {
 			var storageChange = changes[key];
