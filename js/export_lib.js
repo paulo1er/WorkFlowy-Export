@@ -856,7 +856,8 @@ var exportLib = function(nodes, options, title, email) {
 				text = text.replace(/--/g, "\\endash ");
 				var str="";
 				for (var i = 0; i < text.length; i++) {
-					 if(text.charCodeAt(i)>127) str += "{\\u"+ text.charCodeAt(i)+"}";
+					console.log(text.charCodeAt(i));
+					 if(text.charCodeAt(i)>127) str += "{\\uc1\\u"+ text.charCodeAt(i)+"*}";
 					 else str+=text.charAt(i);
 				}
 				text = str;
