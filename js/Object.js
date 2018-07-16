@@ -2,6 +2,14 @@ String.prototype.replaceAt=function(index, replacement) {
     return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
 }
 
+String.prototype.replaceTag=function(regex, replacement){
+  var str = this;
+  while(regex.test(str)){
+    str=str.replace(regex, replacement);
+  };
+  return str;
+}
+
 Array.prototype.remove = function(item) {
   var index = this.indexOf(item);
   if (index !== -1) this.splice(index, 1);

@@ -8,7 +8,9 @@ var exportLib = function(nodes, options, title, email) {
 	var TABLE_REGEXP = /^\s*\|/;
 	var BQ_REGEXP = /^\>/;
 	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
-	var WF_TAG_REGEXP = /((^|\s|,|:|;)(#|@)[a-z][a-z0-9\-_:]*)/ig;
+	var WF_TAG_REGEXP = /((^|\s|,|:|;|\/)(#|@)[a-z][a-z0-9\-_:]*($|\s|,|;|\/))/i;
+	//  the good regex but use XRegExp and don't solve all probleme too.
+	//  (^|\s|[(),.!?';:\/\[\]])([#@]([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*(:([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*))*))(?=$|\s|[(),.!?';:\/\[\]])
 	var WFE_TAG_REGEXP = /(?:^|\s)#wfe-([\w-]*)(?::([\w-:]*))?/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
@@ -609,8 +611,8 @@ var exportLib = function(nodes, options, title, email) {
 
 			if (options.ignore_tags) {
 				// Strip off tags
-				textListApply(node.title, "".replace, [WF_TAG_REGEXP, ""]);
-				textListApply(node.note, "".replace, [WF_TAG_REGEXP, ""]);
+				textListApply(node.title, "".replaceTag, [WF_TAG_REGEXP, " "]);
+				textListApply(node.note, "".replaceTag, [WF_TAG_REGEXP, " "]);
 			}
 
 			node.title=insertObj(node.title, regexCodeLatex, CodeLatex);

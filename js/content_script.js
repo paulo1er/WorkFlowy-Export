@@ -32,9 +32,14 @@
 
 	function elementToText(e){
 		var cloneE = e.clone();
-		cloneE.contents().contents().unwrap("a");
-		cloneE.contents().contents().unwrap(".contentTag");
-		cloneE.contents().contents().unwrap(".contentTagText");
+		cloneE.find("a").each(function(){
+			$(this).replaceWith( $( this ).text() );
+		});
+
+		cloneE.find(".contentTag").each(function(){
+			$(this).replaceWith( $( this ).text() );
+		});
+		
 		cloneE.html(cloneE.html().replace(/\n+$/g, ''));
 		var elements = cloneE.contents();
 		var list = [];
