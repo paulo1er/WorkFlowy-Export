@@ -1022,22 +1022,22 @@ var defaultSTYLESHEET={
 		Normal : new Style("Normal", -1)
 	},
 	text : {
-		Normal : new Style("Normal", -1, "", "\n"),
-		Note : new Style("Note", -1, "", "\n"),
+		Normal : new Style("Normal", -1, "", ""),
+		Note : new Style("Note", -1, "", ""),
 		Item : "Item1",
-		Item1 : new Style_Bullet("Item1", 0, "* ", "", "\n"),
-		Item2 : new Style_Bullet("Item2", 1, "* ", "", "\n"),
-		Item3 : new Style_Bullet("Item3", 2, "* ", "", "\n"),
-		Item4 : new Style_Bullet("Item4", 3, "* ", "", "\n"),
-		Item5 : new Style_Bullet("Item5", 4, "* ", "", "\n"),
-		Item6 : new Style_Bullet("Item6", 5, "* ", "", "\n"),
+		Item1 : new Style_Bullet("Item1", 0, "* ", "", ""),
+		Item2 : new Style_Bullet("Item2", 1, "* ", "", ""),
+		Item3 : new Style_Bullet("Item3", 2, "* ", "", ""),
+		Item4 : new Style_Bullet("Item4", 3, "* ", "", ""),
+		Item5 : new Style_Bullet("Item5", 4, "* ", "", ""),
+		Item6 : new Style_Bullet("Item6", 5, "* ", "", ""),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style_Bullet("Enumeration1", 0, "0.", "", "\n"),
-		Enumeration2 : new Style_Bullet("Enumeration2", 1, "0.", "", "\n"),
-		Enumeration3 : new Style_Bullet("Enumeration3", 2, "0.", "", "\n"),
-		Enumeration4 : new Style_Bullet("Enumeration4", 3, "0.", "", "\n"),
-		Enumeration5 : new Style_Bullet("Enumeration5", 4, "0.", "", "\n"),
-		Enumeration6 : new Style_Bullet("Enumeration6", 5, "0.", "", "\n")
+		Enumeration1 : new Style_Bullet("Enumeration1", 0, "0.", "", ""),
+		Enumeration2 : new Style_Bullet("Enumeration2", 1, "0.", "", ""),
+		Enumeration3 : new Style_Bullet("Enumeration3", 2, "0.", "", ""),
+		Enumeration4 : new Style_Bullet("Enumeration4", 3, "0.", "", ""),
+		Enumeration5 : new Style_Bullet("Enumeration5", 4, "0.", "", ""),
+		Enumeration6 : new Style_Bullet("Enumeration6", 5, "0.", "", "")
 	},
 	get : function(format){
 		var result;

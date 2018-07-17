@@ -879,9 +879,9 @@ var exportLib = function(nodes, options, title, email) {
 
 			else {
 				output += indent + node.style.toExport(text);
-				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
-				if (node.page_break)
-					output = output + "\n";
+				if ((note !== "") && options.outputNotes) output += "\n" + STYLESHEETused["Note"].toExport(note);
+				if (node.page_break) output += "\n";
+				output += options.item_sep;
 			}
 		}
 		else if (node.type == "CodeBlock") {
