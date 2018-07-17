@@ -76,19 +76,64 @@
 								<div class="panel-body">
 									<div class="container-fluid" id="form">
 										<div class="row">
-											<div class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="col1" class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
 											<div id="formOutputFormat" class="well">
-												<div class="input-group input-group-sm">
+												<div id="formatOptionsColapse" class="input-group input-group-sm">
 													<label class="input-group-addon" for="formatOptions">Output Format</label>
-													<select id="formatOptions" class="form-control">
+													<select name="formatOptions" class="form-control">
 												    <option value="text" label="Text"></option>
 												    <option value="opml" label="OPML"></option>
 														<option value="html" label="HTML"></option>
 												    <option value="markdown" label="Markdown"></option>
 														<option value="rtf" label="Rich Text (RTF)"></option>
 														<option value="latex" label="LaTeX Report"></option>
-												    <option value="beamer" label="LaTeX Beame"></option>
+												    <option value="beamer" label="LaTeX Beamer"></option>
 													</select>
+												</div>
+												<div id="formatOptionsExpand" style="display: none;">
+													<p class="text-center">Output Format</p>
+													<div class="input-group input-group-sm">
+														<span class="input-group-addon">
+															<input type="radio" id="formatOptions_text" name="formatOptions" value="text" class="form-check-input">
+														</span>
+													  <label class="form-control" for="formatOptions_text">Text</label>
+													</div>
+													<div class="input-group input-group-sm">
+														<span class="input-group-addon">
+															<input type="radio" id="formatOptions_opml" name="formatOptions" value="opml" class="form-check-input">
+														</span>
+													  <label class="form-control" for="formatOptions_opml">OPML</label>
+													</div>
+													<div class="input-group input-group-sm">
+														<span class="input-group-addon">
+															<input type="radio" id="formatOptions_html" name="formatOptions" value="html" class="form-check-input">
+														</span>
+													  <label class="form-control" for="formatOptions_html">HTML</label>
+													</div>
+													<div class="input-group input-group-sm">
+														<span class="input-group-addon">
+															<input type="radio" id="formatOptions_markdown" name="formatOptions" value="markdown" class="form-check-input">
+														</span>
+													  <label class="form-control" for="formatOptions_markdown">Markdown</label>
+													</div>
+													<div class="input-group input-group-sm">
+														<span class="input-group-addon">
+															<input type="radio" id="formatOptions_rtf" name="formatOptions" value="rtf" class="form-check-input">
+														</span>
+													  <label class="form-control" for="formatOptions_rtf">Rich Text (RTF)</label>
+													</div>
+													<div class="input-group input-group-sm">
+														<span class="input-group-addon">
+															<input type="radio" id="formatOptions_latex" name="formatOptions" value="latex" class="form-check-input">
+														</span>
+													  <label class="form-control" for="formatOptions_latex">LaTeX Report</label>
+													</div>
+													<div class="input-group input-group-sm">
+														<span class="input-group-addon">
+															<input type="radio" id="formatOptions_beamer" name="formatOptions" value="beamer" class="form-check-input">
+														</span>
+													  <label class="form-control" for="formatOptions_beamer">LaTeX Beamer</label>
+													</div>
 												</div>
 											</div>
 											<div id="formIndentation" class="well">
@@ -136,7 +181,7 @@
 											</div>
 											</div>
 
-											<div class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="col2" class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
 											<div id="formOptions" class="well">
 												<p class="text-center">Options</p>
 												<div class="input-group input-group-sm">

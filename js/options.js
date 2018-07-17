@@ -13,6 +13,13 @@
       });
     });
 
+    $("#expandFormatChoice").change(function(e) {
+      textAreaStyle["expandFormatChoice"] = $("#expandFormatChoice").prop('checked');
+      chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
+        console.log("textAreaStyle save new expandFormatChoice");
+      });
+    });
+
     $("#fontFamily").change(function(e) {
       textAreaStyle["font-family"] = $("#fontFamily").val();
       chrome.storage.local.set({'textAreaStyle' : textAreaStyle}, function() {
@@ -64,6 +71,7 @@
     $("#autoReload").prop("checked", refreshOptions["autoReload"]);
     $("#fragment").prop("checked", refreshOptions["fragment"]);
     $('#fontFamily').val(textAreaStyle["font-family"]);
+    $('#expandFormatChoice').val(textAreaStyle["expandFormatChoice"]);
     $('#fontSize').val(textAreaStyle["font-size"]);
   }
 
