@@ -9,6 +9,8 @@ var popup2 = (function() {
   };
 	document.addEventListener('keyup', shortcut, false);
 
+  function disableF5(e) { if (e.keyCode == 116 || (e.keyCode == 82 && e.ctrlKey)) e.preventDefault(); };
+  document.addEventListener('keydown', disableF5, false);
 
 	chrome.storage.onChanged.addListener(function(changes, namespace) {
 		for (key in changes) {
