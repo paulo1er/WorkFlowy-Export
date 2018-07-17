@@ -312,7 +312,8 @@ function initTextAreaStyle(storageTextAreaStyle){
   else {
     r={
       "font-family" : "Arial",
-      "font-size" : 14
+      "font-size" : 14,
+      "expandFormatChoice" : false
     };
     chrome.storage.local.set({'textAreaStyle' : r}, function() {
       console.log("textAreaStyle init");

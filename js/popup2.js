@@ -177,9 +177,14 @@ var popup2 = (function() {
 
 					function updadeForm(profile){
 
-						$("#formatOptions").val(profile.format);
+            if(textAreaStyle["expandFormatChoice"]){
+              $("#formatOptionsExpand [name=formatOptions]").each(function(){
+                $(this).attr('checked', $(this).val() == profile.format);
+              });
+            }
+            else $("#formatOptionsColapse [name=formatOptions]").val(profile.format);
 
-						if($("#formatOptions").val() == "opml"){
+						if(profile.format == "opml"){
 							$("#formDefaultItemStyle select").prop("disabled", true);
 							$("#parentDefaultItemStyle").val("None");
 							$("#childDefaultItemStyle").val("None");
@@ -191,13 +196,13 @@ var popup2 = (function() {
 						}
 
 						$("#parentDefaultItemStyle").val(profile.parentDefaultItemStyle);
-						if(	($("#parentDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
+						if(	($("#parentDefaultItemStyle").val() == "Bullet") && (profile.format == "text"))
 							$("#parentBulletCaracter").show();
 						else
 							$("#parentBulletCaracter").hide();
 
 						$("#childDefaultItemStyle").val(profile.childDefaultItemStyle);
-						if( ($("#childDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
+						if( ($("#childDefaultItemStyle").val() == "Bullet") && (profile.format == "text"))
 							$("#childBulletCaracter").show();
 						else
 							$("#childBulletCaracter").hide();
@@ -382,7 +387,8 @@ var popup2 = (function() {
 					// change curent_profile with the value enter in the form
 					function changeFormat() {
 
-						curent_profile.format = $("#formatOptions").val();
+            if(textAreaStyle["expandFormatChoice"]) curent_profile.format = $("#formatOptionsExpand [name=formatOptions]:checked").val();
+            else curent_profile.format = $("#formatOptionsColapse [name=formatOptions]").val();
 
 						curent_profile.parentDefaultItemStyle = $("#parentDefaultItemStyle").val();
 						curent_profile.childDefaultItemStyle = $("#childDefaultItemStyle").val();
@@ -602,9 +608,12 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("#formOutputFormat select, #formDefaultItemStyle input, #formDefaultItemStyle select").change("change", function() {
+						$("#formOutputFormat select, #formOutputFormat input, #formDefaultItemStyle input, #formDefaultItemStyle select").change("change", function() {
+              var format;
+              if(textAreaStyle["expandFormatChoice"]) format = $("#formatOptionsExpand [name=formatOptions]:checked").val();
+              else format = $("#formatOptionsColapse [name=formatOptions]").val();
 
-							if($("#formatOptions").val() == "opml"){
+							if(format == "opml"){
 								$("#formDefaultItemStyle select").prop("disabled", true);
 								$("#parentDefaultItemStyle").val("None");
 								$("#childDefaultItemStyle").val("None");
@@ -615,12 +624,12 @@ var popup2 = (function() {
 								$("#formDefaultItemStyle select").prop("disabled", false);
 							}
 
-							if(	($("#parentDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
+							if(	($("#parentDefaultItemStyle").val() == "Bullet") && (format == "text"))
 								$("#parentBulletCaracter").show();
 							else
 								$("#parentBulletCaracter").hide();
 
-							if( ($("#childDefaultItemStyle").val() == "Bullet") && ($("#formatOptions").val() == "text"))
+							if( ($("#childDefaultItemStyle").val() == "Bullet") && (format == "text"))
 								$("#childBulletCaracter").show();
 							else
 								$("#childBulletCaracter").hide();
@@ -660,7 +669,7 @@ var popup2 = (function() {
 							autoReload();
 						});
 
-						$("#formOutputFormat select, #formDefaultItemStyle input, #formDefaultItemStyle select, #formIndentation select, #formOptions input").change(autoReload);
+						$("#formOutputFormat select, #formOutputFormat input, #formDefaultItemStyle input, #formDefaultItemStyle select, #formIndentation select, #formOptions input").change(autoReload);
 
 						$("#deleteProfile").click(function(){
 							if(curent_profile.name!="list" && isEqual(curent_profile, profileList[curent_profile.name])){
@@ -852,6 +861,11 @@ var popup2 = (function() {
 
 						$("#textArea").css("font-family", textAreaStyle["font-family"]);
 						$("#textArea").css('font-size', textAreaStyle["font-size"]+"px");
+
+            $("#formatOptionsColapse").toggle(!textAreaStyle["expandFormatChoice"]);
+            $("#formatOptionsExpand").toggle(textAreaStyle["expandFormatChoice"]);
+            if(textAreaStyle["expandFormatChoice"]) $("#formDefaultItemStyle").appendTo($("#col2"));
+            else $("#formDefaultItemStyle").appendTo($("#col1"));
 
 						if(hideForm){
 							$("#form").hide();
