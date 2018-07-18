@@ -10,6 +10,7 @@
 				note: elementToText($(this).children(".notes").children(".content")),
 				url: $(this).children(".name").children("a").attr('href'),
 				level: level,
+				complete: $(this).hasClass("done"),
 				children: []
 			});
 			console.log("Node", list[list.length-1]);
@@ -39,7 +40,7 @@
 		cloneE.find(".contentTag").each(function(){
 			$(this).replaceWith( $( this ).text() );
 		});
-		
+
 		cloneE.html(cloneE.html().replace(/\n+$/g, ''));
 		var elements = cloneE.contents();
 		var list = [];

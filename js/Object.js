@@ -37,7 +37,8 @@ class Profile{
   	this.ignore_tags = ((p.ignore_tags!=null) ? p.ignore_tags : true),
   	this.mdSyntax = ((p.mdSyntax!=null) ? p.mdSyntax : false),
   	this.findReplace = copy(((p.findReplace!=null) ? p.findReplace : [])),
-  	this.fragment = ((p.fragment!=null) ? p.fragment : false)
+  	this.fragment = ((p.fragment!=null) ? p.fragment : false),
+  	this.complete = ((p.complete!=null) ? p.complete : false)
   }
 }
 window.isEqual = function(a, b) {
@@ -102,7 +103,7 @@ class TextExported{
 				return before + this.text + after;
 			case "latex" :
 				if(this.isUnderline){
-					before = before + "\\underline{";
+					before = before + "\\uline{";
 					after = "}" + after;
 				}
 				if(this.isBold){
@@ -271,12 +272,12 @@ function initProfileList(storageProfileList=null){
 	}
 	else{
 		r = {
-			"list" : new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false}),
-			"HTML doc" : new Profile({name: "HTML doc", format: "html", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
-			"RTF doc" : new Profile({name: "RTF doc", format: "rtf", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
-			"LaTeX Report" : new Profile({name: "LaTeX Report", format: "latex", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
-			"OPML" : new Profile({name: "OPML", format: "opml", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false}),
-			"LaTeX Beamer" : new Profile({name: "LaTeX Beamer", format: "beamer", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true,mdSyntax:  true, findReplace: [], fragment: false})
+			"list" : new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false, complete: false}),
+			"HTML doc" : new Profile({name: "HTML doc", format: "html", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
+			"RTF doc" : new Profile({name: "RTF doc", format: "rtf", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
+			"LaTeX Report" : new Profile({name: "LaTeX Report", format: "latex", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
+			"OPML" : new Profile({name: "OPML", format: "opml", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
+			"LaTeX Beamer" : new Profile({name: "LaTeX Beamer", format: "beamer", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true,mdSyntax:  true, findReplace: [], fragment: false, complete: false})
 		};
 		chrome.storage.sync.set({'profileList' : r}, function() {
 			console.log("profileList init");
@@ -296,7 +297,7 @@ function initCurentProfile(storageCurentProfile=null){
 		r = new Profile(storageCurentProfile);
 	}
 	else{
-		r = new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false}),
+		r = new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false, complete: false}),
 		chrome.storage.sync.set({'curent_profile' : r}, function() {
 			console.log("curent_profile init");
 		});
@@ -434,6 +435,7 @@ function arrayToTree(nodes) {
 		type: 'dummy',
 		title: [],
 		note: [],
+    complete:false,
 		level:-1,
 		children: []
 	};
@@ -746,7 +748,7 @@ class Style_Bullet  extends Style {
 }
 
 class Style_html extends Style{
-	constructor(name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color, tag){
+	constructor(name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, strike, color, background_color, tag){
 		super(name, level);
 		this.aligement = aligement;
 		this.indentation_first_line = indentation_first_line;
@@ -759,6 +761,7 @@ class Style_html extends Style{
 		this.bold = bold;
 		this.italic = italic;
 		this.underline = underline;
+		this.strike = strike;
 		this.color = color;
 		this.background_color = background_color;
 		this.tag = tag;
@@ -767,28 +770,28 @@ class Style_html extends Style{
       if(!defaultStyle) {
         switch (this.tag){
           case "h1" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 9.38, 9.38, "ARIAL", 28, false, false, false, "BLACK", "WHITE", "h1");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 9.38, 9.38, "ARIAL", 28, false, false, false, false, "BLACK", "WHITE", "h1");
             break;
           case "h2" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 11.62, 11.62, "ARIAL", 21, false, false, false, "BLACK", "WHITE", "h2");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 11.62, 11.62, "ARIAL", 21, false, false, false, false, "BLACK", "WHITE", "h2");
             break;
           case "h3" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 16.38, false, false, false, "BLACK", "WHITE", "h3");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 16.38, false, false, false, false, "BLACK", "WHITE", "h3");
             break;
           case "h4" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 18.62, 18.62, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "h4");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 18.62, 18.62, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "h4");
             break;
           case "h5" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 23.38, 23.38, "ARIAL", 11.62, false, false, false, "BLACK", "WHITE", "h5");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 23.38, 23.38, "ARIAL", 11.62, false, false, false, false, "BLACK", "WHITE", "h5");
             break;
           case "h6" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 32.62, 32.62, "ARIAL", 9.38, false, false, false, "BLACK", "WHITE", "h6");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 32.62, 32.62, "ARIAL", 9.38, false, false, false, false, "BLACK", "WHITE", "h6");
             break;
           case "li" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "li");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "li");
             break;
           default :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p");
+            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 14, 14, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "p");
         }
 		  }
       var str = "";
@@ -802,7 +805,12 @@ class Style_html extends Style{
 			if(!defaultStyle || this.font_size!=defaultStyle.font_size) str += "font-size: "+(this.font_size)+"px; ";
 			if(!defaultStyle || this.bold!=defaultStyle.bold){if(this.bold) str += "font-weight: bold; "; else str += "font-weight: normal; ";};
 			if(!defaultStyle || this.italic!=defaultStyle.italic){if(this.italic) str +="font-style: italic; "; else str +="font-style: normal; ";};
-			if(!defaultStyle || this.underline!=defaultStyle.underline){if(this.underline) str += "text-decoration: underline;  "; else str += "text-decoration: none; ";};
+			if(!defaultStyle || this.underline!=defaultStyle.underline || this.strike!=defaultStyle.strike){
+        if(this.underline && this.strike) str += "text-decoration: underline line-through; ";
+        else if(this.underline && !this.strike) str += "text-decoration: underline; ";
+        else if(!this.underline && this.strike) str += "text-decoration: line-through; ";
+        else str += "text-decoration: none; ";
+      };
 			if(!defaultStyle || this.color!=defaultStyle.color) str += "color: "+COLORSHEETused[this.color].toHTMLstr()+"; ";
 			if(!defaultStyle || this.background_color!=defaultStyle.background_color) str += "background-color: "+COLORSHEETused[this.background_color].toHTMLstr()+"; ";
 			return str;
@@ -815,7 +823,7 @@ class Style_html extends Style{
 }
 
 class Style_rtf extends Style{
-	constructor(name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, color, background_color){
+	constructor(name, level, aligement, indentation_first_line, indentation_left, indentation_right, spacing_before, spacing_after, font, font_size, bold, italic, underline, strike, color, background_color){
 		super(name, level);
     this.id=0;
 		this.aligement = aligement;
@@ -829,6 +837,7 @@ class Style_rtf extends Style{
 		this.bold = bold;
 		this.italic = italic;
 		this.underline = underline;
+		this.strike = strike;
 		this.color = color;
 		this.background_color = background_color;
 	}
@@ -845,6 +854,7 @@ class Style_rtf extends Style{
 		if(this.bold) str += "\\b";
 		if(this.italic) str +="\\i";
 		if(this.underline) str += "\\ul";
+		if(this.strike) str += "\\strike";
 		if(this.color != "BLACK" || (defaultStyle && this.color!=defaultStyle.color)) str += "\\cf"+COLORSHEETused[this.color].Id;
 		if(this.background_color != "WHITE" || (defaultStyle && this.background_color!=defaultStyle.background_color)) str += "\\highlight"+COLORSHEETused[this.background_color].Id;
 		return str;
@@ -855,13 +865,14 @@ class Style_rtf extends Style{
 }
 
 class Style_latex extends Style{
-	constructor(name, level, before, after, color, background_color, bold, italic, underline){
+	constructor(name, level, before, after, color, background_color, bold, italic, underline, strike){
 		super(name, level, before, after);
 		this.color = color;
 		this.background_color = background_color;
     this.bold = bold;
     this.italic = italic;
     this.underline = underline;
+    this.strike = strike;
 	}
 	toString(){
 		var str = ""
@@ -887,7 +898,11 @@ class Style_latex extends Style{
 			after = "}"+after;
     }
     if(this.underline){
-			before += "\\underline{";
+			before += "\\uline{";
+			after = "}"+after;
+    }
+    if(this.strike){
+			before += "\\sout{";
 			after = "}"+after;
     }
 		return super.toExport(before + text + after);
@@ -897,22 +912,23 @@ class Style_latex extends Style{
 
 var defaultSTYLESHEET={
 	html : {
-		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p"),
-		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "p"),
-		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 20, 10, "ARIAL", 22, true, false, false, "BLACK", "WHITE", "h1"),
-		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 20, 10, "ARIAL", 20, true, false, false, "BLACK", "WHITE", "h2"),
-		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 20, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE", "h3"),
-		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 15, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h4"),
-		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 10, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h5"),
-		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 10, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE", "h6"),
-		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "li"),
+		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "p"),
+		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "p"),
+		Complete : new Style_html("Complete", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, true, "DARKGRAY", "WHITE", "p"),
+		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 20, 10, "ARIAL", 22, true, false, false, false, "BLACK", "WHITE", "h1"),
+		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 20, 10, "ARIAL", 20, true, false, false, false, "BLACK", "WHITE", "h2"),
+		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 20, 10, "ARIAL", 16, true, false, false, false, "BLACK", "WHITE", "h3"),
+		Heading4 : new Style_html("Heading4", 4, "left", 0, 0, 0, 15, 10, "ARIAL", 14, true, false, false, false, "BLACK", "WHITE", "h4"),
+		Heading5 : new Style_html("Heading5", 5, "left", 0, 0, 0, 10, 10, "ARIAL", 14, true, false, false, false, "BLACK", "WHITE", "h5"),
+		Heading6 : new Style_html("Heading6", 6, "left", 0, 0, 0, 10, 10, "ARIAL", 14, true, false, false, false, "BLACK", "WHITE", "h6"),
+		Item :  new Style_html("Item", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "li"),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, "BLACK", "WHITE", "li"),
+		Enumeration : new Style_html("Enumeration", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "li"),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -923,28 +939,29 @@ var defaultSTYLESHEET={
 		Code : new Style("Code", -1, "", "")
 	},
 	rtf : {
-		Normal : new Style_rtf("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Note : new Style_rtf("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Heading1 : new Style_rtf("Heading 1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, "BLACK", "WHITE"),
-		Heading2 : new Style_rtf("Heading 2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, "BLACK", "WHITE"),
-		Heading3 : new Style_rtf("Heading 3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, "BLACK", "WHITE"),
-		Heading4 : new Style_rtf("Heading 4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
-		Heading5 : new Style_rtf("Heading 5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
-		Heading6 : new Style_rtf("Heading 6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, "BLACK", "WHITE"),
+		Normal : new Style_rtf("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Note : new Style_rtf("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Complete : new Style_rtf("Complete", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, true, "DARKGRAY", "WHITE"),
+		Heading1 : new Style_rtf("Heading 1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, false, "BLACK", "WHITE"),
+		Heading2 : new Style_rtf("Heading 2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, false, "BLACK", "WHITE"),
+		Heading3 : new Style_rtf("Heading 3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, false, "BLACK", "WHITE"),
+		Heading4 : new Style_rtf("Heading 4", 4, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, false, "BLACK", "WHITE"),
+		Heading5 : new Style_rtf("Heading 5", 5, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, false, "BLACK", "WHITE"),
+		Heading6 : new Style_rtf("Heading 6", 6, "left", 0, 0, 0, 0, 10, "ARIAL", 11, true, false, false, false, "BLACK", "WHITE"),
 		Item : "Item1",
-		Item1 : new Style_rtf("Item1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item2 : new Style_rtf("Item2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item3 : new Style_rtf("Item3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item4 : new Style_rtf("Item4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item5 : new Style_rtf("Item5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Item6 : new Style_rtf("Item6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Item1 : new Style_rtf("Item1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Item2 : new Style_rtf("Item2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Item3 : new Style_rtf("Item3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Item4 : new Style_rtf("Item4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Item5 : new Style_rtf("Item5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Item6 : new Style_rtf("Item6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
 		Enumeration : "Enumeration1",
-		Enumeration1 : new Style_rtf("Enumeration1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration2 : new Style_rtf("Enumeration2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration3 : new Style_rtf("Enumeration3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration4 : new Style_rtf("Enumeration4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration5 : new Style_rtf("Enumeration5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
-		Enumeration6 : new Style_rtf("Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, "BLACK", "WHITE"),
+		Enumeration1 : new Style_rtf("Enumeration1", 1, "left", -8, 10, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Enumeration2 : new Style_rtf("Enumeration2", 2, "left", -8, 15, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Enumeration3 : new Style_rtf("Enumeration3", 3, "left", -8, 20, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Enumeration4 : new Style_rtf("Enumeration4", 4, "left", -8, 25, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Enumeration5 : new Style_rtf("Enumeration5", 5, "left", -8, 30, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
+		Enumeration6 : new Style_rtf("Enumeration6", 6, "left", -8, 35, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
 	},
 	markdown : {
 		Normal : new Style("Normal", -1, "", "\n\n"),
@@ -973,19 +990,20 @@ var defaultSTYLESHEET={
 		Code : new Style("Code", -1, "", "\n")
 	},
 	latex : {
-		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
-		Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
-		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}\n", "BLACK", "WHITE", false, false, false),
-		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}\n", "BLACK", "WHITE", false, false, false),
-		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}\n", "BLACK", "WHITE", false, false, false),
-		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false),
+		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
+		Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
+		Complete : new Style_latex("Complete", -1, "", "\n\n", "DARKGRAY", "WHITE", false, false, false, true),
+		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false),
+		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",
@@ -994,24 +1012,25 @@ var defaultSTYLESHEET={
 		Enumeration6 : "Enumeration"
 	},
 	beamer : {
-		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
-  	Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false),
-  	Heading : new Style_latex("Heading", -1, "", "\n\n", "BLACK", "WHITE", true, false, false),
+		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
+  	Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
+		Complete : new Style_latex("Complete", -1, "", "\n\n", "DARKGRAY", "WHITE", false, false, false, true),
+  	Heading : new Style_latex("Heading", -1, "", "\n\n", "BLACK", "WHITE", true, false, false, false),
 		Heading1 : "Heading",
 		Heading2 : "Heading",
 		Heading3 : "Heading",
-		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE", false, false, false),
-		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE", false, false, false),
-		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false),
-		Frame : new Style_latex("Frame", 3," \\begin{frame}{", "}\n", "BLACK", "WHITE", false, false, false),
-		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false),
+		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Frame : new Style_latex("Frame", 3," \\begin{frame}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",
 		Item3 : "Item",
 		Item4 : "Item",
 		Item5 : "Item",
 		Item6 : "Item",
-		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "\n", "BLACK", "WHITE"),
+		Enumeration : new Style_latex("Enumeration", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Enumeration1 : "Enumeration",
 		Enumeration2 : "Enumeration",
 		Enumeration3 : "Enumeration",

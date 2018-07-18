@@ -1,16 +1,21 @@
 var popup2 = (function() {
 	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
 
-  function shortcut(e) {
+  function close(e) {
       e = e || window.event;
       if (e.keyCode == '27') {
 				window.close();
       }
   };
-	document.addEventListener('keyup', shortcut, false);
+	document.addEventListener('keyup', close, false);
 
   function disableF5(e) { if (e.keyCode == 116 || (e.keyCode == 82 && e.ctrlKey)) e.preventDefault(); };
   document.addEventListener('keydown', disableF5, false);
+
+
+  $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+  });
 
 	chrome.storage.onChanged.addListener(function(changes, namespace) {
 		for (key in changes) {
@@ -96,6 +101,9 @@ var popup2 = (function() {
 						if(profileList[newkey].fragment) $("#yourProfile-fragment").html(HTML_true);
 						else $("#yourProfile-fragment").html(HTML_false);
 
+						if(profileList[newkey].complete) $("#yourProfile-complete").html(HTML_true);
+						else $("#yourProfile-complete").html(HTML_false);
+
 						$("#yourProfile-findReplace").text(profileList[newkey].findReplace.length);
 
 
@@ -135,6 +143,9 @@ var popup2 = (function() {
 
 						if(newProfile.fragment) $("#newProfile-fragment").html(HTML_true);
 						else $("#newProfile-fragment").html(HTML_false);
+
+						if(newProfile.complete) $("#newProfile-complete").html(HTML_true);
+						else $("#newProfile-complete").html(HTML_false);
 
 						$("#newProfile-findReplace").text(newProfile.findReplace.length);
 					}
@@ -216,6 +227,7 @@ var popup2 = (function() {
 						document.getElementById("stripTags").checked =	profile.ignore_tags;
 						document.getElementById("mdSyntax").checked = profile.mdSyntax;
 						document.getElementById("fragment").checked = profile.fragment;
+						document.getElementById("complete").checked = profile.complete;
 						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
 
 						switch (profile.prefix_indent_chars) {
@@ -428,6 +440,7 @@ var popup2 = (function() {
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 						curent_profile.mdSyntax = document.getElementById("mdSyntax").checked;
 						curent_profile.fragment = document.getElementById("fragment").checked;
+						curent_profile.complete = document.getElementById("complete").checked;
 						console.log(curent_profile);
 					};
 
@@ -884,6 +897,27 @@ var popup2 = (function() {
 
 						$("#panelForm").data("finalHeight",$("#panelForm").height());
 						sizeOfExportArea(false);
+
+
+            function shortcut(e) {
+                e = e || window.event;
+                if ((e.keyCode == '82' && e.ctrlKey && e.altKey) || (e.keyCode == '116' && e.ctrlKey)) {
+          				update();
+                }
+                else if ((e.keyCode == '82' && e.ctrlKey) || e.keyCode == '116') {
+                  refresh();
+                }
+                else if (e.keyCode == '67' && e.ctrlKey && !$("#textArea").is(":focus")) {
+    							copyToClipboard($("#textArea").val());
+    							$("#textArea").select();
+                }
+                else if (e.keyCode == '68' && e.ctrlKey) {
+    							if($("#fileName").text() != ""){
+    								download($("#fileName").text(), $("#textArea").val());
+    							}
+                }
+            };
+          	document.addEventListener('keyup', shortcut, false);
 
 					}
 
