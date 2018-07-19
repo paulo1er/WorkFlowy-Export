@@ -1,14 +1,21 @@
 var popup2 = (function() {
 	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
 
-  function shortcut(e) {
+  function close(e) {
       e = e || window.event;
       if (e.keyCode == '27') {
 				window.close();
       }
   };
-	document.addEventListener('keyup', shortcut, false);
+	document.addEventListener('keyup', close, false);
 
+  function disableF5(e) { if (e.keyCode == 116 || (e.keyCode == 82 && e.ctrlKey)) e.preventDefault(); };
+  document.addEventListener('keydown', disableF5, false);
+
+
+  $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+  });
 
 	chrome.storage.onChanged.addListener(function(changes, namespace) {
 		for (key in changes) {
@@ -94,6 +101,9 @@ var popup2 = (function() {
 						if(profileList[newkey].fragment) $("#yourProfile-fragment").html(HTML_true);
 						else $("#yourProfile-fragment").html(HTML_false);
 
+						if(profileList[newkey].complete) $("#yourProfile-complete").html(HTML_true);
+						else $("#yourProfile-complete").html(HTML_false);
+
 						$("#yourProfile-findReplace").text(profileList[newkey].findReplace.length);
 
 
@@ -133,6 +143,9 @@ var popup2 = (function() {
 
 						if(newProfile.fragment) $("#newProfile-fragment").html(HTML_true);
 						else $("#newProfile-fragment").html(HTML_false);
+
+						if(newProfile.complete) $("#newProfile-complete").html(HTML_true);
+						else $("#newProfile-complete").html(HTML_false);
 
 						$("#newProfile-findReplace").text(newProfile.findReplace.length);
 					}
@@ -184,28 +197,9 @@ var popup2 = (function() {
             }
             else $("#formatOptionsColapse [name=formatOptions]").val(profile.format);
 
-						if(profile.format == "opml"){
-							$("#formDefaultItemStyle select").prop("disabled", true);
-							$("#parentDefaultItemStyle").val("None");
-							$("#childDefaultItemStyle").val("None");
-							$("#parentBulletCaracter").hide();
-							$("#childBulletCaracter").hide();
-						}
-						else{
-							$("#formDefaultItemStyle select").prop("disabled", false);
-						}
-
 						$("#parentDefaultItemStyle").val(profile.parentDefaultItemStyle);
-						if(	($("#parentDefaultItemStyle").val() == "Bullet") && (profile.format == "text"))
-							$("#parentBulletCaracter").show();
-						else
-							$("#parentBulletCaracter").hide();
 
 						$("#childDefaultItemStyle").val(profile.childDefaultItemStyle);
-						if( ($("#childDefaultItemStyle").val() == "Bullet") && (profile.format == "text"))
-							$("#childBulletCaracter").show();
-						else
-							$("#childBulletCaracter").hide();
 
 
 
@@ -214,6 +208,7 @@ var popup2 = (function() {
 						document.getElementById("stripTags").checked =	profile.ignore_tags;
 						document.getElementById("mdSyntax").checked = profile.mdSyntax;
 						document.getElementById("fragment").checked = profile.fragment;
+						document.getElementById("complete").checked = profile.complete;
 						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
 
 						switch (profile.prefix_indent_chars) {
@@ -234,6 +229,8 @@ var popup2 = (function() {
 						profile.findReplace.forEach(function(e, id){
 							addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 						});
+
+            dynamicForm();
 
 						$("#panelForm").data("finalHeight",$("#panelForm").height());
 						sizeOfExportArea(false);
@@ -426,6 +423,7 @@ var popup2 = (function() {
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 						curent_profile.mdSyntax = document.getElementById("mdSyntax").checked;
 						curent_profile.fragment = document.getElementById("fragment").checked;
+						curent_profile.complete = document.getElementById("complete").checked;
 						console.log(curent_profile);
 					};
 
@@ -601,6 +599,106 @@ var popup2 = (function() {
 						autoReload();
 					}
 
+          function dynamicForm(){
+            var format;
+            if(textAreaStyle["expandFormatChoice"]) format = $("#formatOptionsExpand [name=formatOptions]:checked").val();
+            else format = $("#formatOptionsColapse [name=formatOptions]").val();
+
+            if(format == "opml"){
+              $("#formDefaultItemStyle select").prop("disabled", true);
+              $("#parentDefaultItemStyle").val("None");
+              $("#childDefaultItemStyle").val("None");
+              $("#parentBulletCaracter").hide();
+              $("#childBulletCaracter").hide();
+            }
+            else{
+              $("#formDefaultItemStyle select").prop("disabled", false);
+            }
+
+            if(	($("#parentDefaultItemStyle").val() == "Bullet") && (format == "text"))
+              $("#parentBulletCaracter").show();
+            else
+              $("#parentBulletCaracter").hide();
+
+            if( ($("#childDefaultItemStyle").val() == "Bullet") && (format == "text"))
+              $("#childBulletCaracter").show();
+            else
+              $("#childBulletCaracter").hide();
+
+            switch(format){
+							case "markdown":
+								$("#indentOptions").prop("disabled", true);
+                $('#indentOptions [value="none"]').attr("label", "No");
+                $("#indentOptions").val("none");
+								break;
+							case "text":
+                $('#indentOptions [value="tab"]').attr("label", "Tabulation");
+                $('#indentOptions [value="space"]').show();
+                $('#indentOptions [value="none"]').attr("label", "None");
+								$("#indentOptions").prop("disabled", false);
+								break;
+							default:
+                $('#indentOptions [value="tab"]').attr("label", "Yes");
+                $('#indentOptions [value="space"]').hide();
+                $('#indentOptions [value="none"]').attr("label", "No");
+								$("#indentOptions").prop("disabled", false);
+								break;
+            }
+
+            switch(format){
+              case "markdown":
+                $("#insertLine").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                $("#fragment").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                $("#complete").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                break;
+              case "text":
+                $("#insertLine").prop({
+                  "disabled": false
+                });
+                $("#fragment").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                $("#complete").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                break;
+              case "latex":
+              case "beamer":
+                $("#insertLine").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                $("#fragment").prop({
+                  "disabled": false
+                });
+                $("#complete").prop({
+                  "disabled": false
+                });
+                break;
+              default:
+                $("#insertLine").prop({
+                  "disabled": false
+                });
+                break;
+            }
+            $("#formOptions label").each(function(){
+              if($('#' + $(this).attr('for')).prop("disabled"))
+                $(this).css("color", "#777");
+              else
+                $(this).css("color", "");
+            })
+          }
 					//add event Listener for the button in the popup
 					function setEventListers() {
 
@@ -608,32 +706,11 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("#formOutputFormat select, #formOutputFormat input, #formDefaultItemStyle input, #formDefaultItemStyle select").change("change", function() {
-              var format;
-              if(textAreaStyle["expandFormatChoice"]) format = $("#formatOptionsExpand [name=formatOptions]:checked").val();
-              else format = $("#formatOptionsColapse [name=formatOptions]").val();
+						$(".autoRefresh select, .autoRefresh  input").change(function(){
+              dynamicForm();
+              autoReload();
+            });
 
-							if(format == "opml"){
-								$("#formDefaultItemStyle select").prop("disabled", true);
-								$("#parentDefaultItemStyle").val("None");
-								$("#childDefaultItemStyle").val("None");
-								$("#parentBulletCaracter").hide();
-								$("#childBulletCaracter").hide();
-							}
-							else{
-								$("#formDefaultItemStyle select").prop("disabled", false);
-							}
-
-							if(	($("#parentDefaultItemStyle").val() == "Bullet") && (format == "text"))
-								$("#parentBulletCaracter").show();
-							else
-								$("#parentBulletCaracter").hide();
-
-							if( ($("#childDefaultItemStyle").val() == "Bullet") && (format == "text"))
-								$("#childBulletCaracter").show();
-							else
-								$("#childBulletCaracter").hide();
-						});
 
 
 						$("#addFindReplace").click(addFindReplace);
@@ -668,8 +745,6 @@ var popup2 = (function() {
 							updadeForm(curent_profile);
 							autoReload();
 						});
-
-						$("#formOutputFormat select, #formOutputFormat input, #formDefaultItemStyle input, #formDefaultItemStyle select, #formIndentation select, #formOptions input").change(autoReload);
 
 						$("#deleteProfile").click(function(){
 							if(curent_profile.name!="list" && isEqual(curent_profile, profileList[curent_profile.name])){
@@ -882,6 +957,27 @@ var popup2 = (function() {
 
 						$("#panelForm").data("finalHeight",$("#panelForm").height());
 						sizeOfExportArea(false);
+
+
+            function shortcut(e) {
+                e = e || window.event;
+                if ((e.keyCode == '82' && e.ctrlKey && e.altKey) || (e.keyCode == '116' && e.ctrlKey)) {
+          				update();
+                }
+                else if ((e.keyCode == '82' && e.ctrlKey) || e.keyCode == '116') {
+                  refresh();
+                }
+                else if (e.keyCode == '67' && e.ctrlKey && !$("#textArea").is(":focus")) {
+    							copyToClipboard($("#textArea").val());
+    							$("#textArea").select();
+                }
+                else if (e.keyCode == '68' && e.ctrlKey) {
+    							if($("#fileName").text() != ""){
+    								download($("#fileName").text(), $("#textArea").val());
+    							}
+                }
+            };
+          	document.addEventListener('keyup', shortcut, false);
 
 					}
 

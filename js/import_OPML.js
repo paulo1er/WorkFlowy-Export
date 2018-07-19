@@ -10,6 +10,7 @@ function import_OPML(textOPML) {
 				note: textToTextExportedList(($(this).attr('_note') || "")),
 				url: '',
 				level: level,
+				complete: $(this).attr('_complete') == "true",
 				children: []
 			});
 			console.log("Node", list[list.length-1]);

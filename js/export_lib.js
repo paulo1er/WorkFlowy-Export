@@ -146,9 +146,12 @@ var exportLib = function(nodes, options, title, email) {
 			return "";
 		},
 		"wfe-text-decoration":function(value="Normal"){
-			var property ="underline";
-			if(value.toUpperCase()=="UNDERLINE") nodesStyle[property] = true;
-			else if(value.toUpperCase()=="NORMAL") nodesStyle[property] = false;
+			if(value.toUpperCase()=="UNDERLINE") nodesStyle["underline"] = true;
+			else if(value.toUpperCase()=="STRIKE") nodesStyle["strike"] = true;
+			else if(value.toUpperCase()=="NORMAL"){
+				nodesStyle["underline"] = false;
+	 			nodesStyle["strike"] = false;
+			}
 			return "";
 		},
 		"wfe-font-color":function(value="Black", hex){
@@ -463,7 +466,9 @@ var exportLib = function(nodes, options, title, email) {
 			switch(options.format){
 				case "beamer" :
 					if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
-						if(node.styleName == "Bullet")
+						if(options.complete && node.complete)
+							styleName = "Complete";
+						else if(node.styleName == "Bullet")
 							styleName = "Item";
 						else if(node.styleName == "Enumeration")
 							styleName = "Enumeration";
@@ -482,7 +487,9 @@ var exportLib = function(nodes, options, title, email) {
 					}
 					break
 				case "latex" :
-					if(node.styleName == "Heading" && node.level<3)
+					if(options.complete && node.complete)
+						styleName = "Complete"
+					else if(node.styleName == "Heading" && node.level<3)
 						styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
 						styleName = "Item";
@@ -492,7 +499,9 @@ var exportLib = function(nodes, options, title, email) {
 						styleName = "Normal";
 					break
 				case "html" :
-					if(node.styleName == "Heading")
+					if(options.complete && node.complete)
+						styleName = "Complete"
+					else if(node.styleName == "Heading")
 						styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
 						styleName = "Item";
@@ -502,7 +511,9 @@ var exportLib = function(nodes, options, title, email) {
 						styleName = "Normal";
 					break
 				case "rtf" :
-					if(node.styleName == "Heading")
+					if(options.complete && node.complete)
+						styleName = "Complete"
+					else if(node.styleName == "Heading")
 						styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
 						styleName = "Item"+(node.level+1);
@@ -745,7 +756,6 @@ var exportLib = function(nodes, options, title, email) {
 				indent = Array(node.style.level+1).join(options.prefix_indent_chars);
 				if(node.styleName == "Code") indent = Array(node.level+1).join(options.prefix_indent_chars);
 				if(node.styleName == "CodeBlock") output_after_children += "```\n\n";
-				console.log(indent, "WWWWWWWW", Array(node.level+1));
 				output += indent + node.style.toExport(text);
 				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 			}
@@ -757,23 +767,23 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Item"))
-						output += indent + "<ul>\n";
+						output += indent + "<ul>" + options.item_sep;
 					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
-						output_after_children += indent + "</ul>\n";
+						output_after_children += indent + "</ul>" + options.item_sep;
 				}
 				if(node.styleName == "Enumeration"){
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-						output += indent + "<ol>\n";
+						output += indent + "<ol>" + options.item_sep;
 					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
-						output_after_children += indent + "</ol>\n";
+						output_after_children += indent + "</ol>" + options.item_sep;
 				}
 				output += indent + node.style.toExport(text);
 
 				if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
 
-				output = output + options.item_sep;
+				output += options.item_sep;
 				if (node.page_break)
 						output = output + "<div class=\"page-break\"></div>\n";
 			}
@@ -846,19 +856,22 @@ var exportLib = function(nodes, options, title, email) {
 			}
 
 			else if (options.format == 'opml') {
-				output = output + indent + "<outline text=\"" + text + "\"";
-				if (options.outputNotes) output = output + " _note=\"" + note + "\"";
-				output = output + ">\n";
-				output_after_children += indent + "</outline>\n";
+				output += indent + "<outline text=\"" + text + "\"";
+				if (options.outputNotes) output += " _note=\"" + note + "\"";
+				if (options.complete && node.complete) output +=" _complete=\"true\"";
+				if(node.children.length == 0) output += "/>" + options.item_sep;
+				else {
+					output += ">" + options.item_sep;
+					output_after_children += indent + "</outline>" + options.item_sep;
+				}
 			}
 
 			else if (options.format == 'rtf') {
 				text = text.replace(/--/g, "\\endash ");
 				var str="";
 				for (var i = 0; i < text.length; i++) {
-					console.log(text.charCodeAt(i));
-					 if(text.charCodeAt(i)>127) str += "{\\uc1\\u"+ text.charCodeAt(i)+"*}";
-					 else str+=text.charAt(i);
+					if(text.charCodeAt(i)>127) str += "{\\uc1\\u"+ text.charCodeAt(i)+"*}";
+					else str+=text.charAt(i);
 				}
 				text = str;
 
@@ -870,11 +883,12 @@ var exportLib = function(nodes, options, title, email) {
 					text = "{\\f3 "+node.style.counter+"} " + text;
 				}
 
-				output += node.style.toExport(text);
+				output += indent + node.style.toExport(text);
+				if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
+				output += options.item_sep;
 
 				if (node.page_break)
 					output = output + "\\page";
-				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 			}
 
 			else {

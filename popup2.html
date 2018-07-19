@@ -40,9 +40,9 @@
 									<div class="container-fluid">
 										<div class="input-group">
 											<span class="input-group-btn">
-												<button id="refresh" type="button" class="btn btn-primary">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
-												<button id="copy" class="btn btn-default">Copy <i class="glyphicon glyphicon-copy"></i></button>
-												<button id="download" class="btn btn-default">Download <i class="glyphicon glyphicon-download"></i></button>
+												<button id="refresh" type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Ctrl+R or F5">Refresh <i class="glyphicon glyphicon-refresh"></i></button>
+												<button id="copy" class="btn btn-default" data-toggle="tooltip" data-placement="bottom" title="Ctrl+C">Copy <i class="glyphicon glyphicon-copy"></i></button>
+												<button id="download" class="btn btn-default" data-toggle="tooltip" data-placement="bottom" title="Ctrl+D">Download <i class="glyphicon glyphicon-download"></i></button>
 											</span>
 
 
@@ -51,7 +51,7 @@
 										      Reload <i class="glyphicon glyphicon-refresh"></i> <span class="caret"></span>
 										    </button>
     										<ul class="dropdown-menu">
-													<li><a id="update">Reload WorkFlowy</a></li>
+													<li><a id="update" data-toggle="tooltip" data-placement="bottom" title="Ctrl+Alt+R or Alt+F5">Reload WorkFlowy</a></li>
 													<li><a id="importOPML">Import OPML</a></li>
 													<li><a id="pasteOPML">Paste OPML</a></li>
 										    </ul>
@@ -76,7 +76,7 @@
 								<div class="panel-body">
 									<div class="container-fluid" id="form">
 										<div class="row">
-											<div id="col1" class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="col1" class="col-xs-12 col-sm-6 col-md-12 col-lg-6 autoRefresh">
 											<div id="formOutputFormat" class="well">
 												<div id="formatOptionsColapse" class="input-group input-group-sm">
 													<label class="input-group-addon" for="formatOptions">Output Format</label>
@@ -181,7 +181,7 @@
 											</div>
 											</div>
 
-											<div id="col2" class="col-xs-12 col-sm-6 col-md-12 col-lg-6">
+											<div id="col2" class="col-xs-12 col-sm-6 col-md-12 col-lg-6 autoRefresh">
 											<div id="formOptions" class="well">
 												<p class="text-center">Options</p>
 												<div class="input-group input-group-sm">
@@ -219,6 +219,12 @@
 														<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
 													</span>
 													<label class="form-control" for="fragment">Fragment</label>
+												</div>
+												<div class="input-group input-group-sm">
+													<span class="input-group-addon">
+														<input type="checkbox" id="complete" name="complete" class="form-check-input with-gap">
+													</span>
+													<label class="form-control" for="complete">Complete</label>
 												</div>
 											</div>
 											</div>
@@ -497,6 +503,11 @@
 									<div class="col-sm-4 bg-primary">Fragment</div>
 									<div class="col-sm-4 bg-info text-center" id="yourProfile-fragment"></div>
 									<div class="col-sm-4 bg-info text-center" id="newProfile-fragment"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Complete</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-complete"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-complete"></div>
 							</div>
 							<div class="row">
 									<div class="col-sm-4 bg-primary">Nb Find and Replace</div>
