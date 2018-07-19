@@ -644,6 +644,53 @@ var popup2 = (function() {
 								$("#indentOptions").prop("disabled", false);
 								break;
             }
+
+            switch(format){
+              case "markdown":
+                $("#insertLine").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                $("#fragment").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                $("#complete").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                break;
+              case "text":
+                $("#insertLine").prop({
+                  "disabled": false
+                });
+                $("#fragment").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                $("#complete").prop({
+                  "disabled": true,
+                  "checked": false
+                });
+                break;
+              default:
+                $("#insertLine").prop({
+                  "disabled": false
+                });
+                $("#fragment").prop({
+                  "disabled": false
+                });
+                $("#complete").prop({
+                  "disabled": false
+                });
+                break;
+            }
+            $("#formOptions label").each(function(){
+              if($('#' + $(this).attr('for')).prop("disabled"))
+                $(this).css("color", "#777");
+              else
+                $(this).css("color", "");
+            })
           }
 					//add event Listener for the button in the popup
 					function setEventListers() {
