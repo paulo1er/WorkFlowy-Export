@@ -673,14 +673,21 @@ var popup2 = (function() {
                   "checked": false
                 });
                 break;
-              default:
+              case "latex":
+              case "beamer":
                 $("#insertLine").prop({
-                  "disabled": false
+                  "disabled": true,
+                  "checked": false
                 });
                 $("#fragment").prop({
                   "disabled": false
                 });
                 $("#complete").prop({
+                  "disabled": false
+                });
+                break;
+              default:
+                $("#insertLine").prop({
                   "disabled": false
                 });
                 break;

@@ -767,23 +767,23 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Item"))
-						output += indent + "<ul>\n";
+						output += indent + "<ul>" + options.item_sep;
 					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
-						output_after_children += indent + "</ul>\n";
+						output_after_children += indent + "</ul>" + options.item_sep;
 				}
 				if(node.styleName == "Enumeration"){
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-						output += indent + "<ol>\n";
+						output += indent + "<ol>" + options.item_sep;
 					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
-						output_after_children += indent + "</ol>\n";
+						output_after_children += indent + "</ol>" + options.item_sep;
 				}
 				output += indent + node.style.toExport(text);
 
 				if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
 
-				output = output + options.item_sep;
+				output += options.item_sep;
 				if (node.page_break)
 						output = output + "<div class=\"page-break\"></div>\n";
 			}
@@ -859,8 +859,11 @@ var exportLib = function(nodes, options, title, email) {
 				output += indent + "<outline text=\"" + text + "\"";
 				if (options.outputNotes) output += " _note=\"" + note + "\"";
 				if (options.complete && node.complete) output +=" _complete=\"true\"";
-				output += ">\n";
-				output_after_children += indent + "</outline>\n";
+				if(node.children.length == 0) output += "/>" + options.item_sep;
+				else {
+					output += ">" + options.item_sep;
+					output_after_children += indent + "</outline>" + options.item_sep;
+				}
 			}
 
 			else if (options.format == 'rtf') {
@@ -881,8 +884,8 @@ var exportLib = function(nodes, options, title, email) {
 				}
 
 				output += indent + node.style.toExport(text);
-
-				if ((note !== "") && options.outputNotes) output += indent + STYLESHEETused["Note"].toExport(note);
+				if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
+				output += options.item_sep;
 
 				if (node.page_break)
 					output = output + "\\page";

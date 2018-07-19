@@ -860,7 +860,7 @@ class Style_rtf extends Style{
 		return str;
 	}
 	toExport(text){
-		return "{\\pard " + this.toString(defaultSTYLESHEET.rtf[this.name]) + "{" + text +"}\\par}\n";
+		return "{\\pard " + this.toString(defaultSTYLESHEET.rtf[this.name]) + "{" + text +"}\\par}";
 	}
 }
 
