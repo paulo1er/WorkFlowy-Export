@@ -856,10 +856,10 @@ var exportLib = function(nodes, options, title, email) {
 			}
 
 			else if (options.format == 'opml') {
-				output = output + indent + "<outline text=\"" + text + "\"";
-				if (options.outputNotes) output = output + " _note=\"" + note + "\"";
-				if (options.complete && node.complete) output = output + " _complete=\"true\"";
-				output = output + ">\n";
+				output += indent + "<outline text=\"" + text + "\"";
+				if (options.outputNotes) output += " _note=\"" + note + "\"";
+				if (options.complete && node.complete) output +=" _complete=\"true\"";
+				output += ">\n";
 				output_after_children += indent + "</outline>\n";
 			}
 
@@ -867,9 +867,8 @@ var exportLib = function(nodes, options, title, email) {
 				text = text.replace(/--/g, "\\endash ");
 				var str="";
 				for (var i = 0; i < text.length; i++) {
-					console.log(text.charCodeAt(i));
-					 if(text.charCodeAt(i)>127) str += "{\\uc1\\u"+ text.charCodeAt(i)+"*}";
-					 else str+=text.charAt(i);
+					if(text.charCodeAt(i)>127) str += "{\\uc1\\u"+ text.charCodeAt(i)+"*}";
+					else str+=text.charAt(i);
 				}
 				text = str;
 
@@ -881,11 +880,12 @@ var exportLib = function(nodes, options, title, email) {
 					text = "{\\f3 "+node.style.counter+"} " + text;
 				}
 
-				output += node.style.toExport(text);
+				output += indent + node.style.toExport(text);
+
+				if ((note !== "") && options.outputNotes) output += indent + STYLESHEETused["Note"].toExport(note);
 
 				if (node.page_break)
 					output = output + "\\page";
-				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 			}
 
 			else {

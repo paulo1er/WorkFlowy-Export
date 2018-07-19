@@ -197,28 +197,9 @@ var popup2 = (function() {
             }
             else $("#formatOptionsColapse [name=formatOptions]").val(profile.format);
 
-						if(profile.format == "opml"){
-							$("#formDefaultItemStyle select").prop("disabled", true);
-							$("#parentDefaultItemStyle").val("None");
-							$("#childDefaultItemStyle").val("None");
-							$("#parentBulletCaracter").hide();
-							$("#childBulletCaracter").hide();
-						}
-						else{
-							$("#formDefaultItemStyle select").prop("disabled", false);
-						}
-
 						$("#parentDefaultItemStyle").val(profile.parentDefaultItemStyle);
-						if(	($("#parentDefaultItemStyle").val() == "Bullet") && (profile.format == "text"))
-							$("#parentBulletCaracter").show();
-						else
-							$("#parentBulletCaracter").hide();
 
 						$("#childDefaultItemStyle").val(profile.childDefaultItemStyle);
-						if( ($("#childDefaultItemStyle").val() == "Bullet") && (profile.format == "text"))
-							$("#childBulletCaracter").show();
-						else
-							$("#childBulletCaracter").hide();
 
 
 
@@ -248,6 +229,8 @@ var popup2 = (function() {
 						profile.findReplace.forEach(function(e, id){
 							addLineOfTableRindReplace(id, e.txtFind, e.txtReplace, e.isRegex, e.isMatchCase);
 						});
+
+            dynamicForm();
 
 						$("#panelForm").data("finalHeight",$("#panelForm").height());
 						sizeOfExportArea(false);
@@ -616,6 +599,52 @@ var popup2 = (function() {
 						autoReload();
 					}
 
+          function dynamicForm(){
+            var format;
+            if(textAreaStyle["expandFormatChoice"]) format = $("#formatOptionsExpand [name=formatOptions]:checked").val();
+            else format = $("#formatOptionsColapse [name=formatOptions]").val();
+
+            if(format == "opml"){
+              $("#formDefaultItemStyle select").prop("disabled", true);
+              $("#parentDefaultItemStyle").val("None");
+              $("#childDefaultItemStyle").val("None");
+              $("#parentBulletCaracter").hide();
+              $("#childBulletCaracter").hide();
+            }
+            else{
+              $("#formDefaultItemStyle select").prop("disabled", false);
+            }
+
+            if(	($("#parentDefaultItemStyle").val() == "Bullet") && (format == "text"))
+              $("#parentBulletCaracter").show();
+            else
+              $("#parentBulletCaracter").hide();
+
+            if( ($("#childDefaultItemStyle").val() == "Bullet") && (format == "text"))
+              $("#childBulletCaracter").show();
+            else
+              $("#childBulletCaracter").hide();
+
+            switch(format){
+							case "markdown":
+								$("#indentOptions").prop("disabled", true);
+                $('#indentOptions [value="none"]').attr("label", "No");
+                $("#indentOptions").val("none");
+								break;
+							case "text":
+                $('#indentOptions [value="tab"]').attr("label", "Tabulation");
+                $('#indentOptions [value="space"]').show();
+                $('#indentOptions [value="none"]').attr("label", "None");
+								$("#indentOptions").prop("disabled", false);
+								break;
+							default:
+                $('#indentOptions [value="tab"]').attr("label", "Yes");
+                $('#indentOptions [value="space"]').hide();
+                $('#indentOptions [value="none"]').attr("label", "No");
+								$("#indentOptions").prop("disabled", false);
+								break;
+            }
+          }
 					//add event Listener for the button in the popup
 					function setEventListers() {
 
@@ -623,32 +652,11 @@ var popup2 = (function() {
 
 						$("#update").click(update);
 
-						$("#formOutputFormat select, #formOutputFormat input, #formDefaultItemStyle input, #formDefaultItemStyle select").change("change", function() {
-              var format;
-              if(textAreaStyle["expandFormatChoice"]) format = $("#formatOptionsExpand [name=formatOptions]:checked").val();
-              else format = $("#formatOptionsColapse [name=formatOptions]").val();
+						$(".autoRefresh select, .autoRefresh  input").change(function(){
+              dynamicForm();
+              autoReload();
+            });
 
-							if(format == "opml"){
-								$("#formDefaultItemStyle select").prop("disabled", true);
-								$("#parentDefaultItemStyle").val("None");
-								$("#childDefaultItemStyle").val("None");
-								$("#parentBulletCaracter").hide();
-								$("#childBulletCaracter").hide();
-							}
-							else{
-								$("#formDefaultItemStyle select").prop("disabled", false);
-							}
-
-							if(	($("#parentDefaultItemStyle").val() == "Bullet") && (format == "text"))
-								$("#parentBulletCaracter").show();
-							else
-								$("#parentBulletCaracter").hide();
-
-							if( ($("#childDefaultItemStyle").val() == "Bullet") && (format == "text"))
-								$("#childBulletCaracter").show();
-							else
-								$("#childBulletCaracter").hide();
-						});
 
 
 						$("#addFindReplace").click(addFindReplace);
@@ -683,8 +691,6 @@ var popup2 = (function() {
 							updadeForm(curent_profile);
 							autoReload();
 						});
-
-						$("#formOutputFormat select, #formOutputFormat input, #formDefaultItemStyle input, #formDefaultItemStyle select, #formIndentation select, #formOptions input").change(autoReload);
 
 						$("#deleteProfile").click(function(){
 							if(curent_profile.name!="list" && isEqual(curent_profile, profileList[curent_profile.name])){
