@@ -468,6 +468,8 @@ var exportLib = function(nodes, options, title, email) {
 					if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
 						if(options.complete && node.complete)
 							styleName = "Complete";
+						else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
+							styleName = "CompleteChild";
 						else if(node.styleName == "Bullet")
 							styleName = "Item";
 						else if(node.styleName == "Enumeration")
@@ -489,6 +491,8 @@ var exportLib = function(nodes, options, title, email) {
 				case "latex" :
 					if(options.complete && node.complete)
 						styleName = "Complete"
+					else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
+						styleName = "CompleteChild";
 					else if(node.styleName == "Heading" && node.level<3)
 						styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
@@ -501,6 +505,8 @@ var exportLib = function(nodes, options, title, email) {
 				case "html" :
 					if(options.complete && node.complete)
 						styleName = "Complete"
+					else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
+						styleName = "CompleteChild";
 					else if(node.styleName == "Heading")
 						styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
@@ -513,6 +519,8 @@ var exportLib = function(nodes, options, title, email) {
 				case "rtf" :
 					if(options.complete && node.complete)
 						styleName = "Complete"
+					else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
+						styleName = "CompleteChild";
 					else if(node.styleName == "Heading")
 						styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
