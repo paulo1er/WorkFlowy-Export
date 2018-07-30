@@ -690,6 +690,12 @@ var popup2 = (function() {
                 $("#insertLine").prop({
                   "disabled": false
                 });
+                $("#fragment").prop({
+                  "disabled": false
+                });
+                $("#complete").prop({
+                  "disabled": false
+                });
                 break;
             }
             $("#formOptions label").each(function(){
