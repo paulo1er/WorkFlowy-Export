@@ -27,7 +27,10 @@
 						window.close();
 						break;
 					case "noWindow" :
-						none(tabs[0].id);
+						none(tabs[0].id, function(){
+							$("#text").text("Done!");
+							window.close();
+						});
 						break;
 					default:
 						var width = Math.max(tabs[0].width*0.75, 500);
@@ -58,7 +61,7 @@
 					var g_url = response.url;
 					var g_email= response.email;
 					console.log("EXPORT : ",response, curent_profile)
-					var text = exportLib(copy(g_nodes), copy(curent_profile), g_title, g_email);
+					var text = exportLib(g_nodes, curent_profile, g_title, g_email);
 					var fileName = g_title + extensionFileName(curent_profile.format);
 
 					if(refreshOptions["autoCopy"]){

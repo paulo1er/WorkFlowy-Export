@@ -14,8 +14,6 @@ var exportLib = function(nodes, options, title, email) {
 	var WFE_TAG_REGEXP = /(?:^|\s)#wfe-([\w-]*)(?::([\w-:]*))?/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
-	var styleName="Normal";
-	var nodesStyle;
 
 	var ignore_item = false;
 	var ignore_outline = false;
@@ -25,6 +23,8 @@ var exportLib = function(nodes, options, title, email) {
 	var body = "";
 	var footer = "";
 	var nodesTree = arrayToTree(nodes);
+
+	var node = nodes;
 	console.log("nodesTree :", nodesTree);
 
 	function WFE(name, parameter=null){
@@ -83,74 +83,79 @@ var exportLib = function(nodes, options, title, email) {
 			console.log("change style by WFE-style", style, allStyle);
 			style = style.charAt(0).toUpperCase() + style.slice(1);
 			if(allStyle.hasOwnProperty(style)) {
-				nodesStyle = allStyle.get(style);
-				styleName = allStyle.getName(style);
+				node.style = allStyle.get(style);
+				node.styleName = allStyle.getName(style);
+
+				if(options.complete && node.complete)
+					node.style.changeType("Complete");
+				else if(options.complete && node.parent.style && (node.parent.style.type=="Complete" || node.parent.style.type=="CompleteChild"))
+					node.style.changeType("CompleteChild");
 			}
 			return "";
 		},
 
 		"wfe-text-align":function(value="left"){
 			var property ="aligement";
-			if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") nodesStyle[property] = "left";
-			else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") nodesStyle[property] = "right";
-			else if(value.toUpperCase()=="CENTER" || value.toUpperCase()=="C") nodesStyle[property] = "center";
-			else if(value.toUpperCase()=="JUSTIFIED" || value.toUpperCase()=="J") nodesStyle[property] = "justified";
+			if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") node.style[property] = "left";
+			else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") node.style[property] = "right";
+			else if(value.toUpperCase()=="CENTER" || value.toUpperCase()=="C") node.style[property] = "center";
+			else if(value.toUpperCase()=="JUSTIFIED" || value.toUpperCase()=="J") node.style[property] = "justified";
 			return "";
 		},
 		"wfe-indent-first":function(value=0){
 			var property ="indentation_first_line";
-			if(!isNaN(value)) nodesStyle[property] = value;
+			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
 		"wfe-indent-left":function(value=0){
 			var property ="indentation_left";
-			if(!isNaN(value)) nodesStyle[property] = value;
+			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
 		"wfe-indent-right":function(value=0){
 			var property ="indentation_right";
-			if(!isNaN(value)) nodesStyle[property] = value;
+			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
 		"wfe-line-spacing-before":function(value=0){
 			var property ="spacing_before";
-			if(!isNaN(value)) nodesStyle[property] = value;
+			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
 		"wfe-line-spacing-after":function(value=0){
 			var property ="spacing_after";
-			if(!isNaN(value)) nodesStyle[property] = value;
+			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
 		"wfe-font-face":function(value="Arial"){
 			var property ="font";
 			value = value.toUpperCase().replaceAll("_", " ");
-			if(allFont.hasOwnProperty(value) > -1) nodesStyle[property] = value;
+			if(allFont.hasOwnProperty(value) > -1) node.style[property] = value;
 			return "";
 		},
 		"wfe-font-size":function(value=11){
 			var property ="font_size";
-			if(!isNaN(value)) nodesStyle[property] = value;
+			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
 		"wfe-font-weight":function(value="Normal"){
 			var property ="bold";
-			if(value.toUpperCase()=="BOLD") nodesStyle[property] = true;
-			else if(value.toUpperCase()=="NORMAL") nodesStyle[property] = false;
+			if(value.toUpperCase()=="BOLD") node.style[property] = true;
+			else if(value.toUpperCase()=="NORMAL") node.style[property] = false;
 			return "";
 		},
 		"wfe-font-style":function(value="Normal"){
 			var property ="italic";
-			if(value.toUpperCase()=="ITALIC") nodesStyle[property] = true;
-			else if(value.toUpperCase()=="NORMAL") nodesStyle[property] = false;
+			if(value.toUpperCase()=="ITALIC") node.style[property] = true;
+			else if(value.toUpperCase()=="NORMAL") node.style[property] = false;
 			return "";
 		},
 		"wfe-text-decoration":function(value="Normal"){
-			if(value.toUpperCase()=="UNDERLINE") nodesStyle["underline"] = true;
-			else if(value.toUpperCase()=="STRIKE") nodesStyle["strike"] = true;
+			if(value.toUpperCase()=="UNDERLINE") node.style["underline"] = true;
+			else if(value.toUpperCase()=="STRIKE") node.style["strike"] = true;
 			else if(value.toUpperCase()=="NORMAL"){
-				nodesStyle["underline"] = false;
-	 			nodesStyle["strike"] = false;
+				node.style["underline"] = false;
+	 			node.style["strike"] = false;
 			}
 			return "";
 		},
@@ -166,9 +171,9 @@ var exportLib = function(nodes, options, title, email) {
 
 				var newColorName = "Color"+c;
 				COLORSHEETused.addColor(newColorName, [(c>>16)&255, (c>>8)&255, c&255]);
-				nodesStyle[property] = newColorName;
+				node.style[property] = newColorName;
 			}
-			else if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
+			else if(allColor.hasOwnProperty(value)) node.style[property] = value;
 			return "";
 		},
 		"wfe-background":function(value="White", hex){
@@ -183,9 +188,9 @@ var exportLib = function(nodes, options, title, email) {
 
 				var newColorName = "Color"+c;
 				COLORSHEETused.addColor(newColorName, [(c>>16)&255, (c>>8)&255, c&255]);
-				nodesStyle[property] = newColorName;
+				node.style[property] = newColorName;
 			}
-			else if(allColor.hasOwnProperty(value)) nodesStyle[property] = value;
+			else if(allColor.hasOwnProperty(value)) node.style[property] = value;
 			return "";
 		},
 
@@ -199,9 +204,9 @@ var exportLib = function(nodes, options, title, email) {
 		},
 
 		"wfe-beamer-slide": function(){
-			if(allStyle.hasOwnProperty("Frame") && (styleName=="Title" || styleName=="Section" || styleName=="Subsection")) {
-				nodesStyle = allStyle.get("Frame");
-				styleName = allStyle.getName("Frame");
+			if(allStyle.hasOwnProperty("Frame") && (node.styleName=="Title" || node.styleName=="Section" || node.styleName=="Subsection")) {
+				node.style = allStyle.get("Frame");
+				node.styleName = allStyle.getName("Frame");
 			}
 			return "";
 		}
@@ -232,8 +237,7 @@ var exportLib = function(nodes, options, title, email) {
 		[/^### /,"#wfe-style:Heading3 "],
 		[/^#### /,"#wfe-style:Heading4 "],
 		[/^##### /,"#wfe-style:Heading5 "],
-		[/^###### /,"#wfe-style:Heading6 "],
-		[/^``` /,"#wfe-style:CodeBlock "]
+		[/^###### /,"#wfe-style:Heading6 "]
 	];
 
 	var ESCAPE_CHARACTER = {
@@ -445,7 +449,8 @@ var exportLib = function(nodes, options, title, email) {
 		return header + body + footer;
 	}
 
-	function applyRulesNodesTree(node, options, codeBlock=false){
+	function applyRulesNodesTree(l_node, options){
+		node = l_node;
 		if(node.type != "dummy"){
 			node.level=node.parent.level+1;
 
@@ -466,93 +471,82 @@ var exportLib = function(nodes, options, title, email) {
 			switch(options.format){
 				case "beamer" :
 					if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
-						if(options.complete && node.complete)
-							styleName = "Complete";
-						else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
-							styleName = "CompleteChild";
-						else if(node.styleName == "Bullet")
-							styleName = "Item";
+						if(node.styleName == "Bullet")
+							node.styleName = "Item";
 						else if(node.styleName == "Enumeration")
-							styleName = "Enumeration";
+							node.styleName = "Enumeration";
 						else if(node.styleName == "Heading")
-							styleName = "Heading";
+							node.styleName = "Heading";
 						else
-							styleName = "Normal";
+							node.styleName = "Normal";
 						break;
 					}
 					else {
 						var frameLevel=2;
-						if(frameLevel >= 3 && node.level == 0 && node.children.length != 0)styleName = "Title";
-						else if (frameLevel >= 2 && node.parent.type != "dummy" && node.parent.styleName=="Section"  && node.children.length != 0) styleName = "Subsection";
-						else if (frameLevel >= 1 && (node.parent.type == "dummy" || node.parent.styleName=="Title")  && node.children.length != 0) styleName = "Section";
-						else styleName = "Frame";
+						if(frameLevel >= 3 && node.level == 0 && node.children.length != 0) node.styleName = "Title";
+						else if (frameLevel >= 2 && node.parent.type != "dummy" && node.parent.styleName=="Section"  && node.children.length != 0) node.styleName = "Subsection";
+						else if (frameLevel >= 1 && (node.parent.type == "dummy" || node.parent.styleName=="Title")  && node.children.length != 0) node.styleName = "Section";
+						else node.styleName = "Frame";
 					}
 					break
 				case "latex" :
-					if(options.complete && node.complete)
-						styleName = "Complete"
-					else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
-						styleName = "CompleteChild";
-					else if(node.styleName == "Heading" && node.level<3)
-						styleName = "Heading"+(node.level+1)
+					if(node.styleName == "Heading" && node.level<3)
+						node.styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
-						styleName = "Item";
+						node.styleName = "Item";
 					else if(node.styleName == "Enumeration")
-						styleName = "Enumeration";
+						node.styleName = "Enumeration";
 					else
-						styleName = "Normal";
+						node.styleName = "Normal";
 					break
 				case "html" :
-					if(options.complete && node.complete)
-						styleName = "Complete"
-					else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
-						styleName = "CompleteChild";
-					else if(node.styleName == "Heading")
-						styleName = "Heading"+(node.level+1)
+					if(node.styleName == "Heading")
+						node.styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
-						styleName = "Item";
+						node.styleName = "Item";
 					else if(node.styleName == "Enumeration")
-						styleName = "Enumeration";
+						node.styleName = "Enumeration";
 					else
-						styleName = "Normal";
+						node.styleName = "Normal";
 					break
 				case "rtf" :
-					if(options.complete && node.complete)
-						styleName = "Complete"
-					else if(options.complete && (node.parent.styleName=="Complete" || node.parent.styleName=="CompleteChild"))
-						styleName = "CompleteChild";
-					else if(node.styleName == "Heading")
-						styleName = "Heading"+(node.level+1)
+					if(node.styleName == "Heading")
+						node.styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
-						styleName = "Item"+(node.level+1);
+						node.styleName = "Item"+(node.level+1);
 					else if(node.styleName == "Enumeration")
-						styleName = "Enumeration"+(node.level+1);
+						node.styleName = "Enumeration"+(node.level+1);
 					else
-						styleName = "Normal";
+						node.styleName = "Normal";
 					break
 				case "markdown" :
 					if(node.styleName == "Heading")
-						styleName = "Heading"+(node.level+1)
+						node.styleName = "Heading"+(node.level+1)
 					else if(node.styleName == "Bullet")
-						styleName = "Item"+(node.level+1);
+						node.styleName = "Item"+(node.level+1);
 					else if(node.styleName == "Enumeration")
-						styleName = "Enumeration"+(node.level+1);
+						node.styleName = "Enumeration"+(node.level+1);
 					else
-						styleName = "Normal";
+						node.styleName = "Normal";
 					break
 				case "text" :
 					if(node.styleName == "Bullet")
-						styleName = "Item"+(node.level+1);
+						node.styleName = "Item"+(node.level+1);
 					else if(node.styleName == "Enumeration")
-						styleName = "Enumeration"+(node.level+1);
+						node.styleName = "Enumeration"+(node.level+1);
 					else
-						styleName = "Normal";
+						node.styleName = "Normal";
 					break
 				default :
-					styleName = "Normal";
+					node.styleName = "Normal";
 			}
 
-			nodesStyle = allStyle.get(styleName);
+			node.style = allStyle.get(node.styleName);
+
+			if(options.complete && node.complete)
+				node.style.changeType("Complete");
+			else if(options.complete && node.parent.style && (node.parent.style.type=="Complete" || node.parent.style.type=="CompleteChild"))
+				node.style.changeType("CompleteChild");
 
 			node.title.forEach(function(e, i) {
 				node.title[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic, e.isStrike));
@@ -657,27 +651,14 @@ var exportLib = function(nodes, options, title, email) {
 					return String.fromCharCode(parseInt($1, 16));
 				}]);
 			}
-			if(codeBlock){
-					nodesStyle = allStyle.get("Code");
-					styleName = allStyle.getName("Code");
-			}
 
-			if(styleName == "CodeBlock"){
-				node.level=-1;
-				if(options.format == "html") node.type="CodeBlock";
-				codeBlock=true;
-			}
-			else{
-				node.styleName=styleName;
-				node.style=nodesStyle;
-				console.log("style :",styleName, allStyle);
-				STYLESHEETused.addStyle(styleName);
-				if(node.note.length != 0) STYLESHEETused.addStyle("Note");
-				if((STYLESHEETused[styleName] instanceof Style_rtf) && (node.style instanceof Style_rtf)) node.style.id = STYLESHEETused[styleName].id;
-				COLORSHEETused.addColor(node.style.color);
-				COLORSHEETused.addColor(node.style.background_color);
-				FONTSHEETused.addFont(node.style.font);
-			}
+			console.log("style :", node.style);
+			STYLESHEETused.addStyle(node.styleName);
+			if(node.note.length != 0) STYLESHEETused.addStyle("Note");
+			if((STYLESHEETused[node.styleName] instanceof Style_rtf) && (node.style instanceof Style_rtf)) node.style.id = STYLESHEETused[node.styleName].id;
+			COLORSHEETused.addColor(node.style.color);
+			COLORSHEETused.addColor(node.style.background_color);
+			FONTSHEETused.addFont(node.style.font);
 
 			if((node.style instanceof Style_Bullet) || (node.style instanceof Style_rtf)){
 				var i=-1;
@@ -737,17 +718,18 @@ var exportLib = function(nodes, options, title, email) {
 		verbatim = true;
 		page_break = false;
 		var i = 0;
-		while(i < node.children.length){
-			var childNode = node.children[i];
+		while(i < l_node.children.length){
+			var childNode = l_node.children[i];
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
 				if(j>childNode.level) ALIASmdSyntax_enumList_index[j]=0;
 			})
-			applyRulesNodesTree(childNode, options, codeBlock);
-			if(childNode == node.children[i])i++;
+			applyRulesNodesTree(childNode, options);
+			if(childNode == l_node.children[i])i++;
 		}
 	}
 
-	exportNodesTreeBody = function(node, options) {
+	exportNodesTreeBody = function(l_node, options) {
+		node = l_node;
 		var indent = node.indent;
 		var output = "";
 		var output_after_children = "";
@@ -762,15 +744,13 @@ var exportLib = function(nodes, options, title, email) {
 			// Update output
 			if(options.format == 'markdown'){
 				indent = Array(node.style.level+1).join(options.prefix_indent_chars);
-				if(node.styleName == "Code") indent = Array(node.level+1).join(options.prefix_indent_chars);
-				if(node.styleName == "CodeBlock") output_after_children += "```\n\n";
 				output += indent + node.style.toExport(text);
 				if ((note !== "") && options.outputNotes) output += STYLESHEETused["Note"].toExport(note);
 			}
 
 			else if (options.format == 'html') {
 				text = text.replace(/--/g, "&ndash;");
-
+				indent = Array(node.level+1).join("\t");
 				if(node.styleName == "Item"){
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
@@ -801,7 +781,7 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Item"))
-						output += indent + "\\begin{itemize}\n";
+						output += "\\begin{itemize}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
 						output_after_children += indent + "\\end{itemize}\n";
 				}
@@ -809,23 +789,23 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-						output += indent + "\\begin{enumerate}\n";
+						output += "\\begin{enumerate}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
 						output_after_children += indent + "\\end{enumerate}\n";
 				}
 				else if (node.styleName == "Heading1"){
-					output_after_children += indent + "\\end{section}\n";
+					output_after_children +=  "\\end{section}\n";
 				}
 				else if (node.styleName == "Heading2"){
-					output_after_children += indent + "\\end{subsection}\n";
+					output_after_children += "\\end{subsection}\n";
 				}
 				else if (node.styleName == "Heading3"){
-					output_after_children += indent + "\\end{subsubsection}\n";
+					output_after_children += "\\end{subsubsection}\n";
 				}
-				output += indent + node.style.toExport(text);
+				output += node.style.toExport(text);
 
 				if ((note !== "") && (options.outputNotes))
-					output += indent + STYLESHEETused["Note"].toExport(note);
+					output += STYLESHEETused["Note"].toExport(note);
 
 				if (node.page_break)
 					output += "\\pagebreak ";
@@ -836,34 +816,34 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Item"))
-						output += indent + "\\begin{itemize}\n";
+						output += "\\begin{itemize}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
-						output_after_children += indent + "\\end{itemize}\n";
+						output_after_children += "\\end{itemize}\n";
 				}
 				else if (node.styleName == "Enumeration"){
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-						output += indent + "\\begin{enumerate}\n";
+						output += "\\begin{enumerate}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
-						output_after_children += indent + "\\end{enumerate}\n";
+						output_after_children += "\\end{enumerate}\n";
 				}
 				else if (node.styleName == "Frame"){
-					output_after_children += indent + "\\end{frame}\n";
+					output_after_children += "\\end{frame}\n";
 				}
 
-				console.log("TEST ignore_outline", node);
-				output += indent + node.style.toExport(text);
+				output += node.style.toExport(text);
 
 
 				if ((note !== "") && (options.outputNotes))
-					output += indent + STYLESHEETused["Note"].toExport(note);
+					output += STYLESHEETused["Note"].toExport(note);
 
 				if (node.page_break)
 					output += "\\pagebreak ";
 			}
 
 			else if (options.format == 'opml') {
+				indent = Array(node.level+1).join("\t");
 				output += indent + "<outline text=\"" + text + "\"";
 				if (options.outputNotes) output += " _note=\"" + note + "\"";
 				if (options.complete && node.complete) output +=" _complete=\"true\"";
@@ -891,8 +871,8 @@ var exportLib = function(nodes, options, title, email) {
 					text = "{\\f3 "+node.style.counter+"} " + text;
 				}
 
-				output += indent + node.style.toExport(text);
-				if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
+				output += node.style.toExport(text);
+				if ((note !== "") && options.outputNotes) output += "\n" + STYLESHEETused["Note"].toExport(note);
 				output += options.item_sep;
 
 				if (node.page_break)
@@ -906,21 +886,15 @@ var exportLib = function(nodes, options, title, email) {
 				output += options.item_sep;
 			}
 		}
-		else if (node.type == "CodeBlock") {
-			if(options.format == 'html'){
-				output += indent + "<pre><code>\n";
-				output_after_children += indent + "</code></pre>\n";
-			}
+		//console.log(node.note);
+		console.log("Output: ", output);
+		console.log("Apply recursion to: ", node.children);
+		for (var i = 0; i < l_node.children.length; i++)
+		{
+			output += exportNodesTreeBody(l_node.children[i], options);
 		}
-			//console.log(node.note);
-			console.log("Output: ", output);
-			console.log("Apply recursion to: ", node.children);
-			for (var i = 0; i < node.children.length; i++)
-			{
-				output += exportNodesTreeBody(node.children[i], options);
-			}
 
-			output += output_after_children;
+		output += output_after_children;
 		return output;
 	};
 

@@ -728,6 +728,7 @@ class Style {
 		this.level = level;
 		this.before = before;
 		this.after = after;
+    this.type="Normal";
 	}
 	toString(){
 		return "";
@@ -735,6 +736,9 @@ class Style {
 	toExport(text){
 		return this.before + text + this.after;
 	}
+  changeType(str){
+    this.type=str;
+  }
 }
 
 class Style_Bullet  extends Style {
@@ -820,6 +824,18 @@ class Style_html extends Style{
 		if(style!="")style = "style=\""+style+"\"";
 		return "<" + this.tag + " class=\"" + this.name+ "\" " + style+ ">" + text + "</" + this.tag + ">";
 	}
+  changeType(str){
+    super.changeType(str);
+    switch (str) {
+      case "Complete":
+        this.color = "DARKGRAY";
+        this.strike = true;
+        break;
+      case "CompleteChild":
+        this.color = "DARKGRAY";
+        break;
+    }
+  }
 }
 
 class Style_rtf extends Style{
@@ -862,6 +878,18 @@ class Style_rtf extends Style{
 	toExport(text){
 		return "{\\pard " + this.toString(defaultSTYLESHEET.rtf[this.name]) + "{" + text +"}\\par}";
 	}
+  changeType(str){
+    super.changeType(str);
+    switch (str) {
+      case "Complete":
+        this.color = "DARKGRAY";
+        this.strike = true;
+        break;
+      case "CompleteChild":
+        this.color = "DARKGRAY";
+        break;
+    }
+  }
 }
 
 class Style_latex extends Style{
@@ -874,10 +902,12 @@ class Style_latex extends Style{
     this.underline = underline;
     this.strike = strike;
 	}
+
 	toString(){
 		var str = ""
 		return str;
 	}
+
 	toExport(text){
 		var before="";
 		var after="";
@@ -906,16 +936,26 @@ class Style_latex extends Style{
 			after = "}"+after;
     }
 		return super.toExport(before + text + after);
-
 	}
+
+  changeType(str){
+    super.changeType(str);
+    switch (str) {
+      case "Complete":
+        this.color = "DARKGRAY";
+        this.strike = true;
+        break;
+      case "CompleteChild":
+        this.color = "DARKGRAY";
+        break;
+    }
+  }
 }
 
 var defaultSTYLESHEET={
 	html : {
 		Normal : new Style_html("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "p"),
 		Note : new Style_html("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, false, "BLACK", "WHITE", "p"),
-		Complete : new Style_html("Complete", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, true, "DARKGRAY", "WHITE", "p"),
-		CompleteChild : new Style_html("CompleteChild", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 14, false, false, false, false, "DARKGRAY", "WHITE", "p"),
 		Heading1 : new Style_html("Heading1", 1, "left", 0, 0, 0, 20, 10, "ARIAL", 22, true, false, false, false, "BLACK", "WHITE", "h1"),
 		Heading2 : new Style_html("Heading2", 2, "left", 0, 0, 0, 20, 10, "ARIAL", 20, true, false, false, false, "BLACK", "WHITE", "h2"),
 		Heading3 : new Style_html("Heading3", 3, "left", 0, 0, 0, 20, 10, "ARIAL", 16, true, false, false, false, "BLACK", "WHITE", "h3"),
@@ -935,15 +975,11 @@ var defaultSTYLESHEET={
 		Enumeration3 : "Enumeration",
 		Enumeration4 : "Enumeration",
 		Enumeration5 : "Enumeration",
-		Enumeration6 : "Enumeration",
-		CodeBlock : new Style("CodeBlock", -1, "", ""),
-		Code : new Style("Code", -1, "", "")
+		Enumeration6 : "Enumeration"
 	},
 	rtf : {
 		Normal : new Style_rtf("Normal", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
 		Note : new Style_rtf("Note", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, false, "BLACK", "WHITE"),
-		Complete : new Style_rtf("Complete", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, true, "DARKGRAY", "WHITE"),
-		CompleteChild : new Style_rtf("CompleteChild", -1, "left", 0, 0, 0, 0, 10, "ARIAL", 11, false, false, false, false, "DARKGRAY", "WHITE"),
 		Heading1 : new Style_rtf("Heading 1", 1, "left", 0, 0, 0, 0, 10, "ARIAL", 16, true, false, false, false, "BLACK", "WHITE"),
 		Heading2 : new Style_rtf("Heading 2", 2, "left", 0, 0, 0, 0, 10, "ARIAL", 14, true, false, false, false, "BLACK", "WHITE"),
 		Heading3 : new Style_rtf("Heading 3", 3, "left", 0, 0, 0, 0, 10, "ARIAL", 12, true, false, false, false, "BLACK", "WHITE"),
@@ -987,15 +1023,11 @@ var defaultSTYLESHEET={
 		Enumeration3 : new Style_Bullet("Enumeration3", 2, "0. ", "\t\t", "\n\n"),
 		Enumeration4 : new Style_Bullet("Enumeration4", 3, "0. ", "\t\t\t", "\n\n"),
 		Enumeration5 : new Style_Bullet("Enumeration5", 4, "0. ", "\t\t\t\t", "\n\n"),
-		Enumeration6 : new Style_Bullet("Enumeration6", 5, "0. ", "\t\t\t\t\t", "\n\n"),
-		CodeBlock: new Style("CodeBlock", -1, "```", "\n"),
-		Code : new Style("Code", -1, "", "\n")
+		Enumeration6 : new Style_Bullet("Enumeration6", 5, "0. ", "\t\t\t\t\t", "\n\n")
 	},
 	latex : {
 		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
-		Complete : new Style_latex("Complete", -1, "", "\n\n", "DARKGRAY", "WHITE", false, false, false, true),
-		CompleteChild : new Style_latex("CompleteChild", -1, "", "\n\n", "DARKGRAY", "WHITE", false, false, false, false),
 		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
@@ -1017,8 +1049,6 @@ var defaultSTYLESHEET={
 	beamer : {
 		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
   	Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
-		Complete : new Style_latex("Complete", -1, "", "\n\n", "DARKGRAY", "WHITE", false, false, false, true),
-		CompleteChild : new Style_latex("CompleteChild", -1, "", "\n\n", "DARKGRAY", "WHITE", false, false, false, false),
   	Heading : new Style_latex("Heading", -1, "", "\n\n", "BLACK", "WHITE", true, false, false, false),
 		Heading1 : "Heading",
 		Heading2 : "Heading",
@@ -1026,7 +1056,7 @@ var defaultSTYLESHEET={
 		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false, false),
-		Frame : new Style_latex("Frame", 3," \\begin{frame}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Frame : new Style_latex("Frame", 3,"\\begin{frame}{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",
