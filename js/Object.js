@@ -1026,7 +1026,7 @@ var defaultSTYLESHEET={
 		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false, false),
-		Frame : new Style_latex("Frame", 3," \\begin{frame}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Frame : new Style_latex("Frame", 3,"\\begin{frame}{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",

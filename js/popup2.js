@@ -626,22 +626,12 @@ var popup2 = (function() {
               $("#childBulletCaracter").hide();
 
             switch(format){
-							case "markdown":
-								$("#indentOptions").prop("disabled", true);
-                $('#indentOptions [value="none"]').attr("label", "No");
-                $("#indentOptions").val("none");
-								break;
 							case "text":
-                $('#indentOptions [value="tab"]').attr("label", "Tabulation");
-                $('#indentOptions [value="space"]').show();
-                $('#indentOptions [value="none"]').attr("label", "None");
-								$("#indentOptions").prop("disabled", false);
+								$("#formIndentation").show();
 								break;
 							default:
-                $('#indentOptions [value="tab"]').attr("label", "Yes");
-                $('#indentOptions [value="space"]').hide();
-                $('#indentOptions [value="none"]').attr("label", "No");
-								$("#indentOptions").prop("disabled", false);
+								$("#formIndentation").hide();
+  							$("#indentOptions").val("none");
 								break;
             }
 

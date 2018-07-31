@@ -770,7 +770,7 @@ var exportLib = function(nodes, options, title, email) {
 
 			else if (options.format == 'html') {
 				text = text.replace(/--/g, "&ndash;");
-
+				indent = Array(node.level+1).join("\t");
 				if(node.styleName == "Item"){
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
@@ -801,7 +801,7 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Item"))
-						output += indent + "\\begin{itemize}\n";
+						output += "\\begin{itemize}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
 						output_after_children += indent + "\\end{itemize}\n";
 				}
@@ -809,23 +809,23 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-						output += indent + "\\begin{enumerate}\n";
+						output += "\\begin{enumerate}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
 						output_after_children += indent + "\\end{enumerate}\n";
 				}
 				else if (node.styleName == "Heading1"){
-					output_after_children += indent + "\\end{section}\n";
+					output_after_children +=  "\\end{section}\n";
 				}
 				else if (node.styleName == "Heading2"){
-					output_after_children += indent + "\\end{subsection}\n";
+					output_after_children += "\\end{subsection}\n";
 				}
 				else if (node.styleName == "Heading3"){
-					output_after_children += indent + "\\end{subsubsection}\n";
+					output_after_children += "\\end{subsubsection}\n";
 				}
-				output += indent + node.style.toExport(text);
+				output += node.style.toExport(text);
 
 				if ((note !== "") && (options.outputNotes))
-					output += indent + STYLESHEETused["Note"].toExport(note);
+					output += STYLESHEETused["Note"].toExport(note);
 
 				if (node.page_break)
 					output += "\\pagebreak ";
@@ -836,34 +836,34 @@ var exportLib = function(nodes, options, title, email) {
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Item"))
-						output += indent + "\\begin{itemize}\n";
+						output += "\\begin{itemize}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Item"))
-						output_after_children += indent + "\\end{itemize}\n";
+						output_after_children += "\\end{itemize}\n";
 				}
 				else if (node.styleName == "Enumeration"){
 					var olderSibling = node.olderSibling();
 					var youngerSibling = node.youngerSibling();
 					if(!olderSibling || !(olderSibling.styleName == "Enumeration"))
-						output += indent + "\\begin{enumerate}\n";
+						output += "\\begin{enumerate}\n";
 					if(!youngerSibling || !(youngerSibling.styleName == "Enumeration"))
-						output_after_children += indent + "\\end{enumerate}\n";
+						output_after_children += "\\end{enumerate}\n";
 				}
 				else if (node.styleName == "Frame"){
-					output_after_children += indent + "\\end{frame}\n";
+					output_after_children += "\\end{frame}\n";
 				}
 
-				console.log("TEST ignore_outline", node);
-				output += indent + node.style.toExport(text);
+				output += node.style.toExport(text);
 
 
 				if ((note !== "") && (options.outputNotes))
-					output += indent + STYLESHEETused["Note"].toExport(note);
+					output += STYLESHEETused["Note"].toExport(note);
 
 				if (node.page_break)
 					output += "\\pagebreak ";
 			}
 
 			else if (options.format == 'opml') {
+				indent = Array(node.level+1).join("\t");
 				output += indent + "<outline text=\"" + text + "\"";
 				if (options.outputNotes) output += " _note=\"" + note + "\"";
 				if (options.complete && node.complete) output +=" _complete=\"true\"";
@@ -891,8 +891,8 @@ var exportLib = function(nodes, options, title, email) {
 					text = "{\\f3 "+node.style.counter+"} " + text;
 				}
 
-				output += indent + node.style.toExport(text);
-				if ((note !== "") && options.outputNotes) output += "\n" + indent + STYLESHEETused["Note"].toExport(note);
+				output += node.style.toExport(text);
+				if ((note !== "") && options.outputNotes) output += "\n" + STYLESHEETused["Note"].toExport(note);
 				output += options.item_sep;
 
 				if (node.page_break)
@@ -908,6 +908,7 @@ var exportLib = function(nodes, options, title, email) {
 		}
 		else if (node.type == "CodeBlock") {
 			if(options.format == 'html'){
+				indent = Array(node.level+1).join("\t");
 				output += indent + "<pre><code>\n";
 				output_after_children += indent + "</code></pre>\n";
 			}
