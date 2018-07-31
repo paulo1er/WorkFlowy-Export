@@ -193,7 +193,16 @@ var exportLib = function(nodes, options, title, email) {
 			else if(allColor.hasOwnProperty(value)) node.style[property] = value;
 			return "";
 		},
-
+		"wfe-scope": function(type="item"){
+			type = type.toUpperCase();
+			console.log("TEST", type)
+			if(type=="ITEM"){
+			}
+			else if(type=="CHILDREN"){
+				node.scopeNode = node;
+			}
+			return "";
+		},
 		"wfe-email": function(){
 			return email;
 		},
@@ -454,6 +463,8 @@ var exportLib = function(nodes, options, title, email) {
 		if(node.type != "dummy"){
 			node.level=node.parent.level+1;
 
+			if(!node.scopeNode && node.parent.scopeNode) node.scopeNode = node.parent.scopeNode;
+
 			if(!options.outputNotes)node.note = [];
 			// Not a dummy node
 			if(node.children.length != 0){
@@ -468,85 +479,90 @@ var exportLib = function(nodes, options, title, email) {
 
 			if(node.level>6) node.level=6;
 
-			switch(options.format){
-				case "beamer" :
-					if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
-						if(node.styleName == "Bullet")
+			if(node.scopeNode){
+				node.styleName = copy(node.scopeNode.styleName);
+				node.style = copy(node.scopeNode.style);
+			}
+			else{
+				switch(options.format){
+					case "beamer" :
+						if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
+							if(node.styleName == "Bullet")
+								node.styleName = "Item";
+							else if(node.styleName == "Enumeration")
+								node.styleName = "Enumeration";
+							else if(node.styleName == "Heading")
+								node.styleName = "Heading";
+							else
+								node.styleName = "Normal";
+							break;
+						}
+						else {
+							var frameLevel=2;
+							if(frameLevel >= 3 && node.level == 0 && node.children.length != 0) node.styleName = "Title";
+							else if (frameLevel >= 2 && node.parent.type != "dummy" && node.parent.styleName=="Section"  && node.children.length != 0) node.styleName = "Subsection";
+							else if (frameLevel >= 1 && (node.parent.type == "dummy" || node.parent.styleName=="Title")  && node.children.length != 0) node.styleName = "Section";
+							else node.styleName = "Frame";
+						}
+						break
+					case "latex" :
+						if(node.styleName == "Heading" && node.level<3)
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
 							node.styleName = "Item";
 						else if(node.styleName == "Enumeration")
 							node.styleName = "Enumeration";
-						else if(node.styleName == "Heading")
-							node.styleName = "Heading";
 						else
 							node.styleName = "Normal";
-						break;
-					}
-					else {
-						var frameLevel=2;
-						if(frameLevel >= 3 && node.level == 0 && node.children.length != 0) node.styleName = "Title";
-						else if (frameLevel >= 2 && node.parent.type != "dummy" && node.parent.styleName=="Section"  && node.children.length != 0) node.styleName = "Subsection";
-						else if (frameLevel >= 1 && (node.parent.type == "dummy" || node.parent.styleName=="Title")  && node.children.length != 0) node.styleName = "Section";
-						else node.styleName = "Frame";
-					}
-					break
-				case "latex" :
-					if(node.styleName == "Heading" && node.level<3)
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item";
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration";
-					else
+						break
+					case "html" :
+						if(node.styleName == "Heading")
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
+							node.styleName = "Item";
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration";
+						else
+							node.styleName = "Normal";
+						break
+					case "rtf" :
+						if(node.styleName == "Heading")
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
+							node.styleName = "Item"+(node.level+1);
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration"+(node.level+1);
+						else
+							node.styleName = "Normal";
+						break
+					case "markdown" :
+						if(node.styleName == "Heading")
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
+							node.styleName = "Item"+(node.level+1);
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration"+(node.level+1);
+						else
+							node.styleName = "Normal";
+						break
+					case "text" :
+						if(node.styleName == "Bullet")
+							node.styleName = "Item"+(node.level+1);
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration"+(node.level+1);
+						else
+							node.styleName = "Normal";
+						break
+					default :
 						node.styleName = "Normal";
-					break
-				case "html" :
-					if(node.styleName == "Heading")
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item";
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration";
-					else
-						node.styleName = "Normal";
-					break
-				case "rtf" :
-					if(node.styleName == "Heading")
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item"+(node.level+1);
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration"+(node.level+1);
-					else
-						node.styleName = "Normal";
-					break
-				case "markdown" :
-					if(node.styleName == "Heading")
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item"+(node.level+1);
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration"+(node.level+1);
-					else
-						node.styleName = "Normal";
-					break
-				case "text" :
-					if(node.styleName == "Bullet")
-						node.styleName = "Item"+(node.level+1);
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration"+(node.level+1);
-					else
-						node.styleName = "Normal";
-					break
-				default :
-					node.styleName = "Normal";
+				}
+
+				node.style = allStyle.get(node.styleName);
+				if(options.complete && node.complete)
+					node.style.changeType("Complete");
+				else if(options.complete && node.parent.style && (node.parent.style.type=="Complete" || node.parent.style.type=="CompleteChild"))
+					node.style.changeType("CompleteChild");
 			}
-
-			node.style = allStyle.get(node.styleName);
-
-			if(options.complete && node.complete)
-				node.style.changeType("Complete");
-			else if(options.complete && node.parent.style && (node.parent.style.type=="Complete" || node.parent.style.type=="CompleteChild"))
-				node.style.changeType("CompleteChild");
 
 			node.title.forEach(function(e, i) {
 				node.title[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic, e.isStrike));
@@ -706,6 +722,7 @@ var exportLib = function(nodes, options, title, email) {
 		if(ignore_item) {
 			for(var i=0; i<node.children.length; i++){
 		    node.children[i].parent = node.parent;
+				node.children[i].scopeNode = node.scopeNode;
 		  }
 			node.parent.children.replace(node, node.children);
 		}
