@@ -1,4 +1,4 @@
-var exportLib = function(nodes, options, title, email) {
+var exportLib = function(nodes, options, title, email, ALIAS) {
 	// private method
 	var getElement, exportNodesTree, exportNodesTreeBody;
 	var d = new Date();
@@ -195,10 +195,9 @@ var exportLib = function(nodes, options, title, email) {
 		},
 		"wfe-scope": function(type="item"){
 			type = type.toUpperCase();
-			console.log("TEST", type)
 			if(type=="ITEM"){
 			}
-			else if(type=="CHILDREN"){
+			else if(type=="OUTLINE"){
 				node.scopeNode = node;
 			}
 			return "";
@@ -221,17 +220,6 @@ var exportLib = function(nodes, options, title, email) {
 		}
 	}
 
-	var ALIAS=[
-		["#wfe-style:Heading1","#h1"],
-		["#wfe-style:Heading2","#h2"],
-		["#wfe-style:Heading3","#h3"],
-		["#wfe-style:Heading4","#h4"],
-		["#wfe-style:Heading5","#h5"],
-		["#wfe-style:Heading6","#h6"],
-		["#wfe-style:Item1","#item"],
-		["#wfe-style:Enumeration","#enum"],
-		["#wfe-beamer-slide","#slide"]
-	];
 	var ALIASmdSyntax_enumList = [
 		[/^1\. /, /^2\. /, /^3\. /, /^4\. /, /^5\. /, /^6\. /, /^7\. /, /^8\. /, /^9\. /, /^10\. /, /^11\. /, /^12\. /, /^13\. /, /^14\. /, /^15\. /, /^16\. /, /^17\. /, /^18\. /, /^19\. /, /^20\. /],
 		[/^\(a\) /, /^\(b\) /, /^\(c\) /, /^\(d\) /, /^\(e\) /, /^\(f\) /, /^\(g\) /, /^\(h\) /, /^\(i\) /, /^\(j\) /, /^\(k\) /, /^\(l\) /, /^\(m\) /, /^\(n\) /, /^\(o\) /, /^\(p\) /, /^\(q\) /, /^\(r\) /, /^\(s\) /, /^\(t\) /],
@@ -586,8 +574,8 @@ var exportLib = function(nodes, options, title, email) {
 				// Assign new rules from WFE-tags in item
 
 				ALIAS.forEach(function(e) {
-					textListApply(node.title, "".replaceAll, [e[1], e[0]]);
-					textListApply(node.note, "".replaceAll, [e[1], e[0]]);
+					textListApply(node.title, "".replaceAll, ['#'+e[1], e[0]]);
+					textListApply(node.note, "".replaceAll, ['#'+e[1], e[0]]);
 				});
 
 				if(options.mdSyntax){
@@ -719,28 +707,30 @@ var exportLib = function(nodes, options, title, email) {
 			}
 		}
 		node.page_break = page_break;
-		if(ignore_item) {
+		if(ignore_outline){
+			node.parent.children.remove(node);
+			node.children = [];
+		}
+		else if(ignore_item) {
 			for(var i=0; i<node.children.length; i++){
 		    node.children[i].parent = node.parent;
 				node.children[i].scopeNode = node.scopeNode;
 		  }
 			node.parent.children.replace(node, node.children);
 		}
-		if(ignore_outline){
-			node.parent.children.remove(node);
-			node.children = [];
-		}
 		ignore_item = false;
 		ignore_outline = false;
 		verbatim = true;
 		page_break = false;
+
+		node.doneApplyRulesNodesTree=true; //rapide fix !  Don't exacly understand why with ignore item the children are call applyRulesNodesTree twice
 		var i = 0;
 		while(i < l_node.children.length){
 			var childNode = l_node.children[i];
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
 				if(j>childNode.level) ALIASmdSyntax_enumList_index[j]=0;
 			})
-			applyRulesNodesTree(childNode, options);
+			if(!childNode.doneApplyRulesNodesTree) applyRulesNodesTree(childNode, options);
 			if(childNode == l_node.children[i])i++;
 		}
 	}

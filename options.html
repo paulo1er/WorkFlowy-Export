@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>WorkFlowy Export Settings</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/option.css" rel="stylesheet">
     <style>
     html, body {
       height: 100%;
@@ -21,76 +22,91 @@
 			<div class="panel-body">
 
         <div class="container-fluid">
-          <div class="col-xs-0 col-sm-0 col-md-2 col-lg-2"></div>
-  				<div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
-  					<p class="text-center">Export window size settings</p>
-  					<div class="input-group input-group-sm">
-  					  <span class="input-group-addon">
-  							<input type="radio" id="relativeBrowser" value="relativeBrowser" name="windowSize" class="form-check-input">
-  						</span>
-  					  <label class="form-control" for="relativeBrowser">Relative to browser</label>
-  					</div>
-  					<div class="input-group input-group-sm" input-group-sm>
-  					  <span class="input-group-addon">
-  							<input type="radio" id="maximised" value="maximised" name="windowSize" class="form-check-input">
-  						</span>
-  					  <label class="form-control" for="maximised">Maximised</label>
-  					</div>
-  					<div class="input-group input-group-sm">
-  					  <span class="input-group-addon">
-  							<input type="radio" id="rememberSize" value="rememberSize" name="windowSize" class="form-check-input">
-  						</span>
-  					  <label class="form-control" for="rememberSize">Remember Size</label>
-  					</div>
-  					<div class="input-group input-group-sm">
-  					  <span class="input-group-addon">
-  							<input type="radio" id="noWindow" value="noWindow" name="windowSize" class="form-check-input">
-  						</span>
-  					  <label class="form-control" for="noWindow">None (Quick Mode)</label>
-  					</div>
-  				</div>
-          <div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
-            <p class="text-center">Option for export action</p>
-            <div class="input-group input-group-sm">
-              <span class="input-group-addon">
-                <input type="checkbox" id="autoReload" name="autoReload" class="form-check-input with-gap">
-              </span>
-              <label class="form-control" for="autoReload">Auto-refresh</label>
+          <div class="row">
+    				<div class="well col-xs-12 col-sm-6 col-md-4 col-lg-4">
+    					<p class="text-center">Export window size settings</p>
+    					<div class="input-group input-group-sm">
+    					  <span class="input-group-addon">
+    							<input type="radio" id="relativeBrowser" value="relativeBrowser" name="windowSize" class="form-check-input">
+    						</span>
+    					  <label class="form-control" for="relativeBrowser">Relative to browser</label>
+    					</div>
+    					<div class="input-group input-group-sm" input-group-sm>
+    					  <span class="input-group-addon">
+    							<input type="radio" id="maximised" value="maximised" name="windowSize" class="form-check-input">
+    						</span>
+    					  <label class="form-control" for="maximised">Maximised</label>
+    					</div>
+    					<div class="input-group input-group-sm">
+    					  <span class="input-group-addon">
+    							<input type="radio" id="rememberSize" value="rememberSize" name="windowSize" class="form-check-input">
+    						</span>
+    					  <label class="form-control" for="rememberSize">Remember Size</label>
+    					</div>
+    					<div class="input-group input-group-sm">
+    					  <span class="input-group-addon">
+    							<input type="radio" id="noWindow" value="noWindow" name="windowSize" class="form-check-input">
+    						</span>
+    					  <label class="form-control" for="noWindow">None (Quick Mode)</label>
+    					</div>
+    				</div>
+            <div class="well col-xs-12 col-sm-6 col-md-4 col-lg-4">
+              <p class="text-center">Option for export action</p>
+              <div class="input-group input-group-sm">
+                <span class="input-group-addon">
+                  <input type="checkbox" id="autoReload" name="autoReload" class="form-check-input with-gap">
+                </span>
+                <label class="form-control" for="autoReload">Auto-refresh</label>
+              </div>
+              <div class="input-group input-group-sm">
+                <span class="input-group-addon">
+                  <input type="checkbox" id="autoCopy" name="autoCopy" class="form-check-input with-gap">
+                </span>
+                <label class="form-control" for="autoCopy">Auto-copy</label>
+              </div>
+              <div class="input-group input-group-sm">
+                <span class="input-group-addon">
+                  <input type="checkbox" id="autoDownload" name="autoDownload" class="form-check-input with-gap">
+                </span>
+                <label class="form-control" for="autoDownload">Auto-download</label>
+              </div>
             </div>
-            <div class="input-group input-group-sm">
-              <span class="input-group-addon">
-                <input type="checkbox" id="autoCopy" name="autoCopy" class="form-check-input with-gap">
-              </span>
-              <label class="form-control" for="autoCopy">Auto-copy</label>
-            </div>
-            <div class="input-group input-group-sm">
-              <span class="input-group-addon">
-                <input type="checkbox" id="autoDownload" name="autoDownload" class="form-check-input with-gap">
-              </span>
-              <label class="form-control" for="autoDownload">Auto-download</label>
+            <div class="well col-xs-12 col-sm-6 col-md-4 col-lg-4">
+              <p class="text-center">Text Area settings</p>
+              <div class="input-group">
+                <span class="input-group-addon">Font</span>
+                <select id="fontFamily" class="form-control">
+                  <option value="Arial">Arial</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Courier">Courier</option>
+                  <option value="Verdena">Verdena</option>
+                  <option value="Comic Sans MS">Comic Sans MS</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">Font size</span>
+                <input id="fontSize" class="form-control" type="number" name="fontSize" min="10" max="30">
+              </div>
+              <div class="input-group input-group-sm">
+                <span class="input-group-addon">
+                  <input type="checkbox" id="expandFormatChoice" name="expandFormatChoice" class="form-check-input with-gap">
+                </span>
+                <label class="form-control" for="expandFormatChoice">Expand format choice</label>
+              </div>
             </div>
           </div>
-          <div class="well col-xs-12 col-sm-6 col-md-3 col-lg-3">
-            <p class="text-center">Text Area settings</p>
-            <div class="input-group">
-              <span class="input-group-addon">Font</span>
-              <select id="fontFamily" class="form-control">
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Courier">Courier</option>
-                <option value="Verdena">Verdena</option>
-                <option value="Comic Sans MS">Comic Sans MS</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <span class="input-group-addon">Font size</span>
-              <input id="fontSize" class="form-control" type="number" name="fontSize" min="10" max="30">
-            </div>
-            <div class="input-group input-group-sm">
-              <span class="input-group-addon">
-                <input type="checkbox" id="expandFormatChoice" name="expandFormatChoice" class="form-check-input with-gap">
-              </span>
-              <label class="form-control" for="expandFormatChoice">Expand format choice</label>
+          <div class="row">
+            <div class="col-xs-0 col-sm-0 col-md-2 col-lg-2"></div>
+            <div class="well col-xs-12 col-sm-12 col-md-8 col-lg-8">
+              <h4 class="text-center">Alias</h4>
+              <table class="table table-bordered table-condensed" id="aliasTable">
+                <thead>
+                  <tr><th>WorkFlowy Tag</th><th>Replace by</th></tr>
+                </thead>
+                <tbody>
+                  <tr id="addAlias"><td></td><td></td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

@@ -52,7 +52,7 @@ var popup2 = (function() {
 			request: 'getTopic'
 		}, function(response) {
 			chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize", "hideForm", "hideProfileList", "hideFindAndReplace"], function(storageL) {
-				chrome.storage.sync.get(['profileList', 'curent_profile'], function(storageS) {
+				chrome.storage.sync.get(['profileList', 'curent_profile', "ALIAS"], function(storageS) {
 
 
 					function openSolverConflictProfile(newkey, newProfile){
@@ -432,7 +432,7 @@ var popup2 = (function() {
 						console.log("##################### Export the page with profile", curent_profile);
 						var $textArea = $("#textArea");
 						console.log("TEST", g_nodes);
-						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), new Profile(curent_profile), g_title, g_email);
+						text = exportLib(JSON.parse(JSON.stringify(g_nodes)), new Profile(curent_profile), g_title, g_email, ALIAS);
 						$textArea.val(text);
 						$("#fileName").text(g_title+extensionFileName(curent_profile.format));
 						$("#title").text(g_title);
@@ -591,7 +591,6 @@ var popup2 = (function() {
 					}
 
 					function reset(){
-						chrome.storage.sync.clear(function (){});
 						profileList = initProfileList();
 						curent_profile = initCurentProfile();
 						updateProfileChoice();
@@ -992,6 +991,8 @@ var popup2 = (function() {
 						hideForm = initHideForm(storageL.hideForm);
 						hideProfileList = initHideProfileList(storageL.hideProfileList);
 						hideFindAndReplace = initHideFindAndReplace(storageL.hideFindAndReplace);
+
+            ALIAS = initALIAS(storageS.ALIAS);
 
 						initHTML();
 						exportText();

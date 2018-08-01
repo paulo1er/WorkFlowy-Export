@@ -3,6 +3,7 @@
   var refreshOptions;
   var textAreaStyle;
   var windowSize;
+  var ALIAS;
 
   function setEventListers(){
 
@@ -56,15 +57,23 @@
     });
 
     $("#reset").click(function() {
-      chrome.storage.local.clear(function (){});
-    		textAreaStyle = initTextAreaStyle();
-    		refreshOptions = initRefreshOptions();
-        windowSize = initWindowSize();
-        initHTML();
+  		textAreaStyle = initTextAreaStyle();
+  		refreshOptions = initRefreshOptions();
+      windowSize = initWindowSize();
+      ALIAS = initALIAS();
+
+      initHTML();
+    });
+
+    $("#addAlias").click(function(){
+      addAlias("","temp",ALIAS.length);
+      ALIAS[ALIAS.length] = ["", ""];
     });
   }
 
   function initHTML(){
+    $(".trAlias").remove();
+
     $("#"+windowSize.option).prop("checked", true);
     $("#autoCopy").prop("checked", refreshOptions["autoCopy"]);
     $("#autoDownload").prop("checked", refreshOptions["autoDownload"]);
@@ -73,15 +82,78 @@
     $('#fontFamily').val(textAreaStyle["font-family"]);
     $('#expandFormatChoice').val(textAreaStyle["expandFormatChoice"]);
     $('#fontSize').val(textAreaStyle["font-size"]);
+
+    ALIAS.forEach(function(a, i){
+      addAlias(a[0], a[1], i, false);
+    });
+  }
+
+  function focusAlias(){
+    var tr = $(this).parent();
+    $(this).attr("contenteditable", true);
+  }
+
+  function blurAlias(){
+    var tr = $(this).parent();
+    $(this).attr("contenteditable", false);
+    var i = parseInt(tr.attr("id").split("Alias_")[1]);
+    var name = tr.find(".name").text();
+    var alias = tr.find(".alias").text();
+    if(name != "" && alias != ""){
+      ALIAS[i] = [name, alias];
+    } else{
+      tr.remove();
+      var i2;
+      for(i2 = i+1; i2 < ALIAS.length; i2++){
+        $("#Alias_"+i2).attr("id", "#Alias_"+(i2-1));
+      }
+      ALIAS.splice(i, 1);
+    }
+    chrome.storage.sync.set({'ALIAS' : ALIAS}, function() {
+      console.log("ALIAS update", ALIAS);
+    });
+  }
+
+  function addAlias(name, alias, i, foucsAfter=true){
+    var addAlias = $("#addAlias");
+    var tdName = $("<td>").text(name).addClass("name").attr("tabindex",0);
+    var tdAlias = $("<td>").text(alias).addClass("alias").attr("tabindex",0);
+    tdName.focus(focusAlias);
+    tdAlias.focus(focusAlias);
+    tdName.blur(blurAlias);
+    tdAlias.blur(blurAlias);
+
+    var tr = $("<tr>").addClass("trAlias").append(tdAlias).append(tdName);
+    tr.attr("id", "Alias_"+i);
+
+    var tag_regex = /(^[a-z0-9\-_:]+$)/i;
+    tdAlias.bind('keypress',function(e){
+      var tr = $(this);
+      if(e.keyCode ==13){
+        event.preventDefault();
+        tr.next().focus();
+      }
+      else if(!tag_regex.test(tr.find(".alias").text()+e.key)){
+        event.preventDefault();
+      }
+    });
+
+    tr.insertBefore(addAlias);
+    if(foucsAfter) tdName.focus();
   }
 
   function main() {
     chrome.storage.local.get(["textAreaStyle", "refreshOptions", "windowSize"], function(storage) {
-  		textAreaStyle = initTextAreaStyle(storage.textAreaStyle);
-  		refreshOptions = initRefreshOptions(storage.refreshOptions);
-      windowSize = initWindowSize(storage.windowSize);
-      setEventListers();
-      initHTML();
+      chrome.storage.sync.get(["ALIAS"], function(storageS) {
+    		textAreaStyle = initTextAreaStyle(storage.textAreaStyle);
+    		refreshOptions = initRefreshOptions(storage.refreshOptions);
+        windowSize = initWindowSize(storage.windowSize);
+
+      	ALIAS = initALIAS(storageS.ALIAS);
+
+        setEventListers();
+        initHTML();
+      });
     });
   }
 
