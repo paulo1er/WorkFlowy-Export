@@ -994,6 +994,12 @@ var popup2 = (function() {
 
             ALIAS = initALIAS(storageS.ALIAS);
 
+            chrome.storage.onChanged.addListener(function(changes, namespace){
+              if ("ALIAS" in changes) {
+                ALIAS = changes["ALIAS"].newValue;
+              };
+            });
+            
 						initHTML();
 						exportText();
 						setEventListers();

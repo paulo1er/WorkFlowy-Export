@@ -311,7 +311,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:gray;\">"+this.text+"</span>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return this.toString("text"); //TODO
-				case "latex" : return "\\begin{figure}[t]\\includegraphics["+this.text+"]{"+this.link+"}\\centering \\end{figure}";
+				case "latex" : return "\\begin{figure}[t]\\includegraphics["+((this.text == "") ? "width=.75\\textwidth" : this.text)+"]{"+this.link+"}\\centering \\end{figure}";
 				case "beamer" : return this.toString("latex");
 				default : return "!["+this.text+"]("+this.link+")";
 			}
