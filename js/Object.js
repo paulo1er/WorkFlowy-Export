@@ -361,6 +361,30 @@ function initWindowSize(storageWindowSize){
 	return r;
 }
 
+function initALIAS(storageALIAS){
+	var r;
+  if(storageALIAS){
+    r = copy(storageALIAS);
+  }
+  else {
+    r = [
+  		["#wfe-style:Heading1","h1"],
+  		["#wfe-style:Heading2","h2"],
+  		["#wfe-style:Heading3","h3"],
+  		["#wfe-style:Heading4","h4"],
+  		["#wfe-style:Heading5","h5"],
+  		["#wfe-style:Heading6","h6"],
+  		["#wfe-style:Item","item"],
+  		["#wfe-style:Enumeration","enum"],
+  		["#wfe-beamer-slide","slide"]
+  	];
+    chrome.storage.sync.set({'ALIAS' : r}, function() {
+      console.log("ALIAS init");
+    });
+  }
+	return r;
+}
+
 function initHideForm(storageHideForm){
 	var r;
   if(storageHideForm){

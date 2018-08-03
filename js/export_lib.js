@@ -1,4 +1,4 @@
-var exportLib = function(nodes, options, title, email) {
+var exportLib = function(nodes, options, title, email, ALIAS) {
 	// private method
 	var getElement, exportNodesTree, exportNodesTreeBody;
 	var d = new Date();
@@ -193,7 +193,15 @@ var exportLib = function(nodes, options, title, email) {
 			else if(allColor.hasOwnProperty(value)) node.style[property] = value;
 			return "";
 		},
-
+		"wfe-scope": function(type="item"){
+			type = type.toUpperCase();
+			if(type=="ITEM"){
+			}
+			else if(type=="OUTLINE"){
+				node.scopeNode = node;
+			}
+			return "";
+		},
 		"wfe-email": function(){
 			return email;
 		},
@@ -212,17 +220,6 @@ var exportLib = function(nodes, options, title, email) {
 		}
 	}
 
-	var ALIAS=[
-		["#wfe-style:Heading1","#h1"],
-		["#wfe-style:Heading2","#h2"],
-		["#wfe-style:Heading3","#h3"],
-		["#wfe-style:Heading4","#h4"],
-		["#wfe-style:Heading5","#h5"],
-		["#wfe-style:Heading6","#h6"],
-		["#wfe-style:Item1","#item"],
-		["#wfe-style:Enumeration","#enum"],
-		["#wfe-beamer-slide","#slide"]
-	];
 	var ALIASmdSyntax_enumList = [
 		[/^1\. /, /^2\. /, /^3\. /, /^4\. /, /^5\. /, /^6\. /, /^7\. /, /^8\. /, /^9\. /, /^10\. /, /^11\. /, /^12\. /, /^13\. /, /^14\. /, /^15\. /, /^16\. /, /^17\. /, /^18\. /, /^19\. /, /^20\. /],
 		[/^\(a\) /, /^\(b\) /, /^\(c\) /, /^\(d\) /, /^\(e\) /, /^\(f\) /, /^\(g\) /, /^\(h\) /, /^\(i\) /, /^\(j\) /, /^\(k\) /, /^\(l\) /, /^\(m\) /, /^\(n\) /, /^\(o\) /, /^\(p\) /, /^\(q\) /, /^\(r\) /, /^\(s\) /, /^\(t\) /],
@@ -314,7 +311,7 @@ var exportLib = function(nodes, options, title, email) {
 				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:gray;\">"+this.text+"</span>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return this.toString("text"); //TODO
-				case "latex" : return "\\begin{figure}[t]\\includegraphics["+this.text+"]{"+this.link+"}\\centering \\end{figure}";
+				case "latex" : return "\\begin{figure}[t]\\includegraphics["+((this.text == "") ? "width=.75\\textwidth" : this.text)+"]{"+this.link+"}\\centering \\end{figure}";
 				case "beamer" : return this.toString("latex");
 				default : return "!["+this.text+"]("+this.link+")";
 			}
@@ -454,6 +451,8 @@ var exportLib = function(nodes, options, title, email) {
 		if(node.type != "dummy"){
 			node.level=node.parent.level+1;
 
+			if(!node.scopeNode && node.parent.scopeNode) node.scopeNode = node.parent.scopeNode;
+
 			if(!options.outputNotes)node.note = [];
 			// Not a dummy node
 			if(node.children.length != 0){
@@ -468,85 +467,90 @@ var exportLib = function(nodes, options, title, email) {
 
 			if(node.level>6) node.level=6;
 
-			switch(options.format){
-				case "beamer" :
-					if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
-						if(node.styleName == "Bullet")
+			if(node.scopeNode){
+				node.styleName = copy(node.scopeNode.styleName);
+				node.style = copy(node.scopeNode.style);
+			}
+			else{
+				switch(options.format){
+					case "beamer" :
+						if(node.parent.type != "dummy" && (node.parent.styleName!="Title" && node.parent.styleName!="Section" && node.parent.styleName!="Subsection")){
+							if(node.styleName == "Bullet")
+								node.styleName = "Item";
+							else if(node.styleName == "Enumeration")
+								node.styleName = "Enumeration";
+							else if(node.styleName == "Heading")
+								node.styleName = "Heading";
+							else
+								node.styleName = "Normal";
+							break;
+						}
+						else {
+							var frameLevel=2;
+							if(frameLevel >= 3 && node.level == 0 && node.children.length != 0) node.styleName = "Title";
+							else if (frameLevel >= 2 && node.parent.type != "dummy" && node.parent.styleName=="Section"  && node.children.length != 0) node.styleName = "Subsection";
+							else if (frameLevel >= 1 && (node.parent.type == "dummy" || node.parent.styleName=="Title")  && node.children.length != 0) node.styleName = "Section";
+							else node.styleName = "Frame";
+						}
+						break
+					case "latex" :
+						if(node.styleName == "Heading" && node.level<3)
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
 							node.styleName = "Item";
 						else if(node.styleName == "Enumeration")
 							node.styleName = "Enumeration";
-						else if(node.styleName == "Heading")
-							node.styleName = "Heading";
 						else
 							node.styleName = "Normal";
-						break;
-					}
-					else {
-						var frameLevel=2;
-						if(frameLevel >= 3 && node.level == 0 && node.children.length != 0) node.styleName = "Title";
-						else if (frameLevel >= 2 && node.parent.type != "dummy" && node.parent.styleName=="Section"  && node.children.length != 0) node.styleName = "Subsection";
-						else if (frameLevel >= 1 && (node.parent.type == "dummy" || node.parent.styleName=="Title")  && node.children.length != 0) node.styleName = "Section";
-						else node.styleName = "Frame";
-					}
-					break
-				case "latex" :
-					if(node.styleName == "Heading" && node.level<3)
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item";
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration";
-					else
+						break
+					case "html" :
+						if(node.styleName == "Heading")
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
+							node.styleName = "Item";
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration";
+						else
+							node.styleName = "Normal";
+						break
+					case "rtf" :
+						if(node.styleName == "Heading")
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
+							node.styleName = "Item"+(node.level+1);
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration"+(node.level+1);
+						else
+							node.styleName = "Normal";
+						break
+					case "markdown" :
+						if(node.styleName == "Heading")
+							node.styleName = "Heading"+(node.level+1)
+						else if(node.styleName == "Bullet")
+							node.styleName = "Item"+(node.level+1);
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration"+(node.level+1);
+						else
+							node.styleName = "Normal";
+						break
+					case "text" :
+						if(node.styleName == "Bullet")
+							node.styleName = "Item"+(node.level+1);
+						else if(node.styleName == "Enumeration")
+							node.styleName = "Enumeration"+(node.level+1);
+						else
+							node.styleName = "Normal";
+						break
+					default :
 						node.styleName = "Normal";
-					break
-				case "html" :
-					if(node.styleName == "Heading")
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item";
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration";
-					else
-						node.styleName = "Normal";
-					break
-				case "rtf" :
-					if(node.styleName == "Heading")
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item"+(node.level+1);
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration"+(node.level+1);
-					else
-						node.styleName = "Normal";
-					break
-				case "markdown" :
-					if(node.styleName == "Heading")
-						node.styleName = "Heading"+(node.level+1)
-					else if(node.styleName == "Bullet")
-						node.styleName = "Item"+(node.level+1);
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration"+(node.level+1);
-					else
-						node.styleName = "Normal";
-					break
-				case "text" :
-					if(node.styleName == "Bullet")
-						node.styleName = "Item"+(node.level+1);
-					else if(node.styleName == "Enumeration")
-						node.styleName = "Enumeration"+(node.level+1);
-					else
-						node.styleName = "Normal";
-					break
-				default :
-					node.styleName = "Normal";
+				}
+
+				node.style = allStyle.get(node.styleName);
+				if(options.complete && node.complete)
+					node.style.changeType("Complete");
+				else if(options.complete && node.parent.style && (node.parent.style.type=="Complete" || node.parent.style.type=="CompleteChild"))
+					node.style.changeType("CompleteChild");
 			}
-
-			node.style = allStyle.get(node.styleName);
-
-			if(options.complete && node.complete)
-				node.style.changeType("Complete");
-			else if(options.complete && node.parent.style && (node.parent.style.type=="Complete" || node.parent.style.type=="CompleteChild"))
-				node.style.changeType("CompleteChild");
 
 			node.title.forEach(function(e, i) {
 				node.title[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic, e.isStrike));
@@ -570,8 +574,8 @@ var exportLib = function(nodes, options, title, email) {
 				// Assign new rules from WFE-tags in item
 
 				ALIAS.forEach(function(e) {
-					textListApply(node.title, "".replaceAll, [e[1], e[0]]);
-					textListApply(node.note, "".replaceAll, [e[1], e[0]]);
+					textListApply(node.title, "".replaceAll, ['#'+e[1], e[0]]);
+					textListApply(node.note, "".replaceAll, ['#'+e[1], e[0]]);
 				});
 
 				if(options.mdSyntax){
@@ -703,27 +707,30 @@ var exportLib = function(nodes, options, title, email) {
 			}
 		}
 		node.page_break = page_break;
-		if(ignore_item) {
-			for(var i=0; i<node.children.length; i++){
-		    node.children[i].parent = node.parent;
-		  }
-			node.parent.children.replace(node, node.children);
-		}
 		if(ignore_outline){
 			node.parent.children.remove(node);
 			node.children = [];
+		}
+		else if(ignore_item) {
+			for(var i=0; i<node.children.length; i++){
+		    node.children[i].parent = node.parent;
+				node.children[i].scopeNode = node.scopeNode;
+		  }
+			node.parent.children.replace(node, node.children);
 		}
 		ignore_item = false;
 		ignore_outline = false;
 		verbatim = true;
 		page_break = false;
+
+		node.doneApplyRulesNodesTree=true; //rapide fix !  Don't exacly understand why with ignore item the children are call applyRulesNodesTree twice
 		var i = 0;
 		while(i < l_node.children.length){
 			var childNode = l_node.children[i];
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
 				if(j>childNode.level) ALIASmdSyntax_enumList_index[j]=0;
 			})
-			applyRulesNodesTree(childNode, options);
+			if(!childNode.doneApplyRulesNodesTree) applyRulesNodesTree(childNode, options);
 			if(childNode == l_node.children[i])i++;
 		}
 	}
