@@ -1055,6 +1055,7 @@ var defaultSTYLESHEET={
 		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Theorem : new Style_latex("Theorem", -1, "\\begin{theorem}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",
@@ -1077,6 +1078,7 @@ var defaultSTYLESHEET={
 		Heading1 : "Heading",
 		Heading2 : "Heading",
 		Heading3 : "Heading",
+		Theorem : new Style_latex("Theorem", -1, "\\begin{theorem}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false, false),
@@ -1164,6 +1166,15 @@ var STYLESHEET = {
 		for(var key in this){
 			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
 				str += this[key].tag + "." + key + "{" + this[key].toString() + "}\n" ;
+			}
+		}
+		return str;
+	},
+	toLATEXstr : function(){
+		var str = "";
+		for(var key in this){
+			if (this.hasOwnProperty(key) && (this[key] instanceof Style)) {
+        if(this[key].name == "Theorem") str += "\\newtheorem{theorem}{Theorem}[section]\n" ;
 			}
 		}
 		return str;

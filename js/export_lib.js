@@ -302,23 +302,25 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		}
 	}
 
-	var regexImage = /!\[([^\]]*)\]\(([^\)]*)\)/g;
-	function Image(text, link){
+	var regexImage = /!\[([^\]]*)\]\(([^\)\s]*)(?: ([^\)\s]*))?\)/g;
+	function Image(text, link, link2){
 		this.link=link;
+		this.link2=link2;
 		this.text=text;
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:gray;\">"+this.text+"</span>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return this.toString("text"); //TODO
-				case "latex" : return "\\begin{figure}[t]\\includegraphics["+((this.text == "") ? "width=.75\\textwidth" : this.text)+"]{"+this.link+"}\\centering \\end{figure}";
+				case "latex" : return "\\begin{figure}[t]\\includegraphics["+((this.text == "") ? "width=.75\\textwidth" : this.text)+"]{"+(this.link2 ? this.link2 : this.link)+"}\\centering \\end{figure}";
 				case "beamer" : return this.toString("latex");
-				default : return "!["+this.text+"]("+this.link+")";
+				case "markdown" : return "!["+this.text+"]("+this.link+")";
+				default : return "!["+this.text+"]("+this.link+(this.link2 ? " " + this.link2 : "")+")";
 			}
 		}
 	}
 
-	var regexLink = /\[([^\]]*)\]\(([^\)]*)\)/g;
+	var regexLink = /\[([^\]]*)\]\(([^\)\s]*)(?: ([^\)\s]*))?\)/g;
 	function Link(text, link){
 		this.link=link;
 		this.text=text;
@@ -401,7 +403,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			text: "",
 			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
-			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
+			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + STYLESHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
 			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame} \\maketitle \\end{frame}\n \\begin{frame}{Table of Contents} \\tableofcontents \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
@@ -809,6 +811,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				else if (node.styleName == "Heading3"){
 					output_after_children += "\\end{subsubsection}\n";
 				}
+				else if (node.styleName == "Theorem"){
+					output_after_children += "\\end{theorem}\n";
+				}
 				output += node.style.toExport(text);
 
 				if ((note !== "") && (options.outputNotes))
@@ -837,6 +842,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				}
 				else if (node.styleName == "Frame"){
 					output_after_children += "\\end{frame}\n";
+				}
+				else if (node.styleName == "Theorem"){
+					output_after_children += "\\end{theorem}\n";
 				}
 
 				output += node.style.toExport(text);
