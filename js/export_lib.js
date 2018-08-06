@@ -302,36 +302,36 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		}
 	}
 
-	var regexImage = /!\[([^\]]*)\]\(([^\)]*)\)/g;
-	function Image(text, link){
+	var regexImage = /!\[([^\]]*)\]\(([^\)\s]*)(?: ([^\)\s]*))?\)/g;
+	function Image(text, link, link2){
 		this.link=link;
+		this.link2=link2;
 		this.text=text;
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:gray;\">"+this.text+"</span>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return this.toString("text"); //TODO
-				case "latex" : return "\\begin{figure}[t]\\includegraphics["+((this.text == "") ? "width=.75\\textwidth" : this.text)+"]{"+this.link+"}\\centering \\end{figure}";
+				case "latex" : return "\\begin{figure}[t]\\includegraphics["+((this.text == "") ? "width=.75\\textwidth" : this.text)+"]{"+(this.link2 ? this.link2 : this.link)+"}\\centering \\end{figure}";
 				case "beamer" : return this.toString("latex");
-				default : return "!["+this.text+"]("+this.link+")";
+				case "markdown" : return "!["+this.text+"]("+this.link+")";
+				default : return "!["+this.text+"]("+this.link+(this.link2 ? " " + this.link2 : "")+")";
 			}
 		}
 	}
 
 	var regexLink = /\[([^\]]*)\]\(([^\)\s]*)(?: ([^\)\s]*))?\)/g;
-	function Link(text, link, link2){
+	function Link(text, link){
 		this.link=link;
-		this.link2=link2;
 		this.text=text;
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<a href=\""+this.link+"\" target=\"_blank\">"+this.text+"</a>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return "{\\field{\\*\\fldinst HYPERLINK "+this.link+" }{\\fldrslt\\cf3\\ul "+this.text+"}}";
-				case "latex" : return "\\href{"+(this.link2 ? this.link2 : this.link)+"}{"+this.text+"}";
+				case "latex" : return "\\href{"+this.link+"}{"+this.text+"}";
 				case "beamer" : return this.toString("latex");
-				case "markdown" : return "["+this.text+"]("+this.link+")";
-				default : return "["+this.text+"]("+this.link+(this.link2 ? " " + this.link2 : "")+")";
+				default : return "["+this.text+"]("+this.link+")";
 			}
 		}
 	}
