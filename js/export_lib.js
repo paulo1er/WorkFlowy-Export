@@ -318,18 +318,20 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		}
 	}
 
-	var regexLink = /\[([^\]]*)\]\(([^\)]*)\)/g;
-	function Link(text, link){
+	var regexLink = /\[([^\]]*)\]\(([^\)\s]*)(?: ([^\)\s]*))?\)/g;
+	function Link(text, link, link2){
 		this.link=link;
+		this.link2=link2;
 		this.text=text;
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<a href=\""+this.link+"\" target=\"_blank\">"+this.text+"</a>";
 				case "text" : return this.text + " : " +  this.link;
 				case "rtf" : return "{\\field{\\*\\fldinst HYPERLINK "+this.link+" }{\\fldrslt\\cf3\\ul "+this.text+"}}";
-				case "latex" : return "\\href{"+this.link+"}{"+this.text+"}";
+				case "latex" : return "\\href{"+(this.link2 ? this.link2 : this.link)+"}{"+this.text+"}";
 				case "beamer" : return this.toString("latex");
-				default : return "["+this.text+"]("+this.link+")";
+				case "markdown" : return "["+this.text+"]("+this.link+")";
+				default : return "["+this.text+"]("+this.link+(this.link2 ? " " + this.link2 : "")+")";
 			}
 		}
 	}
