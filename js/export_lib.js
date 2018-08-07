@@ -404,7 +404,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
 			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + STYLESHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
-			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame} \\maketitle \\end{frame}\n \\begin{frame}{Table of Contents} \\tableofcontents \\end{frame}\n",
+			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + STYLESHEETused.toBEAMERstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame} \\maketitle \\end{frame}\n \\begin{frame}{Table of Contents} \\tableofcontents \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+
 			     FONTSHEETused.toRTFstr()+"\n"+
@@ -814,6 +814,21 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				else if (node.styleName == "Theorem"){
 					output_after_children += "\\end{theorem}\n";
 				}
+				else if (node.styleName == "Proposition"){
+					output_after_children += "\\end{proposition}\n";
+				}
+				else if (node.styleName == "Lemma"){
+					output_after_children += "\\end{lemma}\n";
+				}
+				else if (node.styleName == "Corollary"){
+					output_after_children += "\\end{corollary}\n";
+				}
+				else if (node.styleName == "Proof"){
+					output_after_children += "\\end{proof}\n";
+				}
+				else if (node.styleName == "Example"){
+					output_after_children += "\\end{example}\n";
+				}
 				output += node.style.toExport(text);
 
 				if ((note !== "") && (options.outputNotes))
@@ -845,6 +860,21 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				}
 				else if (node.styleName == "Theorem"){
 					output_after_children += "\\end{theorem}\n";
+				}
+				else if (node.styleName == "Proposition"){
+					output_after_children += "\\end{proposition}\n";
+				}
+				else if (node.styleName == "Lemma"){
+					output_after_children += "\\end{lemma}\n";
+				}
+				else if (node.styleName == "Corollary"){
+					output_after_children += "\\end{corollary}\n";
+				}
+				else if (node.styleName == "Proof"){
+					output_after_children += "\\end{proof}\n";
+				}
+				else if (node.styleName == "Example"){
+					output_after_children += "\\end{example}\n";
 				}
 
 				output += node.style.toExport(text);
