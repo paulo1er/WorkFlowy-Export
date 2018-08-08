@@ -303,7 +303,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			switch(format){
 				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
 				case "rtf" : return "{\\f2\\cf4\\highlight5 "+this.text+"}";
-				case "latex": return (node.styleName=="Equation" ? this.text : "$"+this.text+"$") ;
+				case "latex": return ((node.styleName=="Equation" || node.styleName=="Displaymath" )? this.text : "$"+this.text+"$") ;
 				case "beamer" : return this.toString("latex");
 				default : return "`"+this.text+"`";
 			}
