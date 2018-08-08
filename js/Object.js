@@ -1191,7 +1191,7 @@ var STYLESHEET = {
           case "Proposition" : str += "\\newtheorem{proposition}{Proposition}[section]\n"; break;
           case "Lemma" : str += "\\newtheorem{lemma}{Lemma}[section]\n"; break;
           case "Corollary" : str += "\\newtheorem{corollary}{Corollary}[section]\n"; break;
-          case "Proof" : str += "\\newtheorem{proof}{Proof}[section]\n"; break;
+          case "Proof" : str += "\\usepackage{amsthm}\n"; break;
           case "Example" : str += "\\newtheorem{example}{Example}[section]\n"; break;
         }
 	    }
