@@ -217,7 +217,15 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				node.styleName = allStyle.getName("Frame");
 			}
 			return "";
-		}
+		},
+
+		"wfe-latex-label" : function(str=""){
+			return " $\\label{"+str+"}$";
+		},
+
+		"wfe-latex-ref" : function(str=""){
+			return " $\\ref{"+str+"}$";
+		},
 	}
 
 	var ALIASmdSyntax_enumList = [
