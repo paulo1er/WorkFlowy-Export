@@ -178,6 +178,9 @@ class TextExported{
 
 class mdSyntaxToList extends Array{
 	constructor(text, defaultText){
+    text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
     var list=[];
 		var bold = false;
     var italic=false;

@@ -41,6 +41,13 @@
       "js/jquery.min.js",
       "js/content_script.js"
       ]
+    },
+    {
+      "matches": ["https://dynalist.io/*"],
+      "js": [
+        "js/jquery.min.js",
+        "js/content_script_dynalist.js"
+        ]
     }
   ],
 

@@ -284,7 +284,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 	var regexCode=/`([^`]*)`/g;
 	function Code(text){
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
@@ -298,7 +300,10 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 	var regexCodeLatex=/\$([^$]*)\$/g;
 	function CodeLatex(text){
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
+
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
@@ -314,7 +319,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	function Image(text, link, link2){
 		this.link=link;
 		this.link2=link2;
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:gray;\">"+this.text+"</span>";
@@ -331,7 +338,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	var regexLink = /\[([^\]]*)\]\(([^\)\s]*)(?: ([^\)\s]*))?\)/g;
 	function Link(text, link){
 		this.link=link;
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<a href=\""+this.link+"\" target=\"_blank\">"+this.text+"</a>";

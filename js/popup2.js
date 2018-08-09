@@ -974,6 +974,7 @@ var popup2 = (function() {
             };
           	document.addEventListener('keyup', shortcut, false);
 
+            if(g_url.startsWith("https://dynalist.io/")) $("title").text("Dynalist export");
 					}
 
 					function initialization(){
@@ -999,7 +1000,7 @@ var popup2 = (function() {
                 ALIAS = changes["ALIAS"].newValue;
               };
             });
-            
+
 						initHTML();
 						exportText();
 						setEventListers();
