@@ -59,8 +59,12 @@
 
 	function getContent(callback) {
 		var url = location.href;
-		var title = document.title;
-
+		var title = document.title.replace(/ - [^\s]* - Dynalist$/g, "").replaceAll('**', '').replaceAll('__', '').replaceAll('~~', '');
+		if(title.length >= 100){
+			title = title.substr(0,100);
+			if(title.lastIndexOf(" ") != -1) title = title.substr(0,title.lastIndexOf(" "))
+			title += ' ...';
+		}
 		var nodeList = $('div.Node.is-selected');
 		if (nodeList.length==0){
 			nodeList = $('div.Node.is-currentRoot');
