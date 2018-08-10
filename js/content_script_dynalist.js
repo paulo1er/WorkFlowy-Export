@@ -23,17 +23,38 @@
 		return list;
 	}
 
-	var TextExported = function(text, isUnderline, isBold, isItalic){
+	var TextExported = function(text, isStrike, isBold, isItalic){
 		this.text = text;
-		this.isUnderline = isUnderline;
+		this.isUnderline = false;
 		this.isBold = isBold;
 		this.isItalic = isItalic;
-		this.isStrike = false;
+		this.isStrike = isStrike;
 	};
 
 	function elementToText(e){
-		var text = e.text().replaceAll("$$", "$").replaceAll("__", "_").replaceAll("~~", "~").replace(/\n$/, "")
-		return [new TextExported(text, false, false, false)];
+		var resultList = [];
+		var text = e.text().replaceAll("$$", "$");
+		var bold = false;
+    var italic=false;
+    var strike=false;
+		var splitText = text.split(/([*]{2}|[_]{2}|[~]{2})/g);
+    splitText.forEach(function(subText,i){
+			switch(subText){
+				case "**" :
+	      	bold=!bold;
+					break;
+	    	case "__" :
+					italic=!italic;
+					break;
+	      case "~~" :
+	      	strike=!strike;
+					break;
+				default :
+					resultList.push(new TextExported(subText, strike, bold, italic));
+					break;
+	    }
+		});
+		return resultList;
 	}
 
 	function getContent(callback) {
