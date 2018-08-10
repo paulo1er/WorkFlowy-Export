@@ -3,7 +3,8 @@
 
   "name": "WorkFlowy Export",
   "short_name": "WF Export",
-  "version": "1.0",
+  "version": "0.9",
+  "version_name": "Beta 0.9",
   "description": "__MSG_Manifestdesc__",
   "icons" : {
     "16": "image/icon16.png",
