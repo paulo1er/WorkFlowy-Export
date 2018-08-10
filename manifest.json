@@ -3,7 +3,8 @@
 
   "name": "WorkFlowy Export",
   "short_name": "WF Export",
-  "version": "1.0",
+  "version": "0.9",
+  "version_name": "Beta 0.9",
   "description": "__MSG_Manifestdesc__",
   "icons" : {
     "16": "image/icon16.png",
@@ -41,6 +42,13 @@
       "js/jquery.min.js",
       "js/content_script.js"
       ]
+    },
+    {
+      "matches": ["https://dynalist.io/*"],
+      "js": [
+        "js/jquery.min.js",
+        "js/content_script_dynalist.js"
+        ]
     }
   ],
 

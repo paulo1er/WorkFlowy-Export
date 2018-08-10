@@ -284,7 +284,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 	var regexCode=/`([^`]*)`/g;
 	function Code(text){
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
@@ -298,12 +300,15 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 	var regexCodeLatex=/\$([^$]*)\$/g;
 	function CodeLatex(text){
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
+
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<code style=\"background-color: #d3d3d3;\"> &nbsp;"+this.text+" </code>";
 				case "rtf" : return "{\\f2\\cf4\\highlight5 "+this.text+"}";
-				case "latex": return (node.styleName=="Equation" ? this.text : "$"+this.text+"$") ;
+				case "latex": return ((node.styleName=="Equation" || node.styleName=="Displaymath" )? this.text : "$"+this.text+"$") ;
 				case "beamer" : return this.toString("latex");
 				default : return "`"+this.text+"`";
 			}
@@ -314,7 +319,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	function Image(text, link, link2){
 		this.link=link;
 		this.link2=link2;
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<img src=\""+this.link+"\"  title=\""+this.text+"\"><br /><span style=\"font-style: italic; font-size: 0.9em; color:gray;\">"+this.text+"</span>";
@@ -331,7 +338,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	var regexLink = /\[([^\]]*)\]\(([^\)\s]*)(?: ([^\)\s]*))?\)/g;
 	function Link(text, link){
 		this.link=link;
-		this.text=text;
+		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
 		this.toString = function(format = "text"){
 			switch(format){
 				case "html" : return "<a href=\""+this.link+"\" target=\"_blank\">"+this.text+"</a>";
@@ -411,7 +420,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			text: "",
 			markdown: "",
 			html: "<!DOCTYPE html>\n<html>\n  <head>\n    <title>" + title + "</title>\n    <style>\n body {margin:72px 90px 72px 90px;}\n img {max-height: 1280px;max-width: 720px;}\n div.page-break {page-break-after: always}\n" + STYLESHEETused.toHTMLstr() + "\n    </style>\n  </head>\n  <body>\n",
-			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + STYLESHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
+			latex: "\\documentclass{article}\n \\usepackage{blindtext}\n \\usepackage[utf8]{inputenc}\n  \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox}\n \\usepackage{amsthm}\n \\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + STYLESHEETused.toLATEXstr() + "\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\maketitle\n",
 			beamer: "\\documentclass{beamer}\n \\usepackage{ulem}\n \\usepackage{xcolor}\n \\usepackage{tcolorbox} \n\\setlength{\\parindent}{0pt}\n" + COLORSHEETused.toLATEXstr() + STYLESHEETused.toBEAMERstr() + "\n \\usetheme{Goettingen}\n \\title{"+title+"}\n \\author{"+email+"}\n \\date{"+date+"}\n \\begin{document}\n \\begin{frame} \\maketitle \\end{frame}\n \\begin{frame}{Table of Contents} \\tableofcontents \\end{frame}\n",
 			opml: "<?xml version=\"1.0\"?>\n<opml version=\"2.0\">\n  <head>\n    <ownerEmail>"+email+"</ownerEmail>\n  </head>\n  <body>\n",
 			rtf: "{\\rtf1\\ansi\\deff0\n"+

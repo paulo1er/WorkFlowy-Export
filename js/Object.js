@@ -178,6 +178,9 @@ class TextExported{
 
 class mdSyntaxToList extends Array{
 	constructor(text, defaultText){
+    text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
+			return String.fromCharCode(parseInt($1, 16));
+		});
     var list=[];
 		var bold = false;
     var italic=false;
@@ -1062,6 +1065,7 @@ var defaultSTYLESHEET={
 		Proof : new Style_latex("Proof", -1, "\\begin{proof}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Example : new Style_latex("Example", -1, "\\begin{example}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Equation : new Style_latex("Equation", -1, "\\begin{equation} ", " \\end{equation}\n", "BLACK", "WHITE", false, false, false, false),
+		Displaymath : new Style_latex("Displaymath", -1, "\\begin{displaymath} ", " \\end{displaymath}\n", "BLACK", "WHITE", false, false, false, false),
 		Item : new Style_latex("Item", -1, "\\item ", "\n", "BLACK", "WHITE", false, false, false, false),
 		Item1 : "Item",
 		Item2 : "Item",
@@ -1091,6 +1095,7 @@ var defaultSTYLESHEET={
 		Proof : new Style_latex("Proof", -1, "\\begin{proof}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Example : new Style_latex("Example", -1, "\\begin{example}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Equation : new Style_latex("Equation", -1, "\\begin{equation} ", " \\end{equation}\n", "BLACK", "WHITE", false, false, false, false),
+		Displaymath : new Style_latex("Displaymath", -1, "\\begin{displaymath} ", " \\end{displaymath}\n", "BLACK", "WHITE", false, false, false, false),
 		Title : new Style_latex("Title", 0, "\\title{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Section : new Style_latex("Section", 1, "\\section{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Subsection : new Style_latex("Subsection", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false, false),
@@ -1191,7 +1196,6 @@ var STYLESHEET = {
           case "Proposition" : str += "\\newtheorem{proposition}{Proposition}[section]\n"; break;
           case "Lemma" : str += "\\newtheorem{lemma}{Lemma}[section]\n"; break;
           case "Corollary" : str += "\\newtheorem{corollary}{Corollary}[section]\n"; break;
-          case "Proof" : str += "\\usepackage{amsthm}\n"; break;
           case "Example" : str += "\\newtheorem{example}{Example}[section]\n"; break;
         }
 	    }
