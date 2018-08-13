@@ -335,7 +335,7 @@ function initRefreshOptions(storageRefreshOptions){
     r={
       "autoCopy" : false,
       "autoDownload" : false,
-      "autoReload" : false
+      "autoReload" : true
     };
     chrome.storage.local.set({'refreshOptions' : r}, function() {
       console.log("refreshOptions init");
