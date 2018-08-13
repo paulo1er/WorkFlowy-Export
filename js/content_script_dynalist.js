@@ -33,7 +33,7 @@
 
 	function elementToText(e){
 		var resultList = [];
-		var text = e.text().replaceAll("$$", "$");
+		var text = e.text().replaceAll("$$", "$").replace(/\n$/, '');
 		var bold = false;
     var italic=false;
     var strike=false;
