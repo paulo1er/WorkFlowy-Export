@@ -60,3 +60,7 @@
 #hideFindAndReplace{
   font-size: 15px;
 }
+
+.dropdown-menu li a:hover{
+  background-color: #d9edf7;
+}

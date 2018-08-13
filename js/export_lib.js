@@ -301,7 +301,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	var regexCodeLatex=/\$([^$]*)\$/g;
 	function CodeLatex(text){
 		this.text=text.replace(/\\u([\dA-F]{4})/gi, function(e,$1){
-			return String.fromCharCode(parseInt($1, 16));
+			return "\\" + String.fromCharCode(parseInt($1, 16));
 		});
 
 		this.toString = function(format = "text"){
