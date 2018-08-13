@@ -1,6 +1,6 @@
 {
   "Manifestdesc": {
-    "message": "Extantion de WorkFlowy. Exporter vers Markdown et HTML, Theme, Count letters, et d'autres options utiles."
+    "message": "Exporter WorkFlowy vers de nombreux formats dont RTF et LaTeX"
   },
   "OpenWorkFlowy": {
     "message": "re-ouvrir la dernière page WorkFlowy exportée"
