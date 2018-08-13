@@ -1,8 +1,8 @@
 {
 "update_url": "https://clients2.google.com/service/update2/crx",
 
-  "name": "WorkFlowy Export",
-  "short_name": "WFE",
+  "name": "Export your outline",
+  "short_name": "EYO",
   "version": "0.9.1",
   "version_name": "Beta 0.9.1",
   "description": "__MSG_Manifestdesc__",
@@ -60,7 +60,7 @@
   ],
 
   "page_action": {
-    "default_name": "WorkFlowy Export",
+    "default_name": "Export your outline",
     "default_popup": "popup.html"
   },
 

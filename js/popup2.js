@@ -33,14 +33,6 @@ var popup2 = (function() {
 					}
 			}
 		);
-		//close the extention when the WorkFlowy tab change to an non WorkFlowy URL
-    chrome.tabs.onUpdated.addListener(
-			function(tabId, changeInfo, tab){
-				if(tabId==currentTabId && tab.url.indexOf("https://workflowy.com")!=0) {
-					window.close();
-				}
-    	}
-		);
 
 	}
 
@@ -973,8 +965,6 @@ var popup2 = (function() {
                 }
             };
           	document.addEventListener('keyup', shortcut, false);
-
-            if(g_url.startsWith("https://dynalist.io/")) $("title").text("Dynalist export");
 					}
 
 					function initialization(){
@@ -1000,6 +990,18 @@ var popup2 = (function() {
                 ALIAS = changes["ALIAS"].newValue;
               };
             });
+
+        		//close the extention when the WorkFlowy tab change to an non WorkFlowy URL
+            chrome.tabs.onUpdated.addListener(
+        			function(tabId, changeInfo, tab){
+        				if(tabId==currentTabId && !tab.url.startsWith("https://workflowy.com") && g_url.startsWith("https://workflowy.com")) {
+        					window.close();
+        				}
+        				else if(tabId==currentTabId && !tab.url.startsWith("https://dynalist.io") && g_url.startsWith("https://dynalist.io")) {
+        					window.close();
+        				}
+            	}
+        		);
 
 						initHTML();
 						exportText();
