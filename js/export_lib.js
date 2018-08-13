@@ -11,7 +11,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	var WF_TAG_REGEXP = /((^|\s|,|:|;|\/)(#|@)[a-z][a-z0-9\-_:]*($|\s|,|;|\/))/i;
 	//  the good regex but use XRegExp and don't solve all probleme too.
 	//  (^|\s|[(),.!?';:\/\[\]])([#@]([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*(:([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*))*))(?=$|\s|[(),.!?';:\/\[\]])
-	var WFE_TAG_REGEXP = /(?:^|\s)#wfe-([\w-]*)(?::([\w-:]*))?/ig;
+	var WFE_TAG_REGEXP = /(?:^|\s)#(?:(?:wfe)|(?:eyo))-([\w-]*)(?::([\w-:]*))?/ig;
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 
@@ -31,20 +31,20 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		this.name = name.toLowerCase();
 		this.parameter = (parameter==null) ? null : parameter.toLowerCase().split(":");
 		this.toString = function(){
-			if(typeof WFE_FUNCTION["wfe-"+this.name] == "function"){
+			if(typeof WFE_FUNCTION["eyo-"+this.name] == "function"){
 				var args = this.parameter;
 				console.log("WFE", this.name, args);
-				return WFE_FUNCTION["wfe-"+this.name].apply( this, args );
+				return WFE_FUNCTION["eyo-"+this.name].apply( this, args );
 			}
 			console.log("WFE no function ", name);
 			return "";
 		}
 	}
 	var WFE_FUNCTION = {
-		"wfe-testLog": function(p1="A",p2="B",p3="C"){
+		"eyo-testLog": function(p1="A",p2="B",p3="C"){
 			return p1+p2+p3;
 		},
-		"wfe-count": function(name_counter="", name_item="", init=null){
+		"eyo-count": function(name_counter="", name_item="", init=null){
 			if(init && !isNaN(init)) wfe_count[name_counter]=parseInt(init)-1;
 			if(!wfe_count[name_counter])
 				wfe_count[name_counter]=0;
@@ -53,34 +53,34 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		 		wfe_count_ID[name_counter+":"+name_item]=wfe_count[name_counter];
 			return wfe_count[name_counter];
 		},
-		"wfe-refLast": function(name_counter=""){
+		"eyo-refLast": function(name_counter=""){
 			if(wfe_count[name_counter])
 				return wfe_count[name_counter];
 			return "NaN";
 		},
-		"wfe-ref": function(name_counter="", name_item=""){
+		"eyo-ref": function(name_counter="", name_item=""){
 			if(wfe_count_ID[name_counter+":"+name_item])
 				return wfe_count_ID[name_counter+":"+name_item];
 			return "NaN";
 		},
-		"wfe-ignore-tags": function(bool=true){
+		"eyo-ignore-tags": function(bool=true){
 			options.ignore_tags = bool;
 			return "";
 		},
-		"wfe-ignore-item": function(bool=true){
+		"eyo-ignore-item": function(bool=true){
 			ignore_item = bool;
 			return "";
 		},
-		"wfe-ignore-outline": function(bool=true){
+		"eyo-ignore-outline": function(bool=true){
 			ignore_outline = bool;
 			return "";
 		},
-		"wfe-page-break": function(bool=true){
+		"eyo-page-break": function(bool=true){
 			page_break = bool;
 			return "";
 		},
-		"wfe-style":function(style="Normal"){
-			console.log("change style by WFE-style", style, allStyle);
+		"eyo-style":function(style="Normal"){
+			console.log("change style by eyo-style", style, allStyle);
 			style = style.charAt(0).toUpperCase() + style.slice(1);
 			if(allStyle.hasOwnProperty(style)) {
 				node.style = allStyle.get(style);
@@ -94,7 +94,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			return "";
 		},
 
-		"wfe-text-align":function(value="left"){
+		"eyo-text-align":function(value="left"){
 			var property ="aligement";
 			if(value.toUpperCase()=="LEFT" || value.toUpperCase()=="L") node.style[property] = "left";
 			else if(value.toUpperCase()=="RIGHT" || value.toUpperCase()=="R") node.style[property] = "right";
@@ -102,55 +102,55 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			else if(value.toUpperCase()=="JUSTIFIED" || value.toUpperCase()=="J") node.style[property] = "justified";
 			return "";
 		},
-		"wfe-indent-first":function(value=0){
+		"eyo-indent-first":function(value=0){
 			var property ="indentation_first_line";
 			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-indent-left":function(value=0){
+		"eyo-indent-left":function(value=0){
 			var property ="indentation_left";
 			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-indent-right":function(value=0){
+		"eyo-indent-right":function(value=0){
 			var property ="indentation_right";
 			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-line-spacing-before":function(value=0){
+		"eyo-line-spacing-before":function(value=0){
 			var property ="spacing_before";
 			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-line-spacing-after":function(value=0){
+		"eyo-line-spacing-after":function(value=0){
 			var property ="spacing_after";
 			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-font-face":function(value="Arial"){
+		"eyo-font-face":function(value="Arial"){
 			var property ="font";
 			value = value.toUpperCase().replaceAll("_", " ");
 			if(allFont.hasOwnProperty(value) > -1) node.style[property] = value;
 			return "";
 		},
-		"wfe-font-size":function(value=11){
+		"eyo-font-size":function(value=11){
 			var property ="font_size";
 			if(!isNaN(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-font-weight":function(value="Normal"){
+		"eyo-font-weight":function(value="Normal"){
 			var property ="bold";
 			if(value.toUpperCase()=="BOLD") node.style[property] = true;
 			else if(value.toUpperCase()=="NORMAL") node.style[property] = false;
 			return "";
 		},
-		"wfe-font-style":function(value="Normal"){
+		"eyo-font-style":function(value="Normal"){
 			var property ="italic";
 			if(value.toUpperCase()=="ITALIC") node.style[property] = true;
 			else if(value.toUpperCase()=="NORMAL") node.style[property] = false;
 			return "";
 		},
-		"wfe-text-decoration":function(value="Normal"){
+		"eyo-text-decoration":function(value="Normal"){
 			if(value.toUpperCase()=="UNDERLINE") node.style["underline"] = true;
 			else if(value.toUpperCase()=="STRIKE") node.style["strike"] = true;
 			else if(value.toUpperCase()=="NORMAL"){
@@ -159,7 +159,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			}
 			return "";
 		},
-		"wfe-font-color":function(value="Black", hex){
+		"eyo-font-color":function(value="Black", hex){
 			var property ="color";
 			value = value.toUpperCase();
 			if(value == "RGB" && /^([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
@@ -176,7 +176,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			else if(allColor.hasOwnProperty(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-background":function(value="White", hex){
+		"eyo-background":function(value="White", hex){
 			var property ="background_color";
 			value = value.toUpperCase();
 			if(value == "RGB" && /^([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
@@ -193,7 +193,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			else if(allColor.hasOwnProperty(value)) node.style[property] = value;
 			return "";
 		},
-		"wfe-scope": function(type="item"){
+		"eyo-scope": function(type="item"){
 			type = type.toUpperCase();
 			if(type=="ITEM"){
 			}
@@ -202,16 +202,16 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			}
 			return "";
 		},
-		"wfe-email": function(){
+		"eyo-email": function(){
 			return email;
 		},
 
-		"wfe-verbatim": function(){
+		"eyo-verbatim": function(){
 			verbatim = false;
 			return "";
 		},
 
-		"wfe-beamer-slide": function(){
+		"eyo-beamer-slide": function(){
 			if(allStyle.hasOwnProperty("Frame") && (node.styleName=="Title" || node.styleName=="Section" || node.styleName=="Subsection")) {
 				node.style = allStyle.get("Frame");
 				node.styleName = allStyle.getName("Frame");
@@ -219,11 +219,11 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			return "";
 		},
 
-		"wfe-latex-label" : function(str=""){
+		"eyo-latex-label" : function(str=""){
 			return " $\\label{"+str+"}$";
 		},
 
-		"wfe-latex-ref" : function(str=""){
+		"eyo-latex-ref" : function(str=""){
 			return " $\\ref{"+str+"}$";
 		},
 	}
@@ -237,12 +237,12 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	var ALIASmdSyntax_item = /^[\*|\-|\+] /;
 	var ALIASmdSyntax_item_index = 999;
 	var ALIASmdSyntax = [
-		[/^# /,"#wfe-style:Heading1 "],
-		[/^## /,"#wfe-style:Heading2 "],
-		[/^### /,"#wfe-style:Heading3 "],
-		[/^#### /,"#wfe-style:Heading4 "],
-		[/^##### /,"#wfe-style:Heading5 "],
-		[/^###### /,"#wfe-style:Heading6 "]
+		[/^# /,"#eyo-style:Heading1 "],
+		[/^## /,"#eyo-style:Heading2 "],
+		[/^### /,"#eyo-style:Heading3 "],
+		[/^#### /,"#eyo-style:Heading4 "],
+		[/^##### /,"#eyo-style:Heading5 "],
+		[/^###### /,"#eyo-style:Heading6 "]
 	];
 
 	var ESCAPE_CHARACTER = {
@@ -590,7 +590,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 			if (options.applyWFERules)
 			{
-				// Assign new rules from WFE-tags in item
+				// Assign new rules from eyo-tags in item
 
 				ALIAS.forEach(function(e) {
 					textListApply(node.title, "".replaceAll, ['#'+e[1], e[0]]);
@@ -616,7 +616,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 					ALIASmdSyntax_enumList.forEach(function(e,i){
 			      if(node.title[0] instanceof TextExported){
 			        if(e[ALIASmdSyntax_enumList_index[node.level]].test(node.title[0].text)){
-								node.title[0].text = node.title[0].text.replace(e[ALIASmdSyntax_enumList_index[node.level]], "#wfe-style:Enumeration"+(i+1)+" ");
+								node.title[0].text = node.title[0].text.replace(e[ALIASmdSyntax_enumList_index[node.level]], "#eyo-style:Enumeration"+(i+1)+" ");
 								ALIASmdSyntax_enumList_index[node.level] ++;
 							}
 						}
@@ -624,7 +624,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		      if(node.title[0] instanceof TextExported){
 		        if(ALIASmdSyntax_item.test(node.title[0].text)){
 							if(ALIASmdSyntax_item_index > node.level) ALIASmdSyntax_item_index = node.level;
-							node.title[0].text = node.title[0].text.replace(ALIASmdSyntax_item, "#wfe-style:Item"+(node.level+1 - ALIASmdSyntax_item_index)+" ");
+							node.title[0].text = node.title[0].text.replace(ALIASmdSyntax_item, "#eyo-style:Item"+(node.level+1 - ALIASmdSyntax_item_index)+" ");
 						}
 						else ALIASmdSyntax_item_index=999;
 					}
