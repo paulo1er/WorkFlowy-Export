@@ -335,7 +335,7 @@ function initRefreshOptions(storageRefreshOptions){
     r={
       "autoCopy" : false,
       "autoDownload" : false,
-      "autoReload" : false
+      "autoReload" : true
     };
     chrome.storage.local.set({'refreshOptions' : r}, function() {
       console.log("refreshOptions init");
@@ -371,15 +371,15 @@ function initALIAS(storageALIAS){
   }
   else {
     r = [
-  		["#wfe-style:Heading1","h1"],
-  		["#wfe-style:Heading2","h2"],
-  		["#wfe-style:Heading3","h3"],
-  		["#wfe-style:Heading4","h4"],
-  		["#wfe-style:Heading5","h5"],
-  		["#wfe-style:Heading6","h6"],
-  		["#wfe-style:Item","item"],
-  		["#wfe-style:Enumeration","enum"],
-  		["#wfe-beamer-slide","slide"]
+  		["#eyo-style:Heading1","h1"],
+  		["#eyo-style:Heading2","h2"],
+  		["#eyo-style:Heading3","h3"],
+  		["#eyo-style:Heading4","h4"],
+  		["#eyo-style:Heading5","h5"],
+  		["#eyo-style:Heading6","h6"],
+  		["#eyo-style:Item","item"],
+  		["#eyo-style:Enumeration","enum"],
+  		["#eyo-beamer-slide","slide"]
   	];
     chrome.storage.sync.set({'ALIAS' : r}, function() {
       console.log("ALIAS init");
