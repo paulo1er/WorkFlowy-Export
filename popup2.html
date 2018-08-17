@@ -26,7 +26,7 @@
 							<div id="panelTextArea" class="panel panel-primary" style="margin-bottom: 0px;">
 								<div id="divTextArea" class="panel-body" style="position:relative; min-height:220px;">
 									<div id="contentTextArea">
-										<textarea id="textArea" class="form-control" style="position:relative; resize:vertical; min-height:200px;" readonly></textarea>
+										<textarea id="textArea" class="form-control" style="position:relative; resize:vertical; min-height:200px;"></textarea>
 									</div>
 									<div id="loading" style="position:absolute;	left:50%; top:50%;" hidden>
 										<img src="image/Loading_icon.gif" style="height: 128px;">
@@ -51,9 +51,9 @@
 										      Reload <i class="glyphicon glyphicon-refresh"></i> <span class="caret"></span>
 										    </button>
     										<ul class="dropdown-menu">
-													<li><a id="update" data-toggle="tooltip" data-placement="bottom" title="Ctrl+Alt+R or Alt+F5">Reload outline</a></li>
-													<li><a id="importOPML">Import OPML</a></li>
-													<li><a id="pasteOPML">Paste OPML</a></li>
+													<li><a id="update" data-toggle="tooltip" data-placement="bottom" title="Ctrl+Alt+R or Alt+F5" style="cursor: pointer;">Reload outline</a></li>
+													<li><a id="importOPML" style="cursor: pointer;">Import OPML</a></li>
+													<li><a id="pasteOPML" style="cursor: pointer;">Paste OPML</a></li>
 										    </ul>
 												<div hidden id="fileName"></div>
 												<input type="file" id="fileOPML" style="display:none">
