@@ -12,13 +12,23 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	//  the good regex but use XRegExp and don't solve all probleme too.
 	//  (^|\s|[(),.!?';:\/\[\]])([#@]([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*(:([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*))*))(?=$|\s|[(),.!?';:\/\[\]])
 	var WFE_TAG_REGEXP = /(?:^|\s)#(?:(?:wfe)|(?:eyo))-([\w-]*)(?::([\w-:]*))?/ig;
+
+	var WFE_TAG_PRIORITY = ["escaping", "mdSyntax", "latexSyntax", "verbatim"];
+	var WFE_TAG_PRIORITY_REGEXP = [];
+	WFE_TAG_PRIORITY.forEach(function(e){
+		WFE_TAG_PRIORITY_REGEXP.push( new RegExp("(?:^|\\s)#(?:(?:wfe)|(?:eyo))-(" + e +")(?::([\\w-:]*))?", "ig"));
+	});
+
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
 
 	var ignore_item = false;
 	var ignore_outline = false;
-	var verbatim = true;
+	var escaping = true;
 	var page_break = false;
+	var latexSyntax = options.latexSyntax;
+	var mdSyntax = options.mdSyntax;
+
 	var header = "";
 	var body = "";
 	var footer = "";
@@ -206,8 +216,25 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			return email;
 		},
 
+		"eyo-escaping": function(val="true"){
+			escaping = (val=="true");
+			return "";
+		},
+
 		"eyo-verbatim": function(){
-			verbatim = false;
+			escaping = false;
+			mdSyntax = false;
+			latexSyntax = false;
+			return "";
+		},
+
+		"eyo-mdsyntax": function(val="true"){
+			mdSyntax = (val=="true");
+			return "";
+		},
+
+		"eyo-latexsyntax": function(val="true"){
+			latexSyntax = (val=="true");
 			return "";
 		},
 
@@ -440,8 +467,10 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		// Set default rules
 		ignore_item = false;
 		ignore_outline = false;
-		verbatim= true;
+		escaping= true;
 		page_break = false;
+		latexSyntax = options.latexSyntax;
+		mdSyntax = options.mdSyntax;
 
 		// Create header text
 		if(!options.fragment) header = HEADER[options.format];
@@ -468,12 +497,14 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	function applyRulesNodesTree(l_node, options){
 		node = l_node;
 		if(node.type != "dummy"){
+
+			// Not a dummy node
+
 			node.level=node.parent.level+1;
 
 			if(!node.scopeNode && node.parent.scopeNode) node.scopeNode = node.parent.scopeNode;
 
 			if(!options.outputNotes)node.note = [];
-			// Not a dummy node
 			if(node.children.length != 0){
 				node.styleName = options.parentDefaultItemStyle;
 				node.indentChars = options.parentIndent_chars;
@@ -588,16 +619,30 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				}
 			});
 
-			if (options.applyWFERules)
-			{
-				// Assign new rules from eyo-tags in item
+			if (options.applyWFERules){
+				// Replace ALIAS by eyo-tag
 
 				ALIAS.forEach(function(e) {
 					textListApply(node.title, "".replaceAll, ['#'+e[1], e[0]]);
 					textListApply(node.note, "".replaceAll, ['#'+e[1], e[0]]);
 				});
 
-				if(options.mdSyntax){
+
+				WFE_TAG_PRIORITY_REGEXP.forEach(function(regexp){
+					textListApply(node.title, "".replace, [regexp, function(e,$1,$2){
+						var wfe = new WFE($1,$2);
+						return wfe.toString();
+					}]);
+
+					textListApply(node.note, "".replace, [regexp, function(e,$1,$2){
+						var wfe = new WFE($1,$2);
+						return wfe.toString();
+					}]);
+				})
+
+
+				// Replace mdSyntax-ALIAS by eyo-tag
+				if(mdSyntax){
 
 					textListApply(node.title, "".replace, [/\\(.)/ig, function(e,$1){
 						var r = $1.charCodeAt(0).toString(16);
@@ -651,10 +696,12 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				textListApply(node.note, "".replaceTag, [WF_TAG_REGEXP, " "]);
 			}
 
-			node.title=insertObj(node.title, regexCodeLatex, CodeLatex);
-			node.note=insertObj(node.note, regexCodeLatex, CodeLatex);
+			if(latexSyntax){
+				node.title=insertObj(node.title, regexCodeLatex, CodeLatex);
+				node.note=insertObj(node.note, regexCodeLatex, CodeLatex);
+			}
 
-			if(options.mdSyntax){
+			if(mdSyntax){
 				node.title=insertObj(node.title, regexCode, Code);
 				node.title=insertObj(node.title, regexImage, Image);
 				node.title=insertObj(node.title, regexLink, Link);
@@ -664,7 +711,6 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				node.note=insertObj(node.note, regexImage, Image);
 				node.note=insertObj(node.note, regexLink, Link);
 				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
-
 
 				textListApply(node.title, "".replace, [/\\u([\dA-F]{4})/gi, function(e,$1){
 					return String.fromCharCode(parseInt($1, 16));
@@ -718,7 +764,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 			node.indent = Array(node.level+1).join(options.prefix_indent_chars);
 
-			if(verbatim){
+			if(escaping){
 				ESCAPE_CHARACTER[options.format].forEach(function(e) {
 					textListApply(node.title, "".replaceAll, [e[0], e[1]]);
 					textListApply(node.note, "".replaceAll, [e[0], e[1]]);
@@ -739,8 +785,10 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		}
 		ignore_item = false;
 		ignore_outline = false;
-		verbatim = true;
+		escaping = true;
 		page_break = false;
+		latexSyntax = options.latexSyntax;
+		mdSyntax = options.mdSyntax;
 
 		node.doneApplyRulesNodesTree=true; //rapide fix !  Don't exacly understand why with ignore item the children are call applyRulesNodesTree twice
 		var i = 0;
