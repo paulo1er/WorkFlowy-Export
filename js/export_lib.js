@@ -1,27 +1,24 @@
 var exportLib = function(nodes, options, title, email, ALIAS) {
-	// private method
-	var getElement, exportNodesTree, exportNodesTreeBody;
+	var exportNodesTree, exportNodesTreeBody, applyRulesNodesTree;	// important private method
+
 	var d = new Date();
 	var date = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][d.getMonth()] + " " + d.getDate() +", " + d.getFullYear();
-	var wfe_count={};
-	var wfe_count_ID={};
-	var TABLE_REGEXP = /^\s*\|/;
-	var BQ_REGEXP = /^\>/;
-	var LIST_REGEXP = /^((\*|\-|\+)\s|[0-9]+\.\s)/;
-	var WF_TAG_REGEXP = /((^|\s|,|:|;|\/)(#|@)[a-z][a-z0-9\-_:]*($|\s|,|;|\/))/i;
-	//  the good regex but use XRegExp and don't solve all probleme too.
-	//  (^|\s|[(),.!?';:\/\[\]])([#@]([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*(:([\p{L}\p{Nd}][\p{L}\p{Nd}\-_]*))*))(?=$|\s|[(),.!?';:\/\[\]])
-	var WFE_TAG_REGEXP = /(?:^|\s)#(?:(?:wfe)|(?:eyo))-([\w-]*)(?::([\w-:]*))?/ig;
+
+	var WF_TAG_REGEXP = /((^|\s|,|:|;|\/)(#|@)[a-z][a-z0-9\-_:]*($|\s|,|;|\/))/i; //select all TAG
+	var WFE_TAG_REGEXP = /(?:^|\s)#(?:(?:wfe)|(?:eyo))-([\w-]*)(?::([\w-:]*))?/ig; //select all eyo-TAG
 
 	var WFE_TAG_PRIORITY = ["escaping", "mdSyntax", "latexSyntax", "verbatim"];
-	var WFE_TAG_PRIORITY_REGEXP = [];
+	var WFE_TAG_PRIORITY_REGEXP = []; //list of RegExp for select Priority TAG
 	WFE_TAG_PRIORITY.forEach(function(e){
 		WFE_TAG_PRIORITY_REGEXP.push( new RegExp("(?:^|\\s)#(?:(?:wfe)|(?:eyo))-(" + e +")(?::([\\w-:]*))?", "ig"));
 	});
 
 	var counter_item=[0,0,0,0,0,0];
 	var counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
+	var wfe_count={};
+	var wfe_count_ID={};
 
+	//option for each node (Can bechange with wfe tag)
 	var ignore_item = false;
 	var ignore_outline = false;
 	var escaping = true;
@@ -282,15 +279,6 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			rtf: [["\\","\\\\"],["{","\\{"],["}","\\}"]]
 		};
 
-	getElement = function(line) {
-		var e;
-		if (line.match(TABLE_REGEXP)) e = "TABLE";
-		else if (line.match(BQ_REGEXP)) e = "QUOTE";
-		else if (line.match(LIST_REGEXP)) e = "LIST";
-		else e = "PARAGRAPH";
-		return e;
-	};
-
 	//create a regular expression with txtFind isRegex and isMatchCase
 	function functionRegexFind(txtFind, isRegex, isMatchCase){
 		var temp_find="";
@@ -431,17 +419,17 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 	}
 
 	exportNodesTree = function(nodesTree, options) {
-		allStyle = defaultSTYLESHEET.get(options.format);
+		allStyle = defaultSTYLESHEET.get(options.format);  //get all style who can be used
 
 		options.findReplace.forEach(function(e) {
 			if(e!=null){
-				e.regexFind = functionRegexFind(e.txtFind, e.isRegex, e.isMatchCase);
+				e.regexFind = functionRegexFind(e.txtFind, e.isRegex, e.isMatchCase); //create the regex object
 			}
 		});
 
-		applyRulesNodesTree(nodesTree, options);
+		applyRulesNodesTree(nodesTree, options); //first read of the tree for apply the rules
 		ESCAPE_CHARACTER[options.format].forEach(function(e) {
-			title = title.replaceAll(e[0], e[1]);
+			title = title.replaceAll(e[0], e[1]); //escaping character for the title
 		});
 		var HEADER = {
 			text: "",
@@ -476,14 +464,15 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		if(!options.fragment) header = HEADER[options.format];
 		console.log("header", header);
 
-		// Create footer text
-		if(!options.fragment) footer = FOOTER[options.format];
-		console.log("footer", footer);
-
 		// Create body text
 		console.log("convert node to text : ", nodesTree, options);
 		body = exportNodesTreeBody(nodesTree, options);
 
+		// Create footer text
+		if(!options.fragment) footer = FOOTER[options.format];
+		console.log("footer", footer);
+
+		//reset the globla variable
 		wfe_count={};
 		wfe_count_ID={};
 		counter_enumeration=[[0, null], [0, null], [0, null], [0, null], [0, null], [0, null]];
@@ -494,12 +483,12 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		return header + body + footer;
 	}
 
-	function applyRulesNodesTree(l_node, options){
+	applyRulesNodesTree = function(l_node, options){
 		node = l_node;
 		if(node.type != "dummy"){
-
 			// Not a dummy node
 
+			//update information of the this node depend of the parent information
 			node.level=node.parent.level+1;
 
 			if(!node.scopeNode && node.parent.scopeNode) node.scopeNode = node.parent.scopeNode;
@@ -517,6 +506,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 			if(node.level>6) node.level=6;
 
+			//define the default Style for this node
 			if(node.scopeNode){
 				node.styleName = copy(node.scopeNode.styleName);
 				node.style = copy(node.scopeNode.style);
@@ -602,6 +592,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 					node.style.changeType("CompleteChild");
 			}
 
+			//change the imported "object text" by using my "object text"
 			node.title.forEach(function(e, i) {
 				node.title[i] = (new TextExported(e.text, e.isUnderline, e.isBold, e.isItalic, e.isStrike));
 			});
@@ -612,7 +603,6 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 			//find and Replace
 			options.findReplace.forEach(function(e) {
-				//console.log("apply find and replace",e);
 				if(e!=null){
 					textListApply(node.title, "".replace, [e.regexFind, e.txtReplace]);
 					textListApply(node.note, "".replace, [e.regexFind, e.txtReplace]);
@@ -628,6 +618,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				});
 
 
+				//Apply the Priority tags rules
 				WFE_TAG_PRIORITY_REGEXP.forEach(function(regexp){
 					textListApply(node.title, "".replace, [regexp, function(e,$1,$2){
 						var wfe = new WFE($1,$2);
@@ -644,6 +635,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				// Replace mdSyntax-ALIAS by eyo-tag
 				if(mdSyntax){
 
+					//change \a by \u0097		Used to for markdown escaping
 					textListApply(node.title, "".replace, [/\\(.)/ig, function(e,$1){
 						var r = $1.charCodeAt(0).toString(16);
 						r = Array(5-r.length).join("0")+r;
@@ -679,6 +671,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 					});
 				}
 
+				//Apply the EYO tags rules
 				textListApply(node.title, "".replace, [WFE_TAG_REGEXP, function(e,$1,$2){
 					var wfe = new WFE($1,$2);
 					return wfe.toString();
@@ -697,21 +690,25 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			}
 
 			if(latexSyntax){
-				node.title=insertObj(node.title, regexCodeLatex, CodeLatex);
-				node.note=insertObj(node.note, regexCodeLatex, CodeLatex);
+				// change the LaTeX syntax
+				node.title=insertObj(node.title, regexCodeLatex, CodeLatex); //$x+y=z$
+				node.note=insertObj(node.note, regexCodeLatex, CodeLatex); //$x+y=z$
 			}
 
 			if(mdSyntax){
-				node.title=insertObj(node.title, regexCode, Code);
-				node.title=insertObj(node.title, regexImage, Image);
-				node.title=insertObj(node.title, regexLink, Link);
-				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
+				// change the MarkDown syntax
+				node.title=insertObj(node.title, regexCode, Code); //`code`
+				node.title=insertObj(node.title, regexImage, Image); //![](Image)
+				node.title=insertObj(node.title, regexLink, Link); //[google](google.fr)
+				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList); //**Bold** _Italic_ ~strike~
 
-				node.note=insertObj(node.note, regexCode, Code);
-				node.note=insertObj(node.note, regexImage, Image);
-				node.note=insertObj(node.note, regexLink, Link);
-				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList);
+				node.note=insertObj(node.note, regexCode, Code); //`code`
+				node.note=insertObj(node.note, regexImage, Image); //![](Image)
+				node.note=insertObj(node.note, regexLink, Link); //[google](google.fr)
+				node.title=insertObj(node.title, regexMdSyntax, mdSyntaxToList); //**Bold** _Italic_ ~strike~
 
+
+				//change \u0097 by \a		Used to for markdown escaping
 				textListApply(node.title, "".replace, [/\\u([\dA-F]{4})/gi, function(e,$1){
 					return String.fromCharCode(parseInt($1, 16));
 				}]);
@@ -721,6 +718,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				}]);
 			}
 
+ 			//add the style of the node in STYLESHEETused same for COLORSHEETused and FONTSHEETused
 			console.log("style :", node.style);
 			STYLESHEETused.addStyle(node.styleName);
 			if(node.note.length != 0) STYLESHEETused.addStyle("Note");
@@ -729,6 +727,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			COLORSHEETused.addColor(node.style.background_color);
 			FONTSHEETused.addFont(node.style.font);
 
+			//update the bullet character
 			if((node.style instanceof Style_Bullet) || (node.style instanceof Style_rtf)){
 				var i=-1;
 				switch (node.style.name) {
@@ -762,8 +761,10 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 				}
 			}
 
+			//update the indentation
 			node.indent = Array(node.level+1).join(options.prefix_indent_chars);
 
+			//escape the character
 			if(escaping){
 				ESCAPE_CHARACTER[options.format].forEach(function(e) {
 					textListApply(node.title, "".replaceAll, [e[0], e[1]]);
@@ -772,10 +773,13 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 			}
 		}
 		node.page_break = page_break;
+		//delete children if ignore_outline
 		if(ignore_outline){
 			node.parent.children.remove(node);
 			node.children = [];
 		}
+
+		//delete node if ignore_item
 		else if(ignore_item) {
 			for(var i=0; i<node.children.length; i++){
 		    node.children[i].parent = node.parent;
@@ -783,6 +787,8 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		  }
 			node.parent.children.replace(node, node.children);
 		}
+
+		//reset node option before recurtion
 		ignore_item = false;
 		ignore_outline = false;
 		escaping = true;
@@ -790,14 +796,14 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		latexSyntax = options.latexSyntax;
 		mdSyntax = options.mdSyntax;
 
-		node.doneApplyRulesNodesTree=true; //rapide fix !  Don't exacly understand why with ignore item the children are call applyRulesNodesTree twice
+		node.doneApplyRulesNodesTree=true; //rapide fix !  Don't exacly understand why with #eyo-ignore_item the children are call applyRulesNodesTree twice
 		var i = 0;
 		while(i < l_node.children.length){
 			var childNode = l_node.children[i];
 			ALIASmdSyntax_enumList_index.forEach(function(e,j){
 				if(j>childNode.level) ALIASmdSyntax_enumList_index[j]=0;
 			})
-			if(!childNode.doneApplyRulesNodesTree) applyRulesNodesTree(childNode, options);
+			if(!childNode.doneApplyRulesNodesTree) applyRulesNodesTree(childNode, options); //recursion for children
 			if(childNode == l_node.children[i])i++;
 		}
 	}
@@ -815,7 +821,9 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 
 
 		if(node.type == "node"){
-			// Update output
+			//not a dummy node
+
+			// apply all the options to have the final text
 			if(options.format == 'markdown'){
 				indent = Array(node.style.level+1).join(options.prefix_indent_chars);
 				output += indent + node.style.toExport(text);
@@ -1001,7 +1009,7 @@ var exportLib = function(nodes, options, title, email, ALIAS) {
 		console.log("Apply recursion to: ", node.children);
 		for (var i = 0; i < l_node.children.length; i++)
 		{
-			output += exportNodesTreeBody(l_node.children[i], options);
+			output += exportNodesTreeBody(l_node.children[i], options); //recursion for the childrens
 		}
 
 		output += output_after_children;
