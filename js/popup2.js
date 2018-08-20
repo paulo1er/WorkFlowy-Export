@@ -687,25 +687,6 @@ var popup2 = (function() {
                 });
                 break;
             }
-            if($("#wfeRules").is(':checked')){
-              $("#mdSyntax").prop({
-                "disabled": false
-              });
-              $("#latexSyntax").prop({
-                "disabled": false
-              });
-            }
-            else{
-              $("#mdSyntax").prop({
-                "disabled": true,
-                "checked": false
-              });
-              $("#latexSyntax").prop({
-                "disabled": true,
-                "checked": false
-              });
-
-            }
             $("#formOptions label").each(function(){
               if($('#' + $(this).attr('for')).prop("disabled"))
                 $(this).css("color", "#777");
