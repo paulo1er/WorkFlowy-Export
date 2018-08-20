@@ -90,6 +90,9 @@ var popup2 = (function() {
 						if(profileList[newkey].mdSyntax) $("#yourProfile-mdSyntax").html(HTML_true);
 						else $("#yourProfile-mdSyntax").html(HTML_false);
 
+						if(profileList[newkey].latexSyntax) $("#yourProfile-latexSyntax").html(HTML_true);
+						else $("#yourProfile-latexSyntax").html(HTML_false);
+
 						if(profileList[newkey].fragment) $("#yourProfile-fragment").html(HTML_true);
 						else $("#yourProfile-fragment").html(HTML_false);
 
@@ -132,6 +135,9 @@ var popup2 = (function() {
 
 						if(newProfile.mdSyntax) $("#newProfile-mdSyntax").html(HTML_true);
 						else $("#newProfile-mdSyntax").html(HTML_false);
+
+						if(newProfile.latexSyntax) $("#newProfile-latexSyntax").html(HTML_true);
+						else $("#newProfile-latexSyntax").html(HTML_false);
 
 						if(newProfile.fragment) $("#newProfile-fragment").html(HTML_true);
 						else $("#newProfile-fragment").html(HTML_false);
@@ -199,6 +205,7 @@ var popup2 = (function() {
 						document.getElementById("outputNotes").checked = profile.outputNotes;
 						document.getElementById("stripTags").checked =	profile.ignore_tags;
 						document.getElementById("mdSyntax").checked = profile.mdSyntax;
+						document.getElementById("latexSyntax").checked = profile.latexSyntax;
 						document.getElementById("fragment").checked = profile.fragment;
 						document.getElementById("complete").checked = profile.complete;
 						document.getElementById("insertLine").checked = (profile.item_sep == "\n\n");
@@ -414,6 +421,7 @@ var popup2 = (function() {
 						curent_profile.outputNotes = document.getElementById("outputNotes").checked;
 						curent_profile.ignore_tags = document.getElementById("stripTags").checked;
 						curent_profile.mdSyntax = document.getElementById("mdSyntax").checked;
+						curent_profile.latexSyntax = document.getElementById("latexSyntax").checked;
 						curent_profile.fragment = document.getElementById("fragment").checked;
 						curent_profile.complete = document.getElementById("complete").checked;
 						console.log(curent_profile);

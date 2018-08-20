@@ -184,17 +184,23 @@
 											<div id="col2" class="col-xs-12 col-sm-6 col-md-12 col-lg-6 autoRefresh">
 											<div id="formOptions" class="well">
 												<p class="text-center">Options</p>
-												<div class="input-group input-group-sm">
-												  <span class="input-group-addon">
-														<input type="checkbox" id="stripTags" class="form-check-input">
-													</span>
-												  <label class="form-control" for="stripTags">Strip Tags</label>
-												</div>
 												<div class="input-group input-group-sm" input-group-sm>
 												  <span class="input-group-addon">
 														<input type="checkbox" id="outputNotes" class="form-check-input">
 													</span>
 												  <label class="form-control" for="outputNotes">Include Notes</label>
+												</div>
+												<div class="input-group input-group-sm">
+													<span class="input-group-addon">
+														<input type="checkbox" id="complete" name="complete" class="form-check-input with-gap">
+													</span>
+													<label class="form-control" for="complete">Complete</label>
+												</div>
+												<div class="input-group input-group-sm">
+													<span class="input-group-addon">
+														<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
+													</span>
+													<label class="form-control" for="fragment">Fragment</label>
 												</div>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -204,9 +210,9 @@
 												</div>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
-														<input type="checkbox" id="mdSyntax" class="form-check-input">
+														<input type="checkbox" id="stripTags" class="form-check-input">
 													</span>
-												  <label class="form-control" for="mdSyntax">Parse Markdown syntax</label>
+												  <label class="form-control" for="stripTags">Strip Tags</label>
 												</div>
 												<div class="input-group input-group-sm">
 												  <span class="input-group-addon">
@@ -215,16 +221,16 @@
 												  <label class="form-control" for="wfeRules">Expert Mode</label>
 												</div>
 												<div class="input-group input-group-sm">
-													<span class="input-group-addon">
-														<input type="checkbox" id="fragment" name="fragment" class="form-check-input with-gap">
+												  <span class="input-group-addon">
+														<input type="checkbox" id="mdSyntax" class="form-check-input">
 													</span>
-													<label class="form-control" for="fragment">Fragment</label>
+												  <label class="form-control" for="mdSyntax">Parse Markdown syntax</label>
 												</div>
 												<div class="input-group input-group-sm">
-													<span class="input-group-addon">
-														<input type="checkbox" id="complete" name="complete" class="form-check-input with-gap">
+												  <span class="input-group-addon">
+														<input type="checkbox" id="latexSyntax" class="form-check-input">
 													</span>
-													<label class="form-control" for="complete">Complete</label>
+												  <label class="form-control" for="latexSyntax">Parse LaTeX syntax</label>
 												</div>
 											</div>
 											</div>
@@ -445,29 +451,9 @@
 									<div class="col-sm-4 bg-primary text-center">New Profile</div>
 							</div>
 							<div class="row">
-									<div class="col-sm-4 bg-primary">format</div>
+									<div class="col-sm-4 bg-primary">Output format</div>
 									<div class="col-sm-4 bg-info text-center" id="yourProfile-format"></div>
 									<div class="col-sm-4 bg-info text-center" id="newProfile-format"></div>
-							</div>
-							<div class="row">
-									<div class="col-sm-4 bg-primary">parentDefaultItemStyle</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-parentDefaultItemStyle"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-parentDefaultItemStyle"></div>
-							</div>
-							<div class="row">
-									<div class="col-sm-4 bg-primary">childDefaultItemStyle</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-childDefaultItemStyle"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-childDefaultItemStyle"></div>
-							</div>
-							<div class="row">
-									<div class="col-sm-4 bg-primary">parent indent chars</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-parentIndent_chars"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-parentIndent_chars"></div>
-							</div>
-							<div class="row">
-									<div class="col-sm-4 bg-primary">child indent chars</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-childIndent_chars"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-childIndent_chars"></div>
 							</div>
 							<div class="row">
 									<div class="col-sm-4 bg-primary">Indentation</div>
@@ -475,29 +461,34 @@
 									<div class="col-sm-4 bg-info text-center" id="newProfile-prefix_indent_chars"></div>
 							</div>
 							<div class="row">
-									<div class="col-sm-4 bg-primary">Add line break</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-item_sep"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-item_sep"></div>
+									<div class="col-sm-4 bg-primary">Style (parent)</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-parentDefaultItemStyle"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-parentDefaultItemStyle"></div>
 							</div>
 							<div class="row">
-									<div class="col-sm-4 bg-primary">Export Mode</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-applyWFERules"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-applyWFERules"></div>
+									<div class="col-sm-4 bg-primary">Bullet character (parent)</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-parentIndent_chars"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-parentIndent_chars"></div>
 							</div>
 							<div class="row">
-									<div class="col-sm-4 bg-primary">output Notes</div>
+									<div class="col-sm-4 bg-primary">Style (children)</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-childDefaultItemStyle"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-childDefaultItemStyle"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Bullet character (children)</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-childIndent_chars"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-childIndent_chars"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Include Notes</div>
 									<div class="col-sm-4 bg-info text-center" id="yourProfile-outputNotes"></div>
 									<div class="col-sm-4 bg-info text-center" id="newProfile-outputNotes"></div>
 							</div>
 							<div class="row">
-									<div class="col-sm-4 bg-primary">ignore tags</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-ignore_tags"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-ignore_tags"></div>
-							</div>
-							<div class="row">
-									<div class="col-sm-4 bg-primary">Parse Markdown syntax</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-mdSyntax"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-mdSyntax"></div>
+									<div class="col-sm-4 bg-primary">Complete</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-complete"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-complete"></div>
 							</div>
 							<div class="row">
 									<div class="col-sm-4 bg-primary">Fragment</div>
@@ -505,9 +496,29 @@
 									<div class="col-sm-4 bg-info text-center" id="newProfile-fragment"></div>
 							</div>
 							<div class="row">
-									<div class="col-sm-4 bg-primary">Complete</div>
-									<div class="col-sm-4 bg-info text-center" id="yourProfile-complete"></div>
-									<div class="col-sm-4 bg-info text-center" id="newProfile-complete"></div>
+									<div class="col-sm-4 bg-primary">Additional line break</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-item_sep"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-item_sep"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Strip tags</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-ignore_tags"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-ignore_tags"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Expert Mode</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-applyWFERules"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-applyWFERules"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Parse Markdown syntax</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-mdSyntax"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-mdSyntax"></div>
+							</div>
+							<div class="row">
+									<div class="col-sm-4 bg-primary">Parse LaTeX syntax</div>
+									<div class="col-sm-4 bg-info text-center" id="yourProfile-latexSyntax"></div>
+									<div class="col-sm-4 bg-info text-center" id="newProfile-latexSyntax"></div>
 							</div>
 							<div class="row">
 									<div class="col-sm-4 bg-primary">Nb Find and Replace</div>

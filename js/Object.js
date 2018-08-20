@@ -36,6 +36,7 @@ class Profile{
   	this.outputNotes = ((p.outputNotes!=null) ? p.outputNotes : false),
   	this.ignore_tags = ((p.ignore_tags!=null) ? p.ignore_tags : true),
   	this.mdSyntax = ((p.mdSyntax!=null) ? p.mdSyntax : false),
+  	this.latexSyntax = ((p.latexSyntax!=null) ? p.latexSyntax : false),
   	this.findReplace = copy(((p.findReplace!=null) ? p.findReplace : [])),
   	this.fragment = ((p.fragment!=null) ? p.fragment : false),
   	this.complete = ((p.complete!=null) ? p.complete : false)
@@ -275,12 +276,12 @@ function initProfileList(storageProfileList=null){
 	}
 	else{
 		r = {
-			"list" : new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false, complete: false}),
-			"HTML doc" : new Profile({name: "HTML doc", format: "html", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
-			"RTF doc" : new Profile({name: "RTF doc", format: "rtf", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
-			"LaTeX Report" : new Profile({name: "LaTeX Report", format: "latex", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
-			"OPML" : new Profile({name: "OPML", format: "opml", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, findReplace: [], fragment: false, complete: false}),
-			"LaTeX Beamer" : new Profile({name: "LaTeX Beamer", format: "beamer", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true,mdSyntax:  true, findReplace: [], fragment: false, complete: false})
+			"list" : new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, latexSyntax: false, findReplace: [], fragment: false, complete: false}),
+			"HTML doc" : new Profile({name: "HTML doc", format: "html", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, latexSyntax: true, findReplace: [], fragment: false, complete: false}),
+			"RTF doc" : new Profile({name: "RTF doc", format: "rtf", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, latexSyntax: true, findReplace: [], fragment: false, complete: false}),
+			"LaTeX Report" : new Profile({name: "LaTeX Report", format: "latex", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: true, latexSyntax: true, findReplace: [], fragment: false, complete: false}),
+			"OPML" : new Profile({name: "OPML", format: "opml", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true, mdSyntax: false, latexSyntax: false, findReplace: [], fragment: false, complete: false}),
+			"LaTeX Beamer" : new Profile({name: "LaTeX Beamer", format: "beamer", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "", item_sep: "\n", applyWFERules: true, outputNotes: false, ignore_tags: true,mdSyntax:  true, latexSyntax: true, findReplace: [], fragment: false, complete: false})
 		};
 		chrome.storage.sync.set({'profileList' : r}, function() {
 			console.log("profileList init");
@@ -300,7 +301,7 @@ function initCurentProfile(storageCurentProfile=null){
 		r = new Profile(storageCurentProfile);
 	}
 	else{
-		r = new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, findReplace: [], fragment: false, complete: false}),
+		r = new Profile({name: "list", format: "text", parentDefaultItemStyle: "None", childDefaultItemStyle: "None", parentIndent_chars: "", childIndent_chars: "", prefix_indent_chars: "\t", item_sep: "\n", applyWFERules: false, outputNotes: false, ignore_tags: true, mdSyntax: false, latexSyntax: false, findReplace: [], fragment: false, complete: false}),
 		chrome.storage.sync.set({'curent_profile' : r}, function() {
 			console.log("curent_profile init");
 		});
