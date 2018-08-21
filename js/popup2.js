@@ -609,9 +609,11 @@ var popup2 = (function() {
               $("#childDefaultItemStyle").val("None");
               $("#parentBulletCaracter").hide();
               $("#childBulletCaracter").hide();
+              $("#labelComplete").text("Remember item complition");
             }
             else{
               $("#formDefaultItemStyle select").prop("disabled", false);
+              $("#labelComplete").text("Grey out completed items");
             }
 
             if(	($("#parentDefaultItemStyle").val() == "Bullet") && (format == "text"))
