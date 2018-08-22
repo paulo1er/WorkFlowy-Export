@@ -609,7 +609,7 @@ var popup2 = (function() {
               $("#childDefaultItemStyle").val("None");
               $("#parentBulletCaracter").hide();
               $("#childBulletCaracter").hide();
-              $("#labelComplete").text("Remember item complition");
+              $("#labelComplete").text("Remember item completion");
             }
             else{
               $("#formDefaultItemStyle select").prop("disabled", false);
