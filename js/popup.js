@@ -13,8 +13,8 @@
 						windowPopup2.focus();
 						windowPopup2.addEventListener('load', function(){
 							windowPopup2.popup2.main(tabs[0].id);
+							window.close();
 						}, true);
-						window.close();
 						break;
 					case "rememberSize" :
 						var top = (window.screen.availHeight-windowSize.height)/2;
@@ -23,8 +23,8 @@
 						windowPopup2.focus();
 						windowPopup2.addEventListener('load', function(){
 							windowPopup2.popup2.main(tabs[0].id);
+							window.close();
 						}, true);
-						window.close();
 						break;
 					case "noWindow" :
 						none(tabs[0].id, function(){
@@ -41,8 +41,8 @@
 						windowPopup2.focus();
 						windowPopup2.addEventListener('load', function(){
 							windowPopup2.popup2.main(tabs[0].id);
+							window.close();
 						}, true);
-						window.close();
 						break;
 				}
 			});
