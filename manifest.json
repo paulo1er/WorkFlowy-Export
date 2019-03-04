@@ -3,8 +3,8 @@
 
   "name": "Export your outline",
   "short_name": "EYO",
-  "version": "0.9.4",
-  "version_name": "Beta 0.9.4",
+  "version": "0.9.8",
+  "version_name": "Beta 0.9.8",
   "description": "__MSG_Manifestdesc__",
   "icons" : {
     "16": "image/icon16.png",

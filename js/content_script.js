@@ -73,7 +73,14 @@
 		callback(result);
 	}
 
+function injectJS(){
+	var s = document.createElement('script');
+	s.innerText = "(function(){ var div = document.createElement('div'); div.id='userEmail'; try {div.innerText=JSON.parse(window.localStorage['userstorage.settings']).email;} catch (e) {div.innerText='';} (document.head||document.documentElement).appendChild(div);})();";
+	(document.head||document.documentElement).appendChild(s);
+}
+
 	function main() {
+		injectJS();
 		// show icon in address bar
 		chrome.runtime.sendMessage({
 			type: 'showIcon'
