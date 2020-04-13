@@ -1,6 +1,6 @@
 {
   "Manifestdesc": {
-    "message": "Export WorkFlowy to various formats including RTF and LaTeX."
+    "message": "Export WorkFlowy and Dynalist documents to various text markup formats, including RTF and LaTeX."
   },
   "OpenWorkFlowy": {
     "message": "Reload last exported WorkFlowy outline."
