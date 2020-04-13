@@ -1,10 +1,10 @@
 {
 "update_url": "https://clients2.google.com/service/update2/crx",
 
-  "name": "Outline Export",
-  "short_name": "OEXP",
-  "version": "0.6.9",
-  "version_name": "Beta 0.6.9",
+  "name": "Export your outline",
+  "short_name": "EYO",
+  "version": "0.9.8",
+  "version_name": "Beta 0.9.8",
   "description": "__MSG_Manifestdesc__",
   "icons" : {
     "16": "image/icon16.png",
@@ -27,8 +27,8 @@
     },
     "open_workflowy": {
       "suggested_key": {
-        "default": "Alt+Z",
-        "mac": "Alt+Z"
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
       },
       "description": "__MSG_OpenWorkFlowy__"
     }
@@ -60,7 +60,7 @@
   ],
 
   "page_action": {
-    "default_name": "Outline Export",
+    "default_name": "Export your outline",
     "default_popup": "popup.html"
   },
 

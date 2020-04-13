@@ -111,10 +111,10 @@ class TextExported{
 					before = before + "\\textbf{";
 					after = "}" + after;
 				}
-				/* if(this.isItalic){
+				if(this.isItalic){
 					before = before + "\\textit{";
 					after = "}" + after;
-				} quick fix EP */
+				}
 				if(this.isStrike){
 					before = before + "\\sout{";
 					after = "}" + after;
@@ -318,7 +318,7 @@ function initTextAreaStyle(storageTextAreaStyle){
     r={
       "font-family" : "Arial",
       "font-size" : 14,
-      "expandFormatChoice" : true // EP Preference
+      "expandFormatChoice" : false
     };
     chrome.storage.local.set({'textAreaStyle' : r}, function() {
       console.log("textAreaStyle init");
@@ -334,7 +334,7 @@ function initRefreshOptions(storageRefreshOptions){
   }
   else {
     r={
-      "autoCopy" : true, // EP Preference
+      "autoCopy" : false,
       "autoDownload" : false,
       "autoReload" : true
     };
@@ -367,13 +367,11 @@ function initWindowSize(storageWindowSize){
 
 function initALIAS(storageALIAS){
 	var r;
-
   if(storageALIAS){
     r = copy(storageALIAS);
   }
   else {
     r = [
-	  	["#eyo-style:Heading0","h0"],
   		["#eyo-style:Heading1","h1"],
   		["#eyo-style:Heading2","h2"],
   		["#eyo-style:Heading3","h3"],
@@ -803,9 +801,6 @@ class Style_html extends Style{
 	toString(defaultStyle){
       if(!defaultStyle) {
         switch (this.tag){
-          case "h0" :
-            defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 9.38, 9.38, "ARIAL", 28, false, false, false, false, "BLACK", "WHITE", "h1");
-            break;
           case "h1" :
             defaultStyle= new Style_html("", -1, "left", 0, 0, 0, 9.38, 9.38, "ARIAL", 28, false, false, false, false, "BLACK", "WHITE", "h1");
             break;
@@ -956,10 +951,10 @@ class Style_latex extends Style{
 			before += "\\textbf{";
 			after = "}"+after;
     }
-    /*if(this.italic){
+    if(this.italic){
 			before += "\\textit{";
 			after = "}"+after;
-    } quick fix EP */
+    }
     if(this.underline){
 			before += "\\uline{";
 			after = "}"+after;
@@ -1037,7 +1032,6 @@ var defaultSTYLESHEET={
 	markdown : {
 		Normal : new Style("Normal", -1, "", "\n\n"),
 		Note : new Style("Note", -1, "", "\n\n"),
-		Heading0 : "Heading", // EP
 		Heading1 : new Style("Heading1", -1, "# ", "\n\n"),
 		Heading2 : new Style("Heading2", -1, "## ", "\n\n"),
 		Heading3 : new Style("Heading3", -1, "### ", "\n\n"),
@@ -1062,11 +1056,9 @@ var defaultSTYLESHEET={
 	latex : {
 		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
-		Heading0 : new Style_latex("Heading0", 1,"\\chapter{", "}\n", "BLACK", "WHITE", false, false, false, false),
-		Heading1 : new Style_latex("Heading1", 1,"\\section{", "}\n", "BLACK", "WHITE", false, false, false, false),
-		Heading2 : new Style_latex("Heading2", 2, "\\subsection{", "}\n", "BLACK", "WHITE", false, false, false, false),
-		Heading3 : new Style_latex("Heading3", 3, "\\subsubsection{", "}\n", "BLACK", "WHITE", false, false, false, false),
-		Heading4 : new Style_latex("Heading4", 3, "\\paragraph{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Heading1 : new Style_latex("Heading1", 1,"\\begin{section}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Heading2 : new Style_latex("Heading2", 2, "\\begin{subsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
+		Heading3 : new Style_latex("Heading3", 3, "\\begin{subsubsection}{", "}\n", "BLACK", "WHITE", false, false, false, false),
 		Theorem : new Style_latex("Theorem", -1, "\\begin{theorem}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Proposition : new Style_latex("Proposition", -1, "\\begin{proposition}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
 		Lemma : new Style_latex("Lemma", -1, "\\begin{lemma}\n", "\n\n", "BLACK", "WHITE", false, false, false, false),
@@ -1092,9 +1084,8 @@ var defaultSTYLESHEET={
 	},
 	beamer : {
 		Normal : new Style_latex("Normal", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
-		Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
-		Heading : new Style_latex("Heading", -1, "", "\n\n", "BLACK", "WHITE", true, false, false, false),
-		Heading0 : "Heading", // EP
+  	Note : new Style_latex("Note", -1, "", "\n\n", "BLACK", "WHITE", false, false, false, false),
+  	Heading : new Style_latex("Heading", -1, "", "\n\n", "BLACK", "WHITE", true, false, false, false),
 		Heading1 : "Heading",
 		Heading2 : "Heading",
 		Heading3 : "Heading",

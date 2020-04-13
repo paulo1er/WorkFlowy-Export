@@ -994,7 +994,7 @@ var popup2 = (function() {
 						hideFindAndReplace = initHideFindAndReplace(storageL.hideFindAndReplace);
 
             ALIAS = initALIAS(storageS.ALIAS);
-			debugger;
+
             chrome.storage.onChanged.addListener(function(changes, namespace){
               if ("ALIAS" in changes) {
                 ALIAS = changes["ALIAS"].newValue;
