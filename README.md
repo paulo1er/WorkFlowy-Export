@@ -1,7 +1,7 @@
 Export your outline
 ===================
 Export your outline from [WorkFlowy](https://www.workflowy.com) and from [Dynalist](https://www.dynalist.io) to various formats including RTF and LaTeX.
-The extension have a lot of options to create your document, and settings to customize your interface.
+The extension has a lot of options to create your document, and settings to customize your interface.
 
 
 The options

@@ -80,7 +80,7 @@
     $("#autoReload").prop("checked", refreshOptions["autoReload"]);
     $("#fragment").prop("checked", refreshOptions["fragment"]);
     $('#fontFamily').val(textAreaStyle["font-family"]);
-    $('#expandFormatChoice').val(textAreaStyle["expandFormatChoice"]);
+    $("#expandFormatChoice").val(textAreaStyle["expandFormatChoice"]);
     $('#fontSize').val(textAreaStyle["font-size"]);
 
     ALIAS.forEach(function(a, i){

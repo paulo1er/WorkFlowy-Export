@@ -3,8 +3,9 @@
 	function elementsToArray(e, level) {
 		var list = [];
 		var nodeID;
+		var i = 0;
 		e.each(function(){
-			list.push({
+			var n = {
 				type: 'node',
 				title: elementToText($(this).children(".name").children(".content")),
 				note: elementToText($(this).children(".notes").children(".content")),
@@ -12,10 +13,13 @@
 				level: level,
 				complete: $(this).hasClass("done"),
 				children: []
-			});
-			console.log("Node", list[list.length-1]);
+			};
+			//console.log('Node', n.title[0].text, n.level);
+			list.push(n);
+			//console.log("Node[", list.length-1, "]:", list[list.length-1]);
 			$(this).children(".children").children().each(function(){
 				if($(this).text()!= ""){
+					//console.log('Recurse to level', level+1);
 					list = list.concat(elementsToArray($(this), level+1));
 				}
 			});
@@ -45,6 +49,8 @@
 		var elements = cloneE.contents();
 		var list = [];
 		elements.each( function( index ){
+			// debugger;
+			try{ console.log($(this)); } catch (e) {} ;
 			var text = $(this).text();
 			if(text != '')
 				list.push(new TextExported(text, $(this).hasClass("contentUnderline"), $(this).hasClass("contentBold"), $(this).hasClass("contentItalic")));
@@ -60,6 +66,8 @@
 		if (nodeList.length==0){
 			nodeList = $('div.selected');
 		}
+		console.log("getContent: nodes retrieved: ", nodeList.length);
+		nodeList.each(function(){ console.log('each');});
 		var email = document.getElementById("userEmail").innerText;
 		chrome.storage.sync.set({'lastURL' : url}, function() {});
 		var content = elementsToArray(nodeList, 0);
