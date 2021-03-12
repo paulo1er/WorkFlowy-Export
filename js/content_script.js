@@ -49,6 +49,8 @@
 		});
 
 		cloneE.html(cloneE.html().replace(/\n+$/g, ''));
+		// https://stackoverflow.com/questions/298750/how-do-i-select-text-nodes-with-jquery/298758#298758
+		// https://api.jquery.com/parentsUntil/
 		var elements = cloneE.contents();
 		var inner_elements;
 		var list = [];
@@ -137,6 +139,7 @@
 	function injectJS(){
 		var s = document.createElement('script');
 		
+		// Inject script creating user settings div element 
 		s.innerText = "(function(){ var div = document.createElement('div'); div.id='userEmail'; try {div.innerText=JSON.parse(window.localStorage['userstorage.settings']).email;} catch (e) {div.innerText='';} (document.head||document.documentElement).appendChild(div);})();";
 		
 		(document.head||document.documentElement).appendChild(s);
