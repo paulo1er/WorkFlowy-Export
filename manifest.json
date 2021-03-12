@@ -21,14 +21,14 @@
   "commands": {
     "_execute_page_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+E",
-        "mac": "Command+Shift+E"
+        "default": "Alt+Z",
+        "mac": "Alt+Z"
       }
     },
     "open_workflowy": {
       "suggested_key": {
-        "default": "Alt+Z",
-        "mac": "Alt+Z"
+        "default": "Alt+W",
+        "mac": "Alt+W"
       },
       "description": "__MSG_OpenWorkFlowy__"
     }
@@ -51,6 +51,7 @@
         ]
     }
   ],
+  
 
   "permissions": [
     "activeTab",
