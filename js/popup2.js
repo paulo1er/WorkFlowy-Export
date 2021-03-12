@@ -1,28 +1,30 @@
 var popup2 = (function() {
 	//chrome.storage.sync.clear(function (){}); //For cleaning the storage
 
-  function close(e) {
-      e = e || window.event;
-      if (e.keyCode == '27') {
-				window.close();
-      }
-  };
-	document.addEventListener('keyup', close, false);
+function close(e) {
+	e = e || window.event;
+	if (e.keyCode == '27') 
+	{
+		window.close();
+	}
+};
+document.addEventListener('keyup', close, false);
 
-  function disableF5(e) { if (e.keyCode == 116 || (e.keyCode == 82 && e.ctrlKey)) e.preventDefault(); };
-  document.addEventListener('keydown', disableF5, false);
+function disableF5(e) { 
+	if (e.keyCode == 116 || (e.keyCode == 82 && e.ctrlKey)) e.preventDefault(); 
+};
+document.addEventListener('keydown', disableF5, false);
 
+$(document).ready(function(){
+	$('[data-toggle="tooltip"]').tooltip();
+});
 
-  $(document).ready(function(){
-      $('[data-toggle="tooltip"]').tooltip();
-  });
-
-	chrome.storage.onChanged.addListener(function(changes, namespace) {
-		for (key in changes) {
-			var storageChange = changes[key];
-			console.log("Storage key ",key," in namespace ",namespace," changed. Old value was ",storageChange.oldValue,", new value is ",storageChange.newValue,".");
-		}
-	});
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+	for (key in changes) {
+		var storageChange = changes[key];
+		console.log("Storage key ",key," in namespace ",namespace," changed. Old value was ",storageChange.oldValue,", new value is ",storageChange.newValue,".");
+	}
+});
 
 	function closeExtentionOnCloseWorkFlowy(currentTabId){
 		//close the extention when the WorkFlowy tab is closed
@@ -630,6 +632,9 @@ var popup2 = (function() {
 							case "text":
 								$("#formIndentation").show();
 								break;
+							case "html":
+								$("#formIndentation").show();
+								break;
 							default:
 								$("#formIndentation").hide();
   							$("#indentOptions").val("none");
@@ -994,7 +999,7 @@ var popup2 = (function() {
 						hideFindAndReplace = initHideFindAndReplace(storageL.hideFindAndReplace);
 
             ALIAS = initALIAS(storageS.ALIAS);
-
+			
             chrome.storage.onChanged.addListener(function(changes, namespace){
               if ("ALIAS" in changes) {
                 ALIAS = changes["ALIAS"].newValue;
@@ -1052,8 +1057,8 @@ var popup2 = (function() {
 		});
 	}
 
-	return{
-		main : function(currentTabId) {
+return{
+	main : function(currentTabId) {
 			loading(function(callback){
 				return load(currentTabId, callback);
 			});
